@@ -226,6 +226,34 @@
         }
       }
     };
+    window.simulateNextSeasonGame = async function () {
+      if (phase === "playoffs") return;
+      if (!seasonCalendar || seasonCalendar.season !== seasonYear) {
+        if (typeof initializeSeasonCalendar !== "function" || !initializeSeasonCalendar()) return;
+      }
+      const teamCode = ($("scheduleTeamFilter") && $("scheduleTeamFilter").value) || (seasonCalendar.teams[0] && seasonCalendar.teams[0].scheduleCode);
+      const nextGame = seasonCalendar.games.filter(game => game.status !== "completed" && (game.home.code === teamCode || game.away.code === teamCode)).sort((a,b) => a.round-b.round)[0];
+      if (!nextGame) {
+        const status = $("seasonStatus");
+        if (status) status.textContent = "Tous les matchs de cette équipe sont déjà simulés.";
+        return;
+      }
+      await window.simulateThroughRound(nextGame.round);
+      const log = $("gameLog");
+      if (log) log.textContent = "Journée simulée : " + nextGame.home.name + " " + nextGame.homeScore + " – " + nextGame.awayScore + " " + nextGame.away.name + ".";
+      if (nextGame.status === "completed" && typeof window.NBAMyNBAShowRegularBox === "function") window.NBAMyNBAShowRegularBox(nextGame);
+    };
+    document.addEventListener("click", async function (event) {
+      const tile = event.target.closest("#seasonCalendarView button[data-game-id]");
+      if (!tile || tile.disabled || !seasonCalendar) return;
+      const game = seasonCalendar.games.find(item => String(item.id) === String(tile.dataset.gameId));
+      if (!game || game.status === "completed") return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+      await window.simulateThroughRound(game.round);
+      if (game.status === "completed" && typeof window.NBAMyNBAShowRegularBox === "function") window.NBAMyNBAShowRegularBox(game);
+    }, true);
     document.addEventListener("click", function (event) {
       const button = event.target.closest("#simulateSeason");
       if (!button) return;
