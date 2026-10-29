@@ -197,7 +197,7 @@
       id: "trade-" + Date.now() + "-" + Math.floor(Math.random() * 100000),
       date: data.date || new Date().toISOString(),
       season: Number(data.season) || currentSeason(),
-      round: Number(data.round) || 0,
+      round: Number(data.round) || seasonRound(null),
       kind: String(data.kind || "ai-ai"),
       from: String(data.from || ""),
       to: String(data.to || ""),
