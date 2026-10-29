@@ -233,6 +233,7 @@
     // load() already rendered the imported state. Do not call renderAll a second time.
     if (Array.isArray(customTeams) && customTeams.length) {
       hideOverlay();
+      if (window.NBASimDraftState && typeof phase !== "undefined" && phase === "playoffs") showInteractiveDraft();
     } else {
       beginTeamSetup();
     }
@@ -278,8 +279,12 @@
     const pickNo = position + 1;
     const draftOrderMarkup = orderedTeams.map((t, i) => '<div style="display:flex;justify-content:space-between;gap:12px;padding:7px 10px;border-bottom:1px solid #263958;'+(t.code === team.code ? 'background:#1c3553;color:#fff;font-weight:800;' : 'color:#aebed8;')+'"><span>#'+(i+1)+' · '+escGM(t.name||t.code)+'</span><span>'+escGM(t.code)+'</span></div>').join("");
     draftPickTeam = team;
+    const savedDraftState = window.NBASimDraftState;
     const usedProspectNames = new Set(players.map(p => p.name));
-    prospects = Array.from({length:6},(_,i) => makeRookie(Math.max(.15,.98-(pickNo-1)*.035-i*.055),team.code,resultsLabel||"MyGM",pickNo+i,usedProspectNames));
+    prospects = savedDraftState && savedDraftState.teamCode === team.code && Array.isArray(savedDraftState.prospects) && savedDraftState.prospects.length
+      ? savedDraftState.prospects
+      : Array.from({length:6},(_,i) => makeRookie(Math.max(.15,.98-(pickNo-1)*.035-i*.055),team.code,resultsLabel||"MyGM",pickNo+i,usedProspectNames));
+    window.NBASimDraftState = { teamCode: team.code, pickNo, prospects };
     overlay.hidden = false;
     document.body.classList.add("gm-startup");
     document.body.style.overflow = "hidden";
@@ -320,6 +325,7 @@
         lastDraft.rows.push({n:pickNo,round:1,team:draftPickTeam.name,code:draftPickTeam.code,player:selected});
       }
       if (typeof renderAll === "function") renderAll();
+      window.NBASimDraftState = null;
       hideOverlay();
       const note = $("customTeamStatus");
       if (note) note.textContent = "Draft terminée : "+selected.name+" rejoint "+draftPickTeam.name+".";
