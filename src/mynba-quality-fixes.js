@@ -346,12 +346,13 @@ function autoMinutes(code) {
   const roster=playersForTeam(code);
   if(!roster.length)return {sum:0,count:0};
   const weight=p=>{
-    const s=actual[String(p.id)]||{};
-    const gp=Number(s.gp)||0;
-    const previousPPG=gp?(Number(s.pts)||0)/gp:(Number(p.pts)||0);
-    const previousAPG=gp?(Number(s.ast)||0)/gp:(Number(p.ast)||0);
-    const previousRPG=gp?(Number(s.reb)||0)/gp:(Number(p.reb)||0);
-    return Math.max(1,overall(p)*.75+previousPPG*.65+previousAPG*.45+previousRPG*.25);
+    const a=p.attributes||{};
+    const rating=Math.max(20,overall(p));
+    const roleMinutes=clamp(Number(p.mpg)||20,8,40);
+    const stamina=clamp(Number(a.stamina)||50,20,99);
+    const athleticism=(Number(a.speed)||50)+(Number(a.agility)||50)+(Number(a.durability)||50);
+    // Rotation priority follows OVR, stamina, role and athletic traits, never per-game box-score averages.
+    return Math.max(1,Math.pow(Math.max(1,rating-35),1.55)*(0.88+roleMinutes/200)*(0.90+stamina/500)*(0.94+athleticism/3000));
   };
   let minutes=new Map(roster.map(p=>[String(p.id),0]));
   let remaining=roster.length>=5?240:roster.length*48;
