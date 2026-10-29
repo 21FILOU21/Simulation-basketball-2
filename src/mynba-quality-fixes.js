@@ -346,12 +346,13 @@ function autoMinutes(code) {
   const roster=playersForTeam(code);
   if(!roster.length)return {sum:0,count:0};
   const weight=p=>{
-    const s=actual[String(p.id)]||{};
-    const gp=Number(s.gp)||0;
-    const previousPPG=gp?(Number(s.pts)||0)/gp:(Number(p.pts)||0);
-    const previousAPG=gp?(Number(s.ast)||0)/gp:(Number(p.ast)||0);
-    const previousRPG=gp?(Number(s.reb)||0)/gp:(Number(p.reb)||0);
-    return Math.max(1,overall(p)*.75+previousPPG*.65+previousAPG*.45+previousRPG*.25);
+    const a=p.attributes||{};
+    const rating=Math.max(20,overall(p));
+    const stamina=clamp(Number(a.stamina)||50,20,99);
+    const athleticism=(Number(a.speed)||50)+(Number(a.agility)||50)+(Number(a.durability)||50);
+    const positionalFit=({PG:Number(a.playmaking)||50,SG:Number(a.threePoint)||50,SF:Number(a.perimeterDefense)||50,PF:Number(a.strength)||50,C:Number(a.block)||50})[String(p.pos||"").toUpperCase()]||50;
+    // Rotation priority follows OVR, stamina, athletic traits and position-specific skills, never per-game averages.
+    return Math.max(1,Math.pow(Math.max(1,rating-35),1.55)*(0.90+stamina/500)*(0.94+athleticism/3000)*(0.96+positionalFit/1250));
   };
   let minutes=new Map(roster.map(p=>[String(p.id),0]));
   let remaining=roster.length>=5?240:roster.length*48;
