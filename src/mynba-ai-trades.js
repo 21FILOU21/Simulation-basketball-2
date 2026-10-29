@@ -508,7 +508,6 @@
         renderSeasonRecap();
         installSettingsUi();
         syncSettingsControls();
-        persist();
         return result;
       };
       render.__mynbaAITradesWrapped = true;
@@ -531,9 +530,10 @@
   function install() {
     installCss();
     installSettingsUi();
-    enforceRosterCaps();
+    const rosterWasRepaired = enforceRosterCaps();
     refreshStrengths();
     wrapSimulation();
+    if (rosterWasRepaired && typeof window.NBAMyNBARefreshAfterAITrade === "function") window.NBAMyNBARefreshAfterAITrade();
     syncSettingsControls();
     persist();
     const panelObserver = new MutationObserver(function () { installSettingsUi(); syncSettingsControls(); });
