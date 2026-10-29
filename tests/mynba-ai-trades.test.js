@@ -31,6 +31,6 @@ assert.match(nav, /potentialGain:gain/, "Mentorship must store a potential benef
 assert.doesNotMatch(engine, /baselinePoints|baselineAssists/, "Season PPG/APG must not drive automatic shot/touch tendencies.");
 assert.doesNotMatch(engine, /num\(l\.p\.pts,\s*0\)/, "Season PPG must not drive usage in simulated games.");
 assert.doesNotMatch(fixes, /previousPPG|previousAPG|previousRPG/, "Season averages must not drive automatic minute assignments.");
-assert.match(fixes, /window\\.NBASimEnsureRosterCaps\\s*=\\s*enforceRosterCaps/, "Roster-cap enforcement must be available to the rest of the game.");
+assert.match(ai, /window\.NBASimEnsureRosterCaps\s*=\s*enforceRosterCaps/, "Roster-cap enforcement must be available to the rest of the game.");
 
 console.log("OK — trades IA, refus automatique, limite d’effectif, mentorat et minutes basées sur les attributs.");
