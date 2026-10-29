@@ -25,6 +25,8 @@ assert.match(settings, /speed: "normal", batchDays: "all", pauseMs: 700/, "Defau
 assert.match(settings, /const SPEEDS = \{ slow: 2, normal: 1, fast: 0\.25, instant: 0 \}/, "Speed presets must affect batch pacing.");
 assert.match(settings, /Number\(g\.round\) === round && g\.status !== "completed"/, "Simulation must process one calendar round at a time.");
 assert.match(settings, /await wait\(effectivePause\(\)\)/, "Simulation must pause between rounds.");
+assert.match(settings, /window\.runAll = async function/, "Full-year simulation must await the day-by-day batch runner.");
+assert.match(settings, /Finish the Finals MVP|Finals MVP/, "The batch runner must preserve the interactive offseason flow.");
 assert.match(gm, /Ordre de sélection · \$\{orderedTeams\.length\} équipes/, "Interactive draft must show the selection order.");
 assert.match(gm, /window\.NBASimDraftState = \{ teamCode: team\.code, pickNo, prospects \}/, "The in-progress draft and available prospects must be persisted.");
 assert.match(gm, /window\.NBASimDraftState = null/, "Completed draft state must be cleared.");
