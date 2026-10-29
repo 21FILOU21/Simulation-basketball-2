@@ -8,6 +8,7 @@
   let settings = normalize(window.NBASimSimulationSettings || readLocal());
   let running = false;
   let runningPromise = null;
+  let cancelRequested = false;
   let originalSimulateThroughRound = null;
   let originalBuildSeason = null;
 
@@ -96,7 +97,7 @@
             <button class="btn primary" type="button" id="mynbaSimSaveSettings">Enregistrer les réglages</button>
             <button class="btn gold" type="button" id="mynbaSimRunBatch">Simuler selon ces réglages</button>
           </div>
-          <p id="mynbaSimStatus" role="status" aria-live="polite"></p>
+          <p id="mynbaSimStatus" role="status" aria-live="polite"></p><p class="muted">Pendant la simulation, appuie sur <kbd>Backspace</kbd> pour arrêter après la journée en cours.</p>
         </div>
       </div>`;
     document.body.appendChild(panel);
@@ -164,23 +165,27 @@
       return;
     }
     running = true;
+    cancelRequested = false;
     const statusNode = () => $("mynbaSimStatus") || $("seasonStatus");
     runningPromise = (async () => {
       try {
+        let completedThisRun = 0;
         for (let i=0; i<chosenRounds.length; i++) {
+          if (cancelRequested) break;
           const round = chosenRounds[i];
           const games = seasonCalendar.games.filter(g => Number(g.round) === round && g.status !== "completed");
           games.forEach(game => { if (typeof simulateScheduledGame === "function") simulateScheduledGame(game); });
           if (typeof updateTeamSeasonAverages === "function") updateTeamSeasonAverages();
           if (typeof renderAll === "function") renderAll();
+          completedThisRun++;
           const done = seasonCalendar.games.filter(g => g.status === "completed").length;
           const status = statusNode();
           if (status) status.textContent = "Simulation en cours : journée " + round + " terminée (" + done + "/" + seasonCalendar.games.length + " matchs).";
-          if (i < chosenRounds.length - 1) await wait(effectivePause());
+          if (i < chosenRounds.length - 1 && !cancelRequested) await wait(effectivePause());
         }
         const remaining = seasonCalendar.games.filter(g => g.status !== "completed").length;
         const status = statusNode();
-        if (status) status.textContent = remaining ? "Lot terminé : " + chosenRounds.length + " journée(s) simulée(s), " + remaining + " match(s) restant(s)." : "Saison régulière terminée : tous les matchs sont simulés.";
+        if (status) status.textContent = cancelRequested ? "Simulation arrêtée avec Backspace après " + completedThisRun + " journée(s). Les résultats déjà simulés sont conservés." : remaining ? "Lot terminé : " + completedThisRun + " journée(s) simulée(s), " + remaining + " match(s) restant(s)." : "Saison régulière terminée : tous les matchs sont simulés.";
         if (typeof renderAll === "function") renderAll();
       } finally {
         running = false;
@@ -270,6 +275,16 @@
     addSettingsCard();
     ensurePanel();
     installBatchRunner();
+    document.addEventListener("keydown", function (event) {
+      if (event.key !== "Backspace" || !running) return;
+      if (event.target && /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+      cancelRequested = true;
+      const status = $("mynbaSimStatus") || $("seasonStatus");
+      if (status) status.textContent = "Arrêt demandé… la journée en cours sera terminée avant l’arrêt.";
+    }, true);
     document.addEventListener("mynba:save-load-result", function (event) {
       if (event.detail && event.detail.ok) {
         settings = normalize(window.NBASimSimulationSettings || settings);
