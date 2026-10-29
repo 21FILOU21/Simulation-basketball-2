@@ -281,8 +281,11 @@
     draftPickTeam = team;
     const savedDraftState = window.NBASimDraftState;
     const usedProspectNames = new Set(players.map(p => p.name));
-    prospects = savedDraftState && savedDraftState.teamCode === team.code && Array.isArray(savedDraftState.prospects) && savedDraftState.prospects.length
-      ? savedDraftState.prospects
+    const restoredProspects = savedDraftState && savedDraftState.teamCode === team.code && Array.isArray(savedDraftState.prospects)
+      ? savedDraftState.prospects.filter(p => p && p.id != null && typeof p.name === "string" && typeof p.pos === "string" && ["pts","reb","ast","age"].every(key => Number.isFinite(Number(p[key])))).map(p => ({ ...p, pts: Number(p.pts), reb: Number(p.reb), ast: Number(p.ast), age: Number(p.age) }))
+      : [];
+    prospects = restoredProspects.length
+      ? restoredProspects
       : Array.from({length:6},(_,i) => makeRookie(Math.max(.15,.98-(pickNo-1)*.035-i*.055),team.code,resultsLabel||"MyGM",pickNo+i,usedProspectNames));
     window.NBASimDraftState = { teamCode: team.code, pickNo, prospects };
     overlay.hidden = false;
