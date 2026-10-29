@@ -39,7 +39,7 @@ assert.match(presentation, /class="playoff-series series-clickable" data-open-se
 assert.match(presentation, /addEventListener\('keydown',e=>\{const card=e\.target\.closest\('\[data-open-series\]\[role="button"\]'\)/, "Playoff matchup cards should support Enter and Space.");
 assert.doesNotMatch(presentation, /Ouvrir la confrontation/, "The separate open-confrontation button should be removed.");
 assert.match(presentation, /🏀 Intersaison · saison suivante/, "The Finals MVP screen should offer the next-season transition.");
-assert.match(presentation, /finalsOverlay=null;runOffseason\(\)/, "Continuing from the Finals MVP screen should trigger progression, retirements, and the draft.");
+assert.match(presentation, /finalsOverlay=null;const offseasonButton=document\.getElementById\(\x27runOffseason\x27\);if\(offseasonButton\)offseasonButton\.click\(\);else runOffseason\(\)/, "Continuing from Finals MVP must pass through the interactive MyGM draft handler.");
 assert.match(presentation, /while\(playoffs&&!playoffs\.champion&&guard\+\+<500\)/, "Simulate playoffs should advance safely until a champion is decided.");
 assert.match(presentation, /function showFinalsMvp\(\)/, "The Finals MVP screen should appear after the champion confirmation.");
 assert.doesNotMatch(presentation, /Aucune récompense disponible\./, "The awards screen should recover if preview cards are missing.");
