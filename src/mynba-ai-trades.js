@@ -44,10 +44,12 @@
   }
   function position(p) { return String(p && (p.pos || p.position) || "SF").toUpperCase().split(/[\/, ]/)[0]; }
   function potential(p) {
+    if (p && p.potential != null && p.attributes == null) return clamp(p.potential, 40, 99);
     const attrs = p && p.attributes || {};
     return clamp(attrs.potential == null ? (typeof window.overallRating === "function" ? window.overallRating(p) : 60) : attrs.potential, 40, 99);
   }
   function rating(p) {
+    if (p && p.ovr != null && p.attributes == null) return clamp(p.ovr, 20, 99);
     try { return typeof window.overallRating === "function" ? clamp(window.overallRating(p), 20, 99) : 60; }
     catch (_) { return 60; }
   }
@@ -61,6 +63,9 @@
     return Math.round(rating(p) * 1.55 + potential(p) * .62 + ageModifier + skillPremium);
   }
   function snapshot(p) {
+    if (p && p.ovr != null && p.potential != null && p.value != null && p.attributes == null) {
+      return { id: p.id, name: String(p.name || "Joueur"), pos: position(p), age: Number(p.age) || 0, ovr: rating(p), potential: potential(p), value: Number(p.value) || playerValue(p) };
+    }
     return {
       id: p && p.id,
       name: String(p && p.name || "Joueur"),
@@ -435,7 +440,8 @@
     const checkbox = $("mynbaAIAutoDeclineSetting");
     if (checkbox) checkbox.checked = window.NBASimAIAutoDecline === true;
     const stateLabel = $("mynbaAIAutoDeclineStatus");
-    if (stateLabel) stateLabel.textContent = window.NBASimAIAutoDecline ? "ON · les propositions reçues seront refusées automatiquement." : "OFF · chaque proposition peut être acceptée ou refusée manuellement.";
+    const nextLabel = window.NBASimAIAutoDecline ? "ON · les propositions reçues seront refusées automatiquement." : "OFF · chaque proposition peut être acceptée ou refusée manuellement.";
+    if (stateLabel && stateLabel.textContent !== nextLabel) stateLabel.textContent = nextLabel;
   }
   function installSettingsUi() {
     const panel = $("mynbaSimulationSettingsPanel");
