@@ -30,6 +30,8 @@ assert.match(nav, /overallGain:overallGain/, "Mentorship must store an OVR benef
 assert.match(nav, /potentialGain:gain/, "Mentorship must store a potential benefit.");
 assert.doesNotMatch(engine, /baselinePoints|baselineAssists/, "Season PPG/APG must not drive automatic shot/touch tendencies.");
 assert.doesNotMatch(engine, /num\(l\.p\.pts,\s*0\)/, "Season PPG must not drive usage in simulated games.");
+assert.doesNotMatch(engine, /\.mpg/, "Prior minutes-per-game averages must not drive selection or simulated playing time.");
+assert.match(engine, /const matchup = distance === 0 \? 1\.65/, "Same-position defensive matchups must be weighted in shot defense.");
 assert.doesNotMatch(fixes, /previousPPG|previousAPG|previousRPG/, "Season averages must not drive automatic minute assignments.");
 assert.match(ai, /window\.NBASimEnsureRosterCaps\s*=\s*enforceRosterCaps/, "Roster-cap enforcement must be available to the rest of the game.");
 
