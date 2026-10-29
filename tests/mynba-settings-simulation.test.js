@@ -17,12 +17,17 @@ new Function(nav);
 assert.match(html, /src="src\/mynba-settings-simulation\.js"/, "Settings module must be loaded.");
 assert.match(html, /simulationSettings: window\.NBASimSimulationSettings/, "Primary save must persist simulation settings.");
 assert.match(html, /savedState\.simulationSettings[\s\S]*?window\.NBASimSimulationSettings/, "Loading a save must restore simulation settings.");
+assert.match(html, /savedState\.draftState[\s\S]*?window\.NBASimDraftState/, "Loading a save must restore an interrupted draft.");
 assert.match(nav, /simulationSettings:window\.NBASimSimulationSettings/, "MyNBA save export must persist simulation settings.");
+assert.match(nav, /draftState:window\.NBASimDraftState/, "MyNBA save export must persist an interrupted draft.");
+assert.match(nav, /i===cats\.length&&\$\("mynbaSimulationSettingsCard"\)/, "Settings must be reachable through keyboard category navigation.");
 assert.match(settings, /speed: "normal", batchDays: "all", pauseMs: 700/, "Defaults should be normal speed, full-season batch, 700 ms.");
 assert.match(settings, /const SPEEDS = \{ slow: 2, normal: 1, fast: 0\.25, instant: 0 \}/, "Speed presets must affect batch pacing.");
 assert.match(settings, /Number\(g\.round\) === round && g\.status !== "completed"/, "Simulation must process one calendar round at a time.");
 assert.match(settings, /await wait\(effectivePause\(\)\)/, "Simulation must pause between rounds.");
 assert.match(gm, /Ordre de sélection · \$\{orderedTeams\.length\} équipes/, "Interactive draft must show the selection order.");
+assert.match(gm, /window\.NBASimDraftState = \{ teamCode: team\.code, pickNo, prospects \}/, "The in-progress draft and available prospects must be persisted.");
+assert.match(gm, /window\.NBASimDraftState = null/, "Completed draft state must be cleared.");
 assert.match(gm, /Prospects disponibles pour ton choix #\$\{pickNo\}/, "User must be able to choose a prospect for their franchise.");
 assert.match(presentation, /offseasonButton\.click\(\);else runOffseason\(\)/, "Finals MVP continuation must route through the interactive draft handler.");
 
