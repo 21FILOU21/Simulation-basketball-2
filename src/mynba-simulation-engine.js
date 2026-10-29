@@ -14,11 +14,10 @@
     const offense = attr(p, ["offensiveIQ", "offense", "offensiveAwareness", "shotIQ"], 50);
     const finishing = attr(p, ["finishing", "layup", "closeShot"], 50);
     const playmaking = attr(p, ["playmaking", "passing", "passAccuracy", "passIQ"], 50);
-    const baselinePoints = num(p && p.pts, 0);
-    const baselineAssists = num(p && p.ast, 0);
-    const shot = clamp(22 + baselinePoints * 2.0 + shooting * .25 + offense * .13, 12, 94);
-    const touch = clamp(22 + baselinePoints * 1.5 + baselineAssists * 1.9 + playmaking * .23 + finishing * .08, 12, 96);
-    const three = clamp(.24 + (shooting - 60) * .005 + (baselinePoints > 18 ? .025 : 0), .08, .58);
+    // Season box-score averages describe past results; only attributes drive player usage and shot profile.
+    const shot = clamp(22 + shooting * .24 + offense * .20 + finishing * .08, 12, 94);
+    const touch = clamp(24 + playmaking * .42 + finishing * .10 + offense * .10, 12, 96);
+    const three = clamp(.24 + (shooting - 60) * .005, .08, .58);
     return { shot, touch, three };
   };
   const pickWeighted = (rows, weight) => {
@@ -41,8 +40,13 @@
   function makeSide(code, teamDef) {
     const roster = rosterFor(code);
     const lines = roster.map(p => ({ p, pts: 0, reb: 0, ast: 0, stl: 0, blk: 0, tov: 0, fgm: 0, fga: 0, threeMade: 0, threeAttempts: 0, ftm: 0, fta: 0, pf: 0, minutes: 0, gp: 0, form: 0, usage: 1 }));
-    const totalMpg = lines.reduce((sum, l) => sum + Math.max(0, num(l.p.mpg, 20)), 0);
-    if (totalMpg > 0) lines.forEach(l => { l.minutes = clamp(Math.round(240 * Math.max(0, num(l.p.mpg, 20)) / totalMpg), 0, 48); });
+    // Use the MyNBA rotation plan when present, instead of bypassing it with raw roster MPG.
+    const minutePreference = l => {
+      const configured = typeof window.NBAMyNBAMinutes === "function" ? Number(window.NBAMyNBAMinutes(l.p)) : Number(l.p.mpg);
+      return Number.isFinite(configured) ? clamp(configured, 0, 48) : 20;
+    };
+    const totalMpg = lines.reduce((sum, l) => sum + minutePreference(l), 0);
+    if (totalMpg > 0) lines.forEach(l => { l.minutes = clamp(Math.round(240 * minutePreference(l) / totalMpg), 0, 48); });
     if (lines.length && lines.every(l => !l.minutes)) lines.slice(0, 5).forEach(l => { l.minutes = 48; });
     // Correct rounding while preserving the 240 team-minute budget and the 48-minute player cap.
     let difference = 240 - lines.reduce((sum, l) => sum + l.minutes, 0);
@@ -64,7 +68,6 @@
       const scorer = attr(l.p, ["threePoint", "threePointShot", "threePointShooting", "shooting", "finishing"], 50);
       l.usage = Math.max(.15, l.minutes / 32) *
         (.5 + tendency.touch / 100 * .65) *
-        (.62 + Math.max(0, num(l.p.pts, 0)) / 22) *
         (.72 + attr(l.p, ["offensiveIQ", "shotIQ"], 50) / 190) *
         (.85 + scorer / 330 + creation / 600);
     });
@@ -85,8 +88,19 @@
     if (!offense.active.length || !defense.active.length) return;
     const handler = pickWeighted(offense.active, l => l.usage * (.7 + attr(l.p, ["ballHandle", "playmaking", "offensiveIQ"], 50) / 220));
     if (!handler) return;
-    const defender = pickWeighted(defense.active, l => Math.max(.1, l.minutes / 30) *
-      (.55 + attr(l.p, ["steal", "perimeterDefense", "defensiveIQ"], 50) / 145));
+    const positionIndex = p => {
+      const raw = String(p && (p.pos || p.position) || "").toUpperCase();
+      const first = raw.split(/[\\/, ]/)[0];
+      return ["PG", "SG", "SF", "PF", "C"].indexOf(first);
+    };
+    const offensivePosition = positionIndex(handler.p);
+    const defender = pickWeighted(defense.active, l => {
+      const defensivePosition = positionIndex(l.p);
+      const distance = offensivePosition < 0 || defensivePosition < 0 ? 2 : Math.abs(offensivePosition - defensivePosition);
+      const matchup = distance === 0 ? 1.65 : distance === 1 ? 1.15 : .78;
+      return Math.max(.1, l.minutes / 30) *
+        (.55 + attr(l.p, ["steal", "perimeterDefense", "defensiveIQ"], 50) / 145) * matchup;
+    });
     const handle = attr(handler.p, ["ballHandle", "playmaking", "passing"], 50);
     const pressure = defender ? (attr(defender.p, ["steal", "perimeterDefense", "defensiveIQ"], 50) - 50) * .0007 : 0;
     const turnoverChance = clamp(.105 + (55 - handle) * .00105 + pressure + (rand() - .5) * .035, .035, .205);
