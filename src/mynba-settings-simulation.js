@@ -22,10 +22,35 @@
   function readLocal() {
     try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (_) { return null; }
   }
+  function applySpeedStyles() {
+    if (!document.body) return;
+    document.body.dataset.simulationSpeed = settings.speed;
+    let style = $("mynbaSimulationSpeedStyles");
+    if (!style) {
+      style = document.createElement("style");
+      style.id = "mynbaSimulationSpeedStyles";
+      document.head.appendChild(style);
+    }
+    style.textContent = `
+      body[data-simulation-speed="slow"] .fullscreen-overlay,
+      body[data-simulation-speed="slow"] .schedule-game,
+      body[data-simulation-speed="slow"] .playoff-series { animation-duration: .7s !important; transition-duration: .45s !important; }
+      body[data-simulation-speed="normal"] .fullscreen-overlay,
+      body[data-simulation-speed="normal"] .schedule-game,
+      body[data-simulation-speed="normal"] .playoff-series { animation-duration: .35s !important; transition-duration: .25s !important; }
+      body[data-simulation-speed="fast"] .fullscreen-overlay,
+      body[data-simulation-speed="fast"] .schedule-game,
+      body[data-simulation-speed="fast"] .playoff-series { animation-duration: .12s !important; transition-duration: .1s !important; }
+      body[data-simulation-speed="instant"] .fullscreen-overlay,
+      body[data-simulation-speed="instant"] .schedule-game,
+      body[data-simulation-speed="instant"] .playoff-series { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+    `;
+  }
   function persist() {
     settings = normalize(settings);
     window.NBASimSimulationSettings = { ...settings };
     try { localStorage.setItem(KEY, JSON.stringify(settings)); } catch (_) {}
+    applySpeedStyles();
     renderSettings();
   }
   function effectivePause() { return Math.round(settings.pauseMs * SPEEDS[settings.speed]); }
@@ -186,6 +211,7 @@
   function install() {
     settings = normalize(window.NBASimSimulationSettings || readLocal() || DEFAULTS);
     window.NBASimSimulationSettings = { ...settings };
+    applySpeedStyles();
     addSettingsCard();
     ensurePanel();
     installBatchRunner();
