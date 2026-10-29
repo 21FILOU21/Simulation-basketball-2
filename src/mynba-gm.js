@@ -233,6 +233,7 @@
     // load() already rendered the imported state. Do not call renderAll a second time.
     if (Array.isArray(customTeams) && customTeams.length) {
       hideOverlay();
+      if (window.NBASimDraftState && typeof phase !== "undefined" && phase === "playoffs") showInteractiveDraft();
     } else {
       beginTeamSetup();
     }
@@ -267,23 +268,37 @@
       return;
     }
     const standings = Array.isArray(seasonResults) ? seasonResults.slice().sort((a,b) => (a.winPct||0)-(b.winPct||0)) : [];
-    let position = standings.findIndex(t => t.code === team.code);
     const championCode = typeof playoffs !== "undefined" && playoffs && playoffs.champion ? playoffs.champion.code : null;
-    if (championCode && championCode === team.code) position = Math.max(0, standings.length - 1);
-    if (position < 0) position = standings.length;
+    if (championCode) {
+      const championIndex = standings.findIndex(t => t.code === championCode);
+      if (championIndex >= 0) standings.push(standings.splice(championIndex, 1)[0]);
+    }
+    const orderedTeams = standings.slice();
+    let position = orderedTeams.findIndex(t => t.code === team.code);
+    if (position < 0) position = orderedTeams.length;
     const pickNo = position + 1;
+    const draftOrderMarkup = orderedTeams.map((t, i) => '<div style="display:flex;justify-content:space-between;gap:12px;padding:7px 10px;border-bottom:1px solid #263958;'+(t.code === team.code ? 'background:#1c3553;color:#fff;font-weight:800;' : 'color:#aebed8;')+'"><span>#'+(i+1)+' · '+escGM(t.name||t.code)+'</span><span>'+escGM(t.code)+'</span></div>').join("");
     draftPickTeam = team;
+    const savedDraftState = window.NBASimDraftState;
     const usedProspectNames = new Set(players.map(p => p.name));
-    prospects = Array.from({length:6},(_,i) => makeRookie(Math.max(.15,.98-(pickNo-1)*.035-i*.055),team.code,resultsLabel||"MyGM",pickNo+i,usedProspectNames));
+    const restoredProspects = savedDraftState && savedDraftState.teamCode === team.code && Array.isArray(savedDraftState.prospects)
+      ? savedDraftState.prospects.filter(p => p && p.id != null && typeof p.name === "string" && typeof p.pos === "string" && ["pts","reb","ast","age"].every(key => Number.isFinite(Number(p[key])))).map(p => ({ ...p, pts: Number(p.pts), reb: Number(p.reb), ast: Number(p.ast), age: Number(p.age) }))
+      : [];
+    prospects = restoredProspects.length
+      ? restoredProspects
+      : Array.from({length:6},(_,i) => makeRookie(Math.max(.15,.98-(pickNo-1)*.035-i*.055),team.code,resultsLabel||"MyGM",pickNo+i,usedProspectNames));
+    window.NBASimDraftState = { teamCode: team.code, pickNo, prospects };
     overlay.hidden = false;
     document.body.classList.add("gm-startup");
     document.body.style.overflow = "hidden";
     card.innerHTML = `
       <div class="gm-brand">APRÈS LES PLAYOFFS · NBA DRAFT</div>
       <h1 class="gm-title" style="font-size:clamp(32px,5vw,52px)">À toi de choisir.</h1>
-      <p class="gm-subtitle">${escGM(team.city||"")} ${escGM(team.name)} sélectionne au choix #${pickNo} selon le classement de la saison régulière : les équipes avec le pire bilan choisissent d'abord. Le champion choisit en dernier.</p>
+      <p class="gm-subtitle">${escGM(team.city||"")} ${escGM(team.name)} sélectionne au choix #${pickNo}. Les équipes sont classées du moins bon bilan au meilleur; le champion sélectionne en dernier. L’IA gérera les autres choix.</p>
+      <details open style="text-align:left;margin:16px 0;background:#0c1628;border:1px solid #263958;border-radius:12px;padding:10px"><summary style="cursor:pointer;font-weight:800">Ordre de sélection · ${orderedTeams.length} équipes</summary><div style="max-height:240px;overflow:auto;margin-top:8px">${draftOrderMarkup}</div></details>
+      <h2 style="text-align:left">Prospects disponibles pour ton choix #${pickNo}</h2>
       <div class="gm-prospects" id="gmProspects"></div>
-      <p class="gm-status">Choisis un prospect pour terminer la Draft et passer à l'intersaison.</p>`;
+      <p class="gm-status">Choisis un prospect. Les choix des autres équipes seront simulés automatiquement, puis l’intersaison sera finalisée.</p>`;
     $("gmProspects").innerHTML = prospects.map((p,i) => `
       <button class="gm-prospect" data-prospect="${i}">
         <b>${escGM(p.name)} · ${escGM(p.pos)}</b><br>
@@ -313,6 +328,7 @@
         lastDraft.rows.push({n:pickNo,round:1,team:draftPickTeam.name,code:draftPickTeam.code,player:selected});
       }
       if (typeof renderAll === "function") renderAll();
+      window.NBASimDraftState = null;
       hideOverlay();
       const note = $("customTeamStatus");
       if (note) note.textContent = "Draft terminée : "+selected.name+" rejoint "+draftPickTeam.name+".";

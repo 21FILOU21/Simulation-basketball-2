@@ -870,6 +870,8 @@
             customTeams = [];
             resetLeague();
             if (savedState) {
+                if (savedState.simulationSettings && typeof savedState.simulationSettings === 'object') window.NBASimSimulationSettings = savedState.simulationSettings;
+                window.NBASimDraftState = savedState.draftState && typeof savedState.draftState === 'object' ? savedState.draftState : null;
                 seasonYear = Number(savedState.seasonYear) || 2025;
                 phase = ['idle', 'regular', 'playoffs'].includes(savedState.phase) ? savedState.phase : 'idle';
                 resultsLabel = savedState.resultsLabel || '';
@@ -999,7 +1001,7 @@
                 }
             }
             const data = {
-                format: 'nba-sim-lab-save', version: 4, seasonYear, phase, resultsLabel, nextPlayerId, followedPlayerId, players, seasonCalendar,
+                format: 'nba-sim-lab-save', version: 5, simulationSettings: window.NBASimSimulationSettings || { speed: 'normal', batchDays: 'all', pauseMs: 700 }, draftState: window.NBASimDraftState || null, seasonYear, phase, resultsLabel, nextPlayerId, followedPlayerId, players, seasonCalendar,
                 customTeams, nextCustomTeamId, history, retired, lastAwards, lastOffseason,
                 lastDraft: lastDraft ? { season: lastDraft.season, rows: lastDraft.rows.map(row => ({ ...row, player: undefined, playerId: row.player.id })) } : null,
                 seasonResults, seasonLines: Object.fromEntries(seasonLines), seasonStatHistory,
@@ -2460,6 +2462,7 @@
     <script src="src/mynba-simulation-engine.js"></script>
 <script src="src/mynba-playoffs-home.js"></script>
     <script src="src/mynba-gm.js"></script>
+    <script src="src/mynba-settings-simulation.js"></script>
 </body>
 
 </html>
