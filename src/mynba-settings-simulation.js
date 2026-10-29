@@ -201,6 +201,31 @@
     window.simulateThroughRound = function (targetRound) { return runRounds(targetRound, false); };
     if (typeof window.buildSeason === "function" && !originalBuildSeason) originalBuildSeason = window.buildSeason;
     window.buildSeason = function () { return runSeasonBatch(); };
+    // The legacy one-year helpers were synchronous. Await the new batch runner so
+    // they cannot start playoffs before the regular season finishes or bypass the draft.
+    window.runAll = async function () {
+      if (phase !== "playoffs") {
+        await runSeasonBatch();
+        if (phase === "regular" && typeof initializePlayoffs === "function") initializePlayoffs();
+      }
+      if (phase === "playoffs" && playoffs && !playoffs.champion) {
+        if (typeof simulatePlayoffsToConferenceFinals === "function") simulatePlayoffsToConferenceFinals();
+        if (playoffs.final && !playoffs.champion && typeof completePlayoffSeries === "function") completePlayoffSeries(playoffs.final);
+      }
+      // Keep the Finals MVP -> interactive draft flow under the user's control.
+      if (phase === "playoffs" && playoffs && playoffs.champion) return;
+    };
+    window.runYears = async function (count) {
+      const years = Math.max(1, Math.min(20, Number(count) || 1));
+      for (let i = 0; i < years; i++) {
+        await window.runAll();
+        if (phase === "playoffs" && playoffs && playoffs.champion) {
+          const status = $("seasonStatus");
+          if (status) status.textContent = "Saison terminée. Termine l’écran Finals MVP et le draft avant de lancer l’année suivante.";
+          break;
+        }
+      }
+    };
     document.addEventListener("click", function (event) {
       const button = event.target.closest("#simulateSeason");
       if (!button) return;
