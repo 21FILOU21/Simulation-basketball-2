@@ -133,6 +133,8 @@
     const panel = $("mynbaSimulationSettingsPanel");
     if (!panel) return;
     document.querySelectorAll(".mynba-screen").forEach(screen => { if (screen !== panel) screen.hidden = true; });
+    const menu = $("mynbaMenu");
+    if (menu) menu.hidden = true;
     panel.hidden = false;
     renderSettings();
     panel.scrollIntoView({ behavior: settings.speed === "instant" ? "auto" : "smooth", block: "start" });
@@ -140,8 +142,8 @@
   function closeSettings() {
     const panel = $("mynbaSimulationSettingsPanel");
     if (panel) panel.hidden = true;
-    const home = $("mynbaHomeScreen");
-    if (home) home.hidden = false;
+    const menu = $("mynbaMenu");
+    if (menu) menu.hidden = false;
   }
   async function runRounds(targetRound, respectBatchLimit) {
     if (running) return runningPromise;
