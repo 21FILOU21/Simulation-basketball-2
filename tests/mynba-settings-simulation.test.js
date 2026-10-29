@@ -25,6 +25,14 @@ assert.match(settings, /speed: "normal", batchDays: "all", pauseMs: 700/, "Defau
 assert.match(settings, /const SPEEDS = \{ slow: 2, normal: 1, fast: 0\.25, instant: 0 \}/, "Speed presets must affect batch pacing.");
 assert.match(settings, /Number\(g\.round\) === round && g\.status !== "completed"/, "Simulation must process one calendar round at a time.");
 assert.match(settings, /await wait\(effectivePause\(\)\)/, "Simulation must pause between rounds.");
+assert.match(settings, /event\.key !== "Backspace" \|\| !running/, "Backspace must request cancellation while the season simulation is running.");
+assert.match(settings, /cancelRequested \? "Simulation arrêtée avec Backspace/, "The status must confirm a graceful stop and preserve completed results.");
+assert.match(nav, /mynbaMentorRookie/, "View Roster must allow choosing a young player for mentorship.");
+assert.match(nav, /mynbaMentorVeteran/, "View Roster must allow choosing an older mentor.");
+assert.match(nav, /Number\(p\.age\)<25/, "Only players younger than 25 may receive mentorship.");
+assert.match(nav, /Number\(p\.age\)>=30/, "Mentors must be veterans aged 30 or older.");
+assert.match(nav, /potentialGain:gain/, "Mentorship must store its expected potential gain.");
+assert.match(nav, /attributes\.potential=Math\.max\(40,Math\.min\(99,potential\+gain\)\)/, "Mentorship potential gain must be applied at end-of-season progression and capped.");
 assert.match(settings, /window\.simulateNextSeasonGame = async function/, "The next-game action must wait until its scheduled day finishes.");
 assert.match(settings, /await window\.simulateThroughRound\(game\.round\)/, "Calendar clicks must await the day before opening its box score.");
 assert.match(settings, /window\.runAll = async function/, "Full-year simulation must await the day-by-day batch runner.");
