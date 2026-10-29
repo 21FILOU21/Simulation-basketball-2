@@ -35,14 +35,17 @@
     let rows = all.filter(p => String(p.team) === String(teamCode) &&
       (typeof window.NBAMyNBAIsRostered !== "function" || window.NBAMyNBAIsRostered(p)));
     if (rows.length < 5) rows = all.filter(p => String(p.team) === String(teamCode));
-    return rows.slice().sort((a, b) => num(b.mpg, 20) - num(a.mpg, 20)).slice(0, 15);
+    const rating = p => typeof window.overallRating === "function"
+      ? num(window.overallRating(p), 50)
+      : (attr(p, ["offensiveIQ", "shotIQ"], 50) + attr(p, ["perimeterDefense", "interiorDefense", "defensiveIQ"], 50)) / 2;
+    return rows.slice().sort((a, b) => rating(b) - rating(a)).slice(0, 15);
   }
   function makeSide(code, teamDef) {
     const roster = rosterFor(code);
     const lines = roster.map(p => ({ p, pts: 0, reb: 0, ast: 0, stl: 0, blk: 0, tov: 0, fgm: 0, fga: 0, threeMade: 0, threeAttempts: 0, ftm: 0, fta: 0, pf: 0, minutes: 0, gp: 0, form: 0, usage: 1 }));
     // Use the MyNBA rotation plan when present, instead of bypassing it with raw roster MPG.
     const minutePreference = l => {
-      const configured = typeof window.NBAMyNBAMinutes === "function" ? Number(window.NBAMyNBAMinutes(l.p)) : Number(l.p.mpg);
+      const configured = typeof window.NBAMyNBAMinutes === "function" ? Number(window.NBAMyNBAMinutes(l.p)) : 20;
       return Number.isFinite(configured) ? clamp(configured, 0, 48) : 20;
     };
     const totalMpg = lines.reduce((sum, l) => sum + minutePreference(l), 0);
@@ -53,7 +56,7 @@
     for (let guard = 0; difference !== 0 && lines.length && guard < 1000; guard++) {
       const eligible = lines.filter(l => difference > 0 ? l.minutes < 48 : l.minutes > 0);
       if (!eligible.length) break;
-      const player = pickWeighted(eligible, l => Math.max(1, num(l.p.mpg, 20)));
+      const player = pickWeighted(eligible, l => Math.max(1, minutePreference(l)));
       player.minutes += difference > 0 ? 1 : -1;
       difference += difference > 0 ? -1 : 1;
     }
