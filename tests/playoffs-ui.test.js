@@ -1,0 +1,48 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+
+const root = path.join(__dirname, "..");
+const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
+const scriptStart = html.lastIndexOf("<script>") + "<script>".length;
+const scriptEnd = html.indexOf("</script>", scriptStart);
+const script = html.slice(scriptStart, scriptEnd);
+const presentation = fs.readFileSync(path.join(root, "src", "season-presentation.js"), "utf8");
+
+assert.ok(script && scriptEnd > scriptStart, "The application script should exist.");
+new Function(script);
+new Function(presentation);
+assert.match(html, /\.schedule-game\.loss \.game-status[^}]*color:#ff4545/, "Defeats should be red.");
+assert.match(html, /\.schedule-game\.win \.game-status[^}]*color:#39d98a/, "Victories should be green.");
+assert.match(script, /\$\{ownScore\} – \$\{opponentScore\}/, "Regular-season tiles should display their score.");
+assert.match(script, /function renderSeasonAwardsPreview\(\)/, "Season awards should be prepared after the regular season.");
+assert.match(presentation, /function showAwardsFullscreen\(\)/, "The regular-season awards should use a full-screen presentation.");
+assert.match(presentation, /renderSeasonAwardsPreview[.]__original/, "The original awards renderer should be available for fallback.");
+assert.match(presentation, /e\.key==='Enter'/, "Enter should confirm the awards and champion screens.");
+assert.match(html, /id="enterPlayoffs"/, "A touch-friendly playoffs button should exist.");
+assert.match(script, /function initializePlayoffs\(\)/, "Starting playoffs should initialize the bracket.");
+assert.match(script, /function simulateOnePlayoffGame\(gameId\)/, "A single playoff game should be simulatable.");
+assert.match(script, /function showPlayoffBoxScore\(\)/, "Played playoff games should have a box-score view.");
+assert.match(html, /id="viewPlayoffBoxScore"/, "The box-score control should exist.");
+assert.doesNotMatch(html, /id="simulatePlayoffGame"|id="simulatePlayoffRound"|id="simulatePlayoffs"/, "The old playoff simulation buttons should remain removed.");
+assert.match(script, /function ensureNextPlayoffRound\(\)/, "Playoff round transitions should be explicit.");
+assert.match(script, /const seriesCount = west\.series\.length/, "Round transitions should validate the number of series before pairing winners.");
+assert.match(script, /seriesCount === 4/, "The first round should pair four series winners into two semifinals.");
+assert.match(script, /seriesCount === 2/, "The conference semifinals should pair their two winners into the conference finals.");
+assert.match(script, /seriesCount === 1/, "The conference finals should produce the NBA Finals.");
+assert.match(script, /renderConferenceBracket\('West'\)/, "The West bracket should be rendered.");
+assert.match(script, /renderConferenceBracket\('East'\)/, "The East bracket should be rendered.");
+assert.match(script, /Bilan de la série/, "Each playoff matchup should show its aggregate series score.");
+assert.doesNotMatch(script, /Partie jouée · Box score/, "The bracket should not list every game as a separate tile.");
+assert.match(presentation, /series-scoreline/, "The playoff layout should fit a full-width bracket.");
+assert.match(presentation, /class="playoff-series series-clickable" data-open-series=/, "Clicking the matchup card itself should open its confrontation.");
+assert.match(presentation, /addEventListener\('keydown',e=>\{const card=e\.target\.closest\('\[data-open-series\]\[role="button"\]'\)/, "Playoff matchup cards should support Enter and Space.");
+assert.doesNotMatch(presentation, /Ouvrir la confrontation/, "The separate open-confrontation button should be removed.");
+assert.match(presentation, /🏀 Intersaison · saison suivante/, "The Finals MVP screen should offer the next-season transition.");
+assert.match(presentation, /finalsOverlay=null;runOffseason\(\)/, "Continuing from the Finals MVP screen should trigger progression, retirements, and the draft.");
+assert.match(presentation, /while\(playoffs&&!playoffs\.champion&&guard\+\+<500\)/, "Simulate playoffs should advance safely until a champion is decided.");
+assert.match(presentation, /function showFinalsMvp\(\)/, "The Finals MVP screen should appear after the champion confirmation.");
+assert.doesNotMatch(presentation, /Aucune récompense disponible\./, "The awards screen should recover if preview cards are missing.");
+assert.match(script, /if \(!playoffs \|\| !playoffs\.champion/, "The offseason should be blocked until the NBA champion is determined.");
+
+console.log("OK — playoffs : transitions sécurisées, scores cumulés des séries, tableau responsive et écrans de récompenses.");
