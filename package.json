@@ -1,0 +1,12 @@
+{
+  "name": "simulation-basketball-2",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Simulateur NBA avec relais local Node.js pour la synchronisation 2KRatings",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
