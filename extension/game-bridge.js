@@ -17,6 +17,21 @@
     });
   });
 
+  window.addEventListener('message', event => {
+    if (event.source !== window || event.origin !== location.origin) return;
+    if (event.data?.source !== 'nba-sim-page' || event.data?.type !== 'fetch-ratings-image') return;
+    const requestId = String(event.data.requestId || '');
+    chrome.runtime.sendMessage({ type: 'fetchRatingsImage', url: event.data.url }, response => {
+      window.postMessage({
+        source: 'nba-sim-extension',
+        type: 'ratings-image',
+        requestId,
+        dataUrl: response?.dataUrl || '',
+        error: chrome.runtime.lastError?.message || response?.error || ''
+      }, '*');
+    });
+  });
+
   chrome.runtime.onMessage.addListener(message => {
     if (message?.type !== 'deliverRatingsPage') return;
     window.postMessage({
