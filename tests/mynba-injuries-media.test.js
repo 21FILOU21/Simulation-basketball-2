@@ -57,6 +57,7 @@ assert.match(trades, /if \(mount\.innerHTML !== recapHtml\)/, "The trade recap m
 assert.match(fixes, /minuteResolverForRoster/, "Roster filtering must use the pre-wrapper minutes resolver to prevent recursion.");
 assert.match(fixes, /NBASimInjuryAdjustedMinutes/, "Minute budgets must apply injury workload multipliers.");
 assert.match(engine, /NBASimInjuryMinuteLimit/, "Possession-minute redistribution must respect injured-player minute limits.");
+assert.match(engine, /injury\.severity === "minor" \|\| injury\.severity === "moderate" \? 1 : 0/, "Playable minor and moderate injuries must reduce in-game attributes before the return phase.");
 assert.match(injuries, /NBASimInjuryCanPlay = function\(player\)[\s\S]*?return injury\.severity !== "careerEnding" && injury\.severity !== "severe"/, "Minor and moderate injuries must remain eligible to play.");
 assert.match(injuries, /function applyInjuryWorkload/, "Excessive minutes must be able to aggravate an existing injury.");
 assert.match(injuries, /workloadAggravations/, "Repeated overload must increase aggravation risk and severity.");
