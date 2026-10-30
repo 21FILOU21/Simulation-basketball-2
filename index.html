@@ -653,6 +653,11 @@
                 <label class="field">Deuxième poste<select id="editSecondaryPos"><option value="">Aucun</option><option>PG</option><option>SG</option><option>SF</option><option>PF</option><option>C</option></select></label>
                 <label class="field">Âge<input id="editAge" type="number" min="18" max="45" step="1" value="24"></label>
                 <label class="field">Taille (cm)<input id="editHeight" type="number" min="150" max="240" step="1" value="190"></label>
+                <label class="field">Numéro<input id="editJersey" type="number" min="0" max="99" step="1" value=""></label>
+                <label class="field">Poids (kg)<input id="editWeight" type="number" min="0" max="250" step="1" value=""></label>
+                <label class="field">Envergure (cm)<input id="editWingspan" type="number" min="0" max="260" step="1" value=""></label>
+                <label class="field">Nationalité<input id="editNationality" placeholder="Nationalité"></label>
+                <label class="field">Avant la NBA<input id="editPriorToNBA" placeholder="Université / lycée"></label>
                 <label class="field">PPG<input id="editPts" type="number" min="0" max="60" step="0.1" value="10"></label>
                 <label class="field">RPG<input id="editReb" type="number" min="0" max="30" step="0.1" value="4"></label>
                 <label class="field">APG<input id="editAst" type="number" min="0" max="25" step="0.1" value="3"></label>
@@ -672,6 +677,18 @@
                 <button class="btn" id="updatePlayer">Modifier</button>
                 <button class="btn orange" id="deletePlayer">Supprimer</button>
                 <button class="btn" id="clearEditor">Vider les champs</button>
+                <button class="btn gold" id="openRatingsSync" type="button">Synchroniser ratings</button>
+            </div>
+            <div id="ratingsSyncPanel" class="player-card" hidden>
+                <h3>Synchronisation 2KRatings</h3>
+                <div class="controls">
+                    <label class="field" style="flex:1">Prendre par nom du joueur<input id="ratingsSearchName" placeholder="LeBron James"></label>
+                    <label class="field" style="flex:1">Écrire nom<input id="ratingsSlugName" placeholder="lebron james all time miami heat"></label>
+                    <button class="btn primary" id="runRatingsSync" type="button">Récupérer les ratings</button>
+                    <button class="btn" id="closeRatingsSync" type="button">Fermer</button>
+                </div>
+                <p class="muted">Exemple : https://www.2kratings.com/lebron-james-all-time-miami-heat</p>
+                <p id="ratingsSyncStatus" class="muted" role="status" aria-live="polite">Entre le nom du joueur puis lance la synchronisation.</p>
             </div>
             <p id="editorStatus" class="muted">Prêt.</p>
         </section>
@@ -835,7 +852,7 @@
                     stl: +(p.stl ?? p.steals ?? estStl(pos)), blk: +(p.blk ?? p.blocks ?? estBlk(pos, reb)),
                     age: +(p.age ?? demoAges[name] ?? 25), secondaryPos: p.secondaryPos ?? p.secondaryPosition ?? p.secondPosition ?? p.pos2 ?? "",
                     season: p.season ?? '2025-26', source: p.source ?? 'Import utilisateur', previousTeam: p.previousTeam,
-                    trophies: p.trophies ?? [], history: p.history ?? [], careerGames: p.careerGames ?? [], rookie: !!p.rookie, image: p.image || p.imageData || p.photo || "", jerseyNumber: p.jerseyNumber ?? p.number ?? p.jersey ?? "", wingspan: p.wingspan ?? p.wingSpan ?? "", weight: Number(p.weight ?? p.weightKg ?? 0) || 0, nationality: p.nationality ?? p.country ?? "", injury: p.injury && typeof p.injury === "object" ? p.injury : null
+                    trophies: p.trophies ?? [], history: p.history ?? [], careerGames: p.careerGames ?? [], rookie: !!p.rookie, image: p.image || p.imageData || p.photo || "", jerseyNumber: p.jerseyNumber ?? p.number ?? p.jersey ?? "", wingspan: p.wingspan ?? p.wingSpan ?? "", weight: Number(p.weight ?? p.weightKg ?? 0) || 0, nationality: p.nationality ?? p.country ?? "", priorToNBA: p.priorToNBA ?? p.prior_to_nba ?? "", injury: p.injury && typeof p.injury === "object" ? p.injury : null
                 };
                 if (ids.has(player.id)) player.id = generatedId++;
                 ids.add(player.id);
@@ -2095,7 +2112,7 @@
             const name = $('editName').value.trim();
             if (!name) { alert('Entre le nom du joueur.'); return null; }
             const num = id => Math.max(0, Number($(id).value) || 0);
-            const value = { name, team: $('editTeam').value, pos: $('editPos').value, secondaryPos: $('editSecondaryPos').value, age: clamp(Math.round(num('editAge')) || 24, 18, 45), pts: num('editPts'), reb: num('editReb'), ast: num('editAst'), ts: Math.min(1, num('editTs') / 100), three: Math.min(1, num('editThree') / 100), mpg: Math.min(48, num('editMpg')), height: Math.round(clamp(num('editHeight') || defaultHeight($('editPos').value, name), 150, 240)), season: seasonLabel(seasonYear), source: 'Joueur personnalisé' };
+            const value = { name, team: $('editTeam').value, pos: $('editPos').value, secondaryPos: $('editSecondaryPos').value, age: clamp(Math.round(num('editAge')) || 24, 18, 45), pts: num('editPts'), reb: num('editReb'), ast: num('editAst'), ts: Math.min(1, num('editTs') / 100), three: Math.min(1, num('editThree') / 100), mpg: Math.min(48, num('editMpg')), height: Math.round(clamp(num('editHeight') || defaultHeight($('editPos').value, name), 150, 240)), jerseyNumber: $('editJersey').value.trim(), weight: num('editWeight'), wingspan: num('editWingspan'), nationality: $('editNationality').value.trim(), priorToNBA: $('editPriorToNBA').value.trim(), image: window.__pending2KImage || '', season: seasonLabel(seasonYear), source: window.__pending2KImage ? '2KRatings' : 'Joueur personnalisé' };
             value.attributes = Object.fromEntries(attributeNames.map(([key]) => [key, Math.round(clamp(num(`attr-${key}`), 0, 100))]));
             return value;
         }
@@ -2103,6 +2120,8 @@
             $('editName').value = p.name; $('editTeam').value = p.team; $('editPos').value = positions.includes(p.pos) ? p.pos : 'PG'; $('editSecondaryPos').value = positions.includes(p.secondaryPos) ? p.secondaryPos : ''; $('editAge').value = p.age;
             $('editPts').value = p.pts; $('editReb').value = p.reb; $('editAst').value = p.ast; $('editTs').value = (p.ts * 100).toFixed(1);
             $('editThree').value = (p.three * 100).toFixed(1); $('editMpg').value = p.mpg; $('editHeight').value = p.height;
+            $('editJersey').value = p.jerseyNumber || ''; $('editWeight').value = p.weight || ''; $('editWingspan').value = p.wingspan || '';
+            $('editNationality').value = p.nationality || ''; $('editPriorToNBA').value = p.priorToNBA || ''; window.__pending2KImage = p.image || '';
             renderAttributeEditor(p.attributes);
         }
         $('createPlayer').onclick = () => {
@@ -2125,7 +2144,7 @@
             customTeams.forEach(t => t.playerIds = t.playerIds.filter(i => i !== id));
             render(); $('editPlayerSelect').value = ''; $('editorStatus').textContent = `${p.name} a été supprimé.`;
         };
-        $('clearEditor').onclick = () => { $('editPlayerSelect').value = ''; $('editName').value = ''; $('editSecondaryPos').value = ''; $('editAge').value = 24; $('editPts').value = 10; $('editReb').value = 4; $('editAst').value = 3; $('editTs').value = 56; $('editThree').value = 35; $('editMpg').value = 20; $('editHeight').value = defaultHeight($('editPos').value); renderAttributeEditor(); $('editorStatus').textContent = 'Champs vidés.'; };
+        $('clearEditor').onclick = () => { $('editPlayerSelect').value = ''; $('editName').value = ''; $('editSecondaryPos').value = ''; $('editAge').value = 24; $('editPts').value = 10; $('editReb').value = 4; $('editAst').value = 3; $('editTs').value = 56; $('editThree').value = 35; $('editMpg').value = 20; $('editHeight').value = defaultHeight($('editPos').value); $('editJersey').value = ''; $('editWeight').value = ''; $('editWingspan').value = ''; $('editNationality').value = ''; $('editPriorToNBA').value = ''; window.__pending2KImage = ''; renderAttributeEditor(); $('editorStatus').textContent = 'Champs vidés.'; };
         $('editPlayerSelect').onchange = () => { const p = players.find(x => x.id === +$('editPlayerSelect').value); if (p) fillEditor(p); };
         $('editPos').onchange = () => { if (!$('editPlayerSelect').value) { $('editHeight').value = defaultHeight($('editPos').value); renderAttributeEditor(); } else updateEditorOverall(); };
         $('attributeEditor').oninput = updateEditorOverall;
@@ -2456,6 +2475,50 @@
             }
         });
 
+        window.NBASimApplyRatingsData = function(data) {
+            if (!data || !data.attributes) throw new Error('Données de ratings invalides.');
+            $('editName').value = data.name || $('editName').value;
+            const positions = (data.positions || []).filter(pos => ['PG','SG','SF','PF','C'].includes(pos));
+            if (positions.length) { $('editPos').value = positions[0]; $('editSecondaryPos').value = positions[1] || ''; }
+            if (data.team) {
+                const options = [...$('editTeam').options];
+                const match = options.find(option => option.textContent.toLowerCase().includes(data.team.toLowerCase()));
+                if (match) $('editTeam').value = match.value;
+                else if (/miami heat/i.test(data.team)) $('editTeam').value = 'MIA';
+                else if (/los angeles lakers/i.test(data.team)) $('editTeam').value = 'LAL';
+                else if (/cleveland cavaliers/i.test(data.team)) $('editTeam').value = 'CLE';
+                else if (/philadelphia 76ers/i.test(data.team)) $('editTeam').value = 'PHI';
+            }
+            if (data.heightCm) $('editHeight').value = data.heightCm;
+            if (data.jerseyNumber !== undefined) $('editJersey').value = data.jerseyNumber;
+            if (data.weightKg) $('editWeight').value = data.weightKg;
+            if (data.wingspanCm) $('editWingspan').value = data.wingspanCm;
+            if (data.nationality) $('editNationality').value = data.nationality;
+            if (data.priorToNBA) $('editPriorToNBA').value = data.priorToNBA;
+            const map = {
+                finishing:['layup','drivingDunk','standingDunk','postHook','postFade','postControl','drawFoul','hands','closeShot'],
+                layup:['layup'], dunk:['drivingDunk','standingDunk'], closeShot:['closeShot'], midRange:['midRange','postFade'],
+                threePoint:['threePoint'], freeThrow:['freeThrow'], shotIQ:['shotIQ'], ballHandle:['ballHandle'],
+                passing:['passAccuracy'], playmaking:['passVision','passIQ','passAccuracy'], offensiveIQ:['passVision','shotIQ'],
+                perimeterDefense:['perimeterDefense'], interiorDefense:['interiorDefense'], steal:['steal'], block:['block'],
+                defensiveIQ:['passPerception','helpDefenseIQ','defensiveConsistency'], defensiveRebound:['defensiveRebound'],
+                offensiveRebound:['offensiveRebound'], speed:['speed','speedWithBall'], acceleration:['speedWithBall','speed'],
+                agility:['agility'], strength:['strength'], vertical:['vertical'], stamina:['stamina'], durability:['overallDurability'],
+                consistency:['offensiveConsistency','defensiveConsistency'], clutch:['offensiveConsistency'], workEthic:['hustle'],
+                basketballIQ:['passIQ','passVision','shotIQ']
+            };
+            Object.entries(map).forEach(([key, sources]) => {
+                const vals = sources.map(source => Number(data.attributes[source])).filter(Number.isFinite);
+                if (vals.length) $('attr-' + key).value = Math.round(vals.reduce((a,b) => a+b,0) / vals.length);
+            });
+            if (data.potentialGrade) {
+                const grade = {'A+':99,'A':95,'A-':92,'B+':89,'B':85,'B-':82,'C+':79,'C':75}[data.potentialGrade];
+                if (grade) $('attr-potential').value = grade;
+            }
+            if (data.imageData) window.__pending2KImage = data.imageData;
+            renderAttributeEditor(Object.fromEntries(attributeNames.map(([key]) => [key, Number($('attr-' + key).value) || 50])));
+            $('editorStatus').textContent = 'Ratings importés depuis 2KRatings : ' + (data.name || 'joueur') + '.';
+        };
         initTeamEditor();
         initializeSeasonCalendar();
         renderAll();
@@ -2469,6 +2532,7 @@
     <script src="src/mynba-settings-simulation.js"></script>
     <script src="src/mynba-ai-trades.js"></script>
     <script src="src/mynba-injuries-media.js"></script>
+    <script src="src/ratings-sync.js"></script>
 </body>
 
 </html>
