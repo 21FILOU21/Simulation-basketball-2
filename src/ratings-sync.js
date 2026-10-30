@@ -52,10 +52,10 @@ async function importSource(source, playerName) {
     const doc=new DOMParser().parseFromString(source,'text/html');
     const text=clean(doc.body?doc.body.innerText:doc.documentElement.textContent);
     const name=clean(doc.querySelector('h1')?.textContent)||playerName;
-    if(!/NBA 2K\\d+ Rating/i.test(text)||!text.toLowerCase().includes(playerName.toLowerCase().split(' ')[0]))
+    if(!/NBA 2K\d+ Rating/i.test(text)||!text.toLowerCase().includes(playerName.toLowerCase().split(' ')[0]))
         throw new Error('Page joueur introuvable ou nom incorrect. Vérifie le nom utilisé dans l’adresse.');
-    const positions=(text.match(/Position:\\s*([A-Z]{1,2})\\s*\\/?\\s*([A-Z]{1,2})?/i)||[]).slice(1).filter(Boolean).map(x=>x.toUpperCase());
-    const team=(text.match(/Team:\\s*([^\\n]+?)(?=\\s+Jersey:|\\s+Position:)/i)||[])[1]||'';
+    const positions=(text.match(/Position:\s*([A-Z]{1,2})\s*\/?\s*([A-Z]{1,2})?/i)||[]).slice(1).filter(Boolean).map(x=>x.toUpperCase());
+    const team=(text.match(/Team:\s*([^\n]+?)(?=\s+Jersey:|\s+Position:)/i)||[])[1]||'';
     const attrs={
         threePoint:rating(text,'Three-Point Shot'),midRange:rating(text,'Mid-Range Shot'),closeShot:rating(text,'Close Shot'),
         freeThrow:rating(text,'Free Throw'),offensiveConsistency:rating(text,'Offensive Consistency'),shotIQ:rating(text,'Shot IQ'),
@@ -78,13 +78,13 @@ async function importSource(source, playerName) {
     catch(error) { status(error.message+' Import des notes en cours…'); }
     const data={
         name,team,positions,attributes:attrs,imageData,
-        jerseyNumber:(text.match(/Jersey:\\s*#?(\\d+)/i)||[])[1]||'',
-        nationality:(text.match(/Nationality:\\s*([A-Za-z][A-Za-z -]*?)(?:\\s+Image:|\\s+Team:)/i)||[])[1]||'',
-        priorToNBA:(text.match(/Prior to NBA:\\s*(.+?)(?:\\s+canvas|\\s+Compare|\\s+Badges|\\s+\\d{2}\\s+OVERALL)/i)||[])[1]||'',
-        heightCm:metric(text,/Height:\\s*[\\d'’" ]+\\((\\d{2,3})\\s*cm\\)/i),
-        weightKg:metric(text,/Weight:\\s*[\\d,]+\\s*lbs\\s*\\((\\d{2,3})\\s*kg\\)/i),
-        wingspanCm:metric(text,/Wingspan:\\s*[\\d'’" ]+\\((\\d{2,3})\\s*cm\\)/i),
-        potentialGrade:(text.match(/Potential\\s*(?:svg)?\\s*([A-F][+-]?)/i)||[])[1]||''
+        jerseyNumber:(text.match(/Jersey:\s*#?(\d+)/i)||[])[1]||'',
+        nationality:(text.match(/Nationality:\s*([A-Za-z][A-Za-z -]*?)(?:\s+Image:|\s+Team:)/i)||[])[1]||'',
+        priorToNBA:(text.match(/Prior to NBA:\s*(.+?)(?:\s+canvas|\s+Compare|\s+Badges|\s+\d{2}\s+OVERALL)/i)||[])[1]||'',
+        heightCm:metric(text,/Height:\s*[\d'’" ]+\((\d{2,3})\s*cm\)/i),
+        weightKg:metric(text,/Weight:\s*[\d,]+\s*lbs\s*\((\d{2,3})\s*kg\)/i),
+        wingspanCm:metric(text,/Wingspan:\s*[\d'’" ]+\((\d{2,3})\s*cm\)/i),
+        potentialGrade:(text.match(/Potential\s*(?:svg)?\s*([A-F][+-]?)/i)||[])[1]||''
     };
     if(typeof window.NBASimApplyRatingsData!=='function') throw new Error('Le formulaire du jeu n’est pas prêt.');
     window.NBASimApplyRatingsData(data);
