@@ -540,10 +540,11 @@
     const team=String(player.team||"—"),attributes=player.attributes||{},weight=Number(player.weight)?Number(player.weight)+" kg":"—";
     const height=Number(player.height)?Number(player.height)+" cm":"—",wingspan=Number(player.wingspan)?Number(player.wingspan)+" cm":"—";
     const jersey=player.jerseyNumber!==""&&player.jerseyNumber!=null?"#"+player.jerseyNumber:"N° —";
+    const teamLabel=getTeamImage(team)?"":team;
     const injury=player.injury?'<p class="mynba-banner-injury">'+esc(player.injury.label||"Blessure")+' · '+esc(player.injury.bodyPartLabel||"")+'</p>':"";
     const parts=String(player.name||"").trim().split(/\s+/),first=parts.shift()||"",last=parts.join(" ");
     return '<div class="mynba-player-banner-card"><div class="mynba-banner-photo">'+(image?'<img src="'+esc(image)+'" alt="'+esc(player.name)+'">':'<span>'+esc(initials)+'</span>')+
-      '</div><div class="mynba-banner-content"><div class="mynba-banner-top"><div><div class="mynba-banner-kicker">'+esc(team)+' · '+esc(player.pos||"—")+'</div><h3>'+esc(first)+' <b>'+esc(last)+'</b></h3><small>'+esc(jersey)+' · GÉN '+(typeof window.overallRating==="function"?Math.round(window.overallRating(player)):"—")+' · POT '+(Number(attributes.potential)||"—")+'</small></div><div class="mynba-banner-team">'+teamImageMarkup(team,36)+'</div></div>'+
+      '</div><div class="mynba-banner-content"><div class="mynba-banner-top"><div><div class="mynba-banner-kicker">'+esc(teamLabel)+' · '+esc(player.pos||"—")+'</div><h3>'+esc(first)+' <b>'+esc(last)+'</b></h3><small>'+esc(jersey)+' · GÉN '+(typeof window.overallRating==="function"?Math.round(window.overallRating(player)):"—")+' · POT '+(Number(attributes.potential)||"—")+'</small></div><div class="mynba-banner-team">'+teamImageMarkup(team,36)+'</div></div>'+
       '<div class="mynba-banner-grid"><span><small>Taille</small><b>'+esc(height)+'</b></span><span><small>Envergure</small><b>'+esc(wingspan)+'</b></span><span><small>Âge</small><b>'+(Number(player.age)||"—")+'</b></span><span><small>Poids</small><b>'+esc(weight)+'</b></span><span><small>Nationalité</small><b>'+esc(player.nationality||"—")+'</b></span></div>'+injury+'</div></div>';
   }
   function positionBanner(event) {
