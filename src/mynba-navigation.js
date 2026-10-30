@@ -305,7 +305,7 @@ function installMentorshipProgress(){
   $(hostId).querySelectorAll("[data-player-id]").forEach(function(row){
    var selectRow=function(){
     var p=players.find(function(x){return String(x.id)===String(row.dataset.playerId);});
-    if(p){state.rosterPlayerId=p.id;$(hostId).querySelectorAll(".mynba-player-leader-row").forEach(function(el){el.classList.toggle("selected",el===row);});if(typeof window.NBASimSelectPlayerBanner==="function")window.NBASimSelectPlayerBanner(p,$("mynbaRosterBannerMount"),row);}
+    if(p){state.rosterPlayerId=p.id;if(hostId==="mynbaFreeAgencyList"&&$("mynbaFreeAgent"))$("mynbaFreeAgent").value=String(p.id);$(hostId).querySelectorAll(".mynba-player-leader-row").forEach(function(el){el.classList.toggle("selected",el===row);});if(typeof window.NBASimSelectPlayerBanner==="function")window.NBASimSelectPlayerBanner(p,$("mynbaRosterBannerMount"),row);}
    };
    row.onclick=selectRow;row.onpointerenter=selectRow;
   });
