@@ -697,7 +697,7 @@
       if(!banner||banner.hidden)return;
       const from=event.target.closest&&event.target.closest("[data-player-id]");
       const to=event.relatedTarget&&event.relatedTarget.closest&&event.relatedTarget.closest("[data-player-id]");
-      if(from&&!to&&!banner.contains(event.relatedTarget))hideBanner();
+      if(from&&(!to||isBannerExcluded(to)||isBannerExcluded(event.relatedTarget))&&!banner.contains(event.relatedTarget))hideBanner();
     });
     document.addEventListener("pointerdown",event=>{
       if(event.pointerType!=="touch")return;
