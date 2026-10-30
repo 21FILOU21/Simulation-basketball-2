@@ -6,7 +6,7 @@
   const TEAM_IMAGES_KEY = "nba-sim-lab-team-images-v1";
   const esc = value => String(value == null ? "" : value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const clamp = (value, min, max) => Math.max(min, Math.min(max, Number(value) || 0));
-  let banner = null, bannerPlayerId = null, lastDecorate = 0;
+  let banner = null, bannerPlayerId = null, activeBannerRow = null, lastDecorate = 0;
 
   function readStorage(key, fallback) {
     try { const value = JSON.parse(localStorage.getItem(key) || "null"); return value == null ? fallback : value; }
@@ -645,29 +645,46 @@
   }
   function playerBannerHtml(player) {
     const image=getPlayerImage(player),initials=String(player.name||"?").split(/\s+/).slice(0,2).map(s=>s[0]||"").join("").toUpperCase();
-    const team=String(player.team||"—"),attributes=player.attributes||{},weight=Number(player.weight)?Number(player.weight)+" kg":"—";
+    const team=String(player.team||"—"),attributes=player.attributes||{};
+    const weight=Number(player.weight)?Number(player.weight)+" kg":"—";
     const height=Number(player.height)?Number(player.height)+" cm":"—",wingspan=Number(player.wingspan)?Number(player.wingspan)+" cm":"—";
     const jersey=player.jerseyNumber!==""&&player.jerseyNumber!=null?"#"+player.jerseyNumber:"N° —";
-    const teamLabel=getTeamImage(team)?"":team;
-    const injury=player.injury?'<p class="mynba-banner-injury">'+esc(player.injury.label||"Blessure")+' · '+esc(player.injury.bodyPartLabel||"")+'</p>':"";
+    const primary=String(player.pos||player.position||"—");
+    const secondary=String(player.secondaryPos||player.secondaryPosition||player.secondPosition||player.pos2||"").trim();
+    const position=secondary&&secondary!==primary?primary+" / "+secondary:primary;
     const parts=String(player.name||"").trim().split(/\s+/),first=parts.shift()||"",last=parts.join(" ");
-    return '<div class="mynba-player-banner-card"><div class="mynba-banner-photo">'+(image?'<img src="'+esc(image)+'" alt="'+esc(player.name)+'">':'<span>'+esc(initials)+'</span>')+
-      '</div><div class="mynba-banner-content"><div class="mynba-banner-top"><div><div class="mynba-banner-kicker">'+esc(teamLabel)+' · '+esc(player.pos||"—")+'</div><h3>'+esc(first)+' <b>'+esc(last)+'</b></h3><small>'+esc(jersey)+' · GÉN '+(typeof window.overallRating==="function"?Math.round(window.overallRating(player)):"—")+' · POT '+(Number(attributes.potential)||"—")+'</small></div><div class="mynba-banner-team">'+teamImageMarkup(team,36)+'</div></div>'+
-      '<div class="mynba-banner-grid"><span><small>Taille</small><b>'+esc(height)+'</b></span><span><small>Envergure</small><b>'+esc(wingspan)+'</b></span><span><small>Âge</small><b>'+(Number(player.age)||"—")+'</b></span><span><small>Poids</small><b>'+esc(weight)+'</b></span><span><small>Nationalité</small><b>'+esc(player.nationality||"—")+'</b></span></div>'+injury+'</div></div>';
+    const overall=typeof window.overallRating==="function"?Math.round(window.overallRating(player)):"—";
+    const teamMark=getTeamImage(team)?teamImageMarkup(team,82):'<span>'+esc(team)+'</span>';
+    const injury=player.injury?'<p class="mynba-banner-injury">'+esc(player.injury.label||"Blessure")+' · '+esc(player.injury.bodyPartLabel||"")+' · '+Math.max(0,Number(player.injury.restGamesRemaining)||0)+' match(s) avant retour</p>':"";
+    return '<div class="mynba-player-banner-card">'+
+      '<div class="mynba-banner-visual"><div class="mynba-banner-team-back">'+teamMark+'</div>'+
+      '<div class="mynba-banner-photo">'+(image?'<img src="'+esc(image)+'" alt="'+esc(player.name)+'">':'<span>'+esc(initials)+'</span>')+'</div>'+
+      '<div class="mynba-banner-jersey">'+esc(jersey)+'</div></div>'+
+      '<div class="mynba-banner-content"><div class="mynba-banner-heading"><div class="mynba-banner-kicker">'+esc(team)+' · '+esc(position)+'</div>'+
+      '<h3>'+esc(first)+' <b>'+esc(last)+'</b></h3><div class="mynba-banner-rating"><strong>GÉN '+overall+'</strong><span>POT '+(Number(attributes.potential)||"—")+'</span><span>'+esc(position)+'</span></div></div>'+
+      '<div class="mynba-banner-grid"><span><small>Taille</small><b>'+esc(height)+'</b></span><span><small>Envergure</small><b>'+esc(wingspan)+'</b></span><span><small>Poids</small><b>'+esc(weight)+'</b></span><span><small>Âge</small><b>'+(Number(player.age)||"—")+'</b></span><span><small>Nationalité</small><b>'+esc(player.nationality||"—")+'</b></span><span><small>Vitesse</small><b>'+Math.round(Number(attributes.speed)||0)+'</b></span><span><small>Force</small><b>'+Math.round(Number(attributes.strength)||0)+'</b></span><span><small>Contre</small><b>'+Math.round(Number(attributes.block)||0)+'</b></span></div>'+injury+'</div></div>';
   }
-  function positionBanner(event) {
-    const rect=banner.getBoundingClientRect(),gap=14;
-    let x=event.clientX+gap,y=event.clientY+gap;
-    if(x+rect.width>window.innerWidth-8)x=Math.max(8,event.clientX-rect.width-gap);
-    if(y+rect.height>window.innerHeight-8)y=Math.max(8,event.clientY-rect.height-gap);
-    banner.style.left=clamp(x,8,Math.max(8,window.innerWidth-rect.width-8))+"px";
-    banner.style.top=clamp(y,8,Math.max(8,window.innerHeight-rect.height-8))+"px";
+  function positionBanner() {
+    if(!banner)return;
+    banner.style.left="0px";banner.style.top="0px";
+  }
+  function setActiveBannerRow(event) {
+    const row=event&&event.target&&event.target.closest?event.target.closest(".mynba-player-row[data-player-id]"):null;
+    if(activeBannerRow&&activeBannerRow!==row)activeBannerRow.classList.remove("mynba-player-row-active");
+    activeBannerRow=row;
+    if(activeBannerRow)activeBannerRow.classList.add("mynba-player-row-active");
   }
   function showBanner(player,event) {
     if(!player||!event||isBannerExcluded(event.target))return;
-    ensureBanner();bannerPlayerId=String(player.id);banner.innerHTML=playerBannerHtml(player);banner.hidden=false;positionBanner(event);
+    if(banner&&!banner.hidden&&bannerPlayerId===String(player.id)){setActiveBannerRow(event);return;}
+    ensureBanner();bannerPlayerId=String(player.id);banner.innerHTML=playerBannerHtml(player);banner.hidden=false;
+    setActiveBannerRow(event);positionBanner();
   }
-  function hideBanner() { if(banner)banner.hidden=true;bannerPlayerId=null; }
+  function hideBanner() {
+    if(banner)banner.hidden=true;
+    if(activeBannerRow)activeBannerRow.classList.remove("mynba-player-row-active");
+    activeBannerRow=null;bannerPlayerId=null;
+  }
   function installBannerEvents() {
     document.addEventListener("pointerover",event=>{
       if(event.pointerType==="touch")return;
@@ -675,12 +692,11 @@
       if(!token||isBannerExcluded(token))return;
       const player=findPlayer(token.dataset.playerId);if(player)showBanner(player,event);
     });
-    document.addEventListener("pointermove",event=>{if(banner&&!banner.hidden)positionBanner(event);});
     document.addEventListener("pointerout",event=>{
       if(!banner||banner.hidden)return;
       const from=event.target.closest&&event.target.closest("[data-player-id]");
       const to=event.relatedTarget&&event.relatedTarget.closest&&event.relatedTarget.closest("[data-player-id]");
-      if(from&&(!to||from!==to)&&!banner.contains(event.relatedTarget))hideBanner();
+      if(from&&!to&&!banner.contains(event.relatedTarget))hideBanner();
     });
     document.addEventListener("pointerdown",event=>{
       if(event.pointerType!=="touch")return;
@@ -733,17 +749,17 @@
       ".mynba-injury-indicator{display:inline-block;font-size:13px;line-height:1;margin-right:7px;vertical-align:middle;text-shadow:0 0 8px currentColor}"+
       ".mynba-injury-indicator.injury-minor{color:#edcf42}.mynba-injury-indicator.injury-moderate{color:#ee8c36}.mynba-injury-indicator.injury-severe{color:#ef4b4b}"+
       ".mynba-player-name-token{cursor:help;text-decoration:underline;text-decoration-style:dotted;text-decoration-color:#8299b7;text-underline-offset:3px}.mynba-player-name-token:hover{color:#b9d7ff}"+
-      ".mynba-player-banner{position:fixed;z-index:200000;max-width:min(520px,calc(100vw - 16px));width:min(520px,calc(100vw - 16px));pointer-events:none;border:1px solid #526d92;border-radius:15px;background:linear-gradient(135deg,#13233b,#081321);color:#f4f7ff;box-shadow:0 18px 56px #000b;overflow:hidden}"+
-      ".mynba-player-banner[hidden]{display:none!important}.mynba-player-banner-card{display:grid;grid-template-columns:112px minmax(0,1fr);gap:14px;padding:14px}"+
-      ".mynba-banner-photo{width:112px;height:132px;border-radius:11px;background:#1e3350;display:grid;place-items:center;overflow:hidden;font-size:34px;font-weight:1000;color:#b9d7ff}.mynba-banner-photo img{width:100%;height:100%;object-fit:cover}"+
-      ".mynba-banner-content{min-width:0}.mynba-banner-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.mynba-banner-kicker{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#99b7df;font-weight:900}"+
-      ".mynba-banner-top h3{font-size:19px;margin:4px 0;overflow-wrap:anywhere}.mynba-banner-top small{font-size:11px;color:#c6d4e8}.mynba-banner-team{flex:none}"+
-      ".mynba-banner-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:12px}.mynba-banner-grid span{background:#1b2b43;border:1px solid #304663;border-radius:8px;padding:6px;min-width:0}"+
-      ".mynba-banner-grid small{display:block;font-size:9px;text-transform:uppercase;color:#9eb2cc}.mynba-banner-grid b{display:block;font-size:12px;overflow-wrap:anywhere}.mynba-banner-injury{margin:9px 0 0;color:#ffba78;font-size:11px;font-weight:800}"+
+      ".mynba-player-banner{position:fixed;z-index:200000;top:0;left:0;width:100vw;height:30vh;min-height:190px;max-height:320px;pointer-events:none;border:0;border-bottom:2px solid #7186ba;background:linear-gradient(110deg,#10182d 0%,#172b4d 55%,#0b1226 100%);color:#f4f7ff;box-shadow:0 16px 48px #000c;overflow:hidden}"+
+      ".mynba-player-banner[hidden]{display:none!important}.mynba-player-banner-card{height:100%;box-sizing:border-box;display:grid;grid-template-columns:minmax(190px,25vw) minmax(0,1fr);gap:clamp(12px,2vw,30px);padding:10px clamp(14px,3vw,42px);align-items:center}"+
+      ".mynba-banner-visual{height:100%;min-height:0;position:relative;display:flex;align-items:flex-end;justify-content:center}.mynba-banner-photo{position:relative;z-index:2;width:min(100%,190px);height:100%;max-height:100%;border-radius:12px 12px 0 0;background:linear-gradient(145deg,#27456f,#121c30);display:grid;place-items:center;overflow:hidden;font-size:42px;font-weight:1000;color:#d7e5ff;border:1px solid #8ba4d1}.mynba-banner-photo img{width:100%;height:100%;object-fit:cover;object-position:center top}"+
+      ".mynba-banner-team-back{position:absolute;z-index:1;left:0;top:50%;transform:translate(-5%,-50%);width:88px;height:88px;display:grid;place-items:center;border-radius:50%;background:#050a16aa;border:1px solid #ffffff42;box-shadow:0 6px 24px #0009;font-size:19px;font-weight:1000;color:#fff}.mynba-banner-team-back .mynba-team-logo{width:82px!important;height:82px!important;margin:0;object-fit:contain}.mynba-banner-jersey{position:absolute;z-index:3;right:4px;top:4px;padding:7px 12px;background:linear-gradient(135deg,#f5d84d,#d8a927);color:#151821;font-size:clamp(17px,2vw,25px);font-weight:1000;border:2px solid #fff4;border-radius:9px;box-shadow:0 5px 16px #0009}"+
+      ".mynba-banner-content{min-width:0;display:grid;grid-template-rows:auto 1fr;gap:clamp(8px,1.4vh,15px);height:100%;align-content:center}.mynba-banner-kicker{font-size:clamp(10px,1vw,13px);letter-spacing:.12em;text-transform:uppercase;color:#a8c4f2;font-weight:900}.mynba-banner-heading h3{font-size:clamp(23px,3vw,38px);line-height:1.05;margin:4px 0 8px;overflow-wrap:anywhere}.mynba-banner-rating{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:12px;color:#c6d4e8}.mynba-banner-rating strong{padding:5px 9px;border-radius:7px;background:#243c60;color:#d9f2b7;font-size:16px}"+
+      ".mynba-banner-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;align-content:end}.mynba-banner-grid span{background:#1b2b43;border:1px solid #405b82;border-radius:7px;padding:5px 8px;min-width:0}.mynba-banner-grid small{display:block;font-size:9px;text-transform:uppercase;color:#9eb2cc}.mynba-banner-grid b{display:block;font-size:clamp(11px,1vw,14px);overflow-wrap:anywhere}.mynba-banner-injury{margin:0;color:#ffba78;font-size:11px;font-weight:800}"+
+      ".mynba-player-row{transition:background-color .08s,color .08s}.mynba-player-row:hover td,.mynba-player-row.mynba-player-row-active td{background:#f4dc42!important;color:#181818!important}.mynba-player-row:hover td .mynba-injury-indicator,.mynba-player-row.mynba-player-row-active td .mynba-injury-indicator{color:#8a5200!important}"+
       ".mynba-media-preview-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}.mynba-media-preview-row img{max-width:100px;max-height:100px;object-fit:contain;border-radius:9px;border:1px solid #516985;background:#101c2d}.mynba-media-preview-row span{font-size:12px;color:#aebdd5}"+
       ".mynba-team-injury-roster{margin-top:15px;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px}.mynba-team-injury-player{display:flex;align-items:center;gap:6px;padding:8px;border:1px solid #344967;border-radius:9px;background:#101c2d;min-width:0}.mynba-team-injury-player>span{display:grid;min-width:0}.mynba-team-injury-player small{font-size:10px;color:#aebdd5;overflow-wrap:anywhere}.mynba-injury-detail{color:#f1b86a!important}"+
       ".retirement-reason{display:block;color:#e77878;font-size:11px;margin-top:3px}.mynba-injury-setting{display:flex;align-items:flex-start;gap:10px;padding:10px 0}.mynba-injury-setting input{width:19px;height:19px;accent-color:#5e9ef5}.mynba-injury-setting small{display:block;color:#9eacc3;margin-top:4px}"+
-      "@media(max-width:520px){.mynba-player-banner-card{grid-template-columns:82px minmax(0,1fr);gap:9px;padding:10px}.mynba-banner-photo{width:82px;height:104px}.mynba-banner-top h3{font-size:16px}.mynba-banner-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}";
+      "@media(max-width:700px){.mynba-player-banner{height:32vh;min-height:175px}.mynba-player-banner-card{grid-template-columns:minmax(105px,27vw) minmax(0,1fr);gap:10px;padding:8px 10px}.mynba-banner-photo{width:100%;border-radius:8px 8px 0 0}.mynba-banner-team-back{width:58px;height:58px;left:-2px}.mynba-banner-team-back .mynba-team-logo{width:54px!important;height:54px!important}.mynba-banner-jersey{font-size:16px;padding:5px 8px}.mynba-banner-heading h3{font-size:clamp(18px,4vw,26px)}.mynba-banner-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.mynba-banner-grid span{padding:4px}.mynba-banner-rating{gap:5px;font-size:10px}}@media(max-width:420px){.mynba-player-banner{height:34vh;min-height:185px}.mynba-banner-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.mynba-banner-grid span:nth-child(n+5){display:none}.mynba-banner-heading h3{font-size:18px}}";
     document.head.appendChild(style);
   }
 
