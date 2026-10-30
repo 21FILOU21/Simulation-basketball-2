@@ -164,6 +164,8 @@
       });
     }
     if (typeof players !== "undefined") players = players.filter(p => String(p.id) !== String(player.id));
+    if (typeof starters !== "undefined" && Array.isArray(starters)) starters = starters.map(p => p && String(p.id) === String(player.id) ? null : p);
+    if (typeof followedPlayerId !== "undefined" && String(followedPlayerId) === String(player.id)) followedPlayerId = null;
     currentTeams().forEach(t => { t.playerIds=(t.playerIds||[]).filter(id => String(id)!==String(player.id)); });
     if (typeof window.NBAMyNBARosterChanged === "function") window.NBAMyNBARosterChanged();
   }
@@ -375,7 +377,7 @@
     const rosterNode=$("mynbaTeamInjuryRoster");
     if(rosterNode) {
       const teamPlayers=allPlayers().filter(p=>String(p.team)===String(code)).sort((a,b)=>(Number(b.mpg)||0)-(Number(a.mpg)||0));
-      const signature=JSON.stringify(teamPlayers.map(p=>[p.id,p.name,p.team,p.image,p.injury&&p.injury.severity,p.injury&&p.injury.bodyPart,p.injury&&p.injury.restGamesRemaining,p.injury&&p.injury.recoveryGamesRemaining,typeof window.overallRating==="function"?Math.round(window.overallRating(p)):0]));
+      const signature=JSON.stringify(teamPlayers.map(p=>[p.id,p.name,p.team,p.image?String(p.image).length:0,p.injury&&p.injury.severity,p.injury&&p.injury.bodyPart,p.injury&&p.injury.restGamesRemaining,p.injury&&p.injury.recoveryGamesRemaining,typeof window.overallRating==="function"?Math.round(window.overallRating(p)):0]));
       if(rosterNode.dataset.signature!==signature) {
         rosterNode.dataset.signature=signature;
         rosterNode.innerHTML='<h3>Effectif · santé et portraits</h3>'+(teamPlayers.length?teamPlayers.map(p=>{
