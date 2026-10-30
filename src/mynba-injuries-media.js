@@ -375,11 +375,15 @@
     const rosterNode=$("mynbaTeamInjuryRoster");
     if(rosterNode) {
       const teamPlayers=allPlayers().filter(p=>String(p.team)===String(code)).sort((a,b)=>(Number(b.mpg)||0)-(Number(a.mpg)||0));
-      rosterNode.innerHTML='<h3>Effectif · santé et portraits</h3>'+(teamPlayers.length?teamPlayers.map(p=>{
-        const injury=p.injury;
-        const status=injury?'<small class="mynba-injury-detail">'+esc(injury.label||severityLabels[injury.severity]||"Blessure")+' · '+esc(injury.bodyPartLabel||"")+' · '+(Number(injury.restGamesRemaining)||0)+' matchs avant retour</small>':'<small class="mynba-injury-detail">En santé</small>';
-        return '<div class="mynba-team-injury-player">'+playerPortraitMarkup(p,38)+window.NBASimInjuryIndicator(p)+'<span><b>'+esc(p.name)+'</b><small>'+esc(p.pos||"")+' · GÉN '+(typeof window.overallRating==="function"?Math.round(window.overallRating(p)):"—")+'</small>'+status+'</span></div>';
-      }).join(""):'<p class="muted">Aucun joueur dans cette équipe.</p>');
+      const signature=JSON.stringify(teamPlayers.map(p=>[p.id,p.name,p.team,p.image,p.injury&&p.injury.severity,p.injury&&p.injury.bodyPart,p.injury&&p.injury.restGamesRemaining,p.injury&&p.injury.recoveryGamesRemaining,typeof window.overallRating==="function"?Math.round(window.overallRating(p)):0]));
+      if(rosterNode.dataset.signature!==signature) {
+        rosterNode.dataset.signature=signature;
+        rosterNode.innerHTML='<h3>Effectif · santé et portraits</h3>'+(teamPlayers.length?teamPlayers.map(p=>{
+          const injury=p.injury;
+          const status=injury?'<small class="mynba-injury-detail">'+esc(injury.label||severityLabels[injury.severity]||"Blessure")+' · '+esc(injury.bodyPartLabel||"")+' · '+(Number(injury.restGamesRemaining)||0)+' matchs avant retour</small>':'<small class="mynba-injury-detail">En santé</small>';
+          return '<div class="mynba-team-injury-player">'+playerPortraitMarkup(p,38)+window.NBASimInjuryIndicator(p)+'<span><b>'+esc(p.name)+'</b><small>'+esc(p.pos||"")+' · GÉN '+(typeof window.overallRating==="function"?Math.round(window.overallRating(p)):"—")+'</small>'+status+'</span></div>';
+        }).join(""):'<p class="muted">Aucun joueur dans cette équipe.</p>');
+      }
     }
   }
 
@@ -563,6 +567,7 @@
   function install() {
     installCss();installInjurySimulation();installOverallRatingInjuryPenalty();
     installPlayerEditor();installTeamMedia();installDemoDatabaseTools();installBannerEvents();decorateDocument();
+    if(typeof window.NBAMyNBARefreshAfterAITrade==="function")window.NBAMyNBARefreshAfterAITrade();
     const observer=new MutationObserver(records=>{
       let changed=false;records.forEach(record=>{if(record.addedNodes&&record.addedNodes.length)changed=true;});
       if(changed&&Date.now()-lastDecorate>80){lastDecorate=Date.now();installTeamMedia();decorateDocument();}
