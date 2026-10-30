@@ -421,20 +421,28 @@
       (deals.length ? '<div class="tablewrap"><table><thead><tr><th>#</th><th>Type</th><th>Équipe A</th><th>Équipe B</th><th>Valeur vedette</th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<p class="muted">Aucun trade n’a été conclu pendant cette saison.</p>') + '</div>';
   }
   function removeOldRecaps() {
-    document.querySelectorAll(".mynba-ai-trade-recap").forEach(el => el.remove());
+    document.querySelectorAll(".mynba-ai-trade-recap").forEach(el => {
+      if (el.id !== "mynbaAITradeSeasonRecap") el.remove();
+    });
   }
   function renderSeasonRecap() {
     const cal = calendar();
-    if (!cal || !Array.isArray(cal.games) || !cal.games.length || !cal.games.every(g => g.status === "completed")) {
-      removeOldRecaps();
+    const screen = $("seasonAwardsScreen");
+    if (!cal || !Array.isArray(cal.games) || !cal.games.length || !cal.games.every(g => g.status === "completed") || !screen) {
+      const mount = $("mynbaAITradeSeasonRecap");
+      if (mount) mount.remove();
       return;
     }
-    removeOldRecaps();
-    ["awardsBox", "seasonAwardsTransitionBox"].forEach((id, index) => {
-      const parent = $(id);
-      if (!parent) return;
-      parent.insertAdjacentHTML("beforeend", tradeRecapHtml(index ? "mynbaAITradeRecapTransition" : "mynbaAITradeRecapAwards"));
-    });
+    let mount = $("mynbaAITradeSeasonRecap");
+    if (!mount) {
+      mount = document.createElement("div");
+      mount.id = "mynbaAITradeSeasonRecap";
+      mount.className = "mynba-ai-trade-recap-mount";
+      const transition = $("seasonAwardsTransitionBox");
+      if (transition && transition.parentNode) transition.insertAdjacentElement("afterend", mount);
+      else screen.appendChild(mount);
+    }
+    mount.innerHTML = tradeRecapHtml("mynbaAITradeSeasonRecapContent");
   }
   function syncSettingsControls() {
     const checkbox = $("mynbaAIAutoDeclineSetting");
