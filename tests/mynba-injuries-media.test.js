@@ -77,4 +77,37 @@ assert.match(html, /value\.attributes = Object\.fromEntries\(attributeNames\.map
 assert.doesNotMatch(html, /NBASimPhysicalAttributeCaps|physicalAttributeCaps/, "Physical growth caps must not be applied inside the manual editor.");
 assert.match(html, /secondaryPos: p\.secondaryPos \?\? p\.secondaryPosition/, "Secondary position must survive player normalization.");
 
-console.log("OK — blessures, charge de jeu, plafonds physiques, bannière 2K, récursion des minutes, GM, base démo, sauvegardes et récapitulatif des trades.");
+assert.match(navigation, /class="mynba-roster-viewer" data-player-banner-host/, "View Roster must host its selected player banner above its lists.");
+assert.match(navigation, /id="mynbaRosterBannerMount"/, "View Roster must have one persistent banner mount shared by its roster tabs.");
+assert.match(navigation, /data-roster-tab="roster"/, "View Roster must expose the roster section.");
+assert.match(navigation, /data-roster-tab="mentorship"/, "View Roster must expose the mentorship section.");
+assert.match(navigation, /data-roster-tab="freeAgency"/, "View Roster must expose the Free Agency section.");
+assert.match(navigation, /id="mynbaMentorshipList"/, "The mentorship section must include a selectable player list.");
+assert.match(navigation, /function freeAgents\(\)/, "Free Agency must enumerate all available free agents.");
+assert.match(navigation, /id="mynbaFreeAgencyList"/, "Free Agency must display a selectable player list.");
+assert.match(navigation, /id="mynbaTeamLeaderBannerMount"|function teamLeaderBannerMarkup/, "Team Leaders must render a dedicated team banner.");
+assert.match(navigation, /mynbaTeamLeaderSort/, "Team Leaders must include sorting beginning with estimated power.");
+assert.match(navigation, /mynbaPlayerBannerMount/, "Player Leaders must have its own persistent player banner mount.");
+assert.match(navigation, /mynbaPlayerLeaderSort/, "Player Leaders must support sorting.");
+assert.match(navigation, /Saison régulière · 82 matchs/, "The regular-season section must be retitled and moved to Season Stats.");
+assert.match(navigation, /appendChild\(oldSeasonSection\)/, "The regular-season panel must be mounted under Season Stats.");
+assert.match(navigation, /NBASimSelectPlayerBanner/, "Roster and leader selections must pin the banner instead of hiding it on pointer exit.");
+assert.match(injuries, /NBASimOverallRingColor/, "The overall rating color thresholds must be exposed for deterministic testing.");
+assert.match(injuries, /mynba-banner-ovr-cap/, "The overall progress ring must have a rounded white-gradient end cap.");
+assert.match(injuries, /mynba-banner-vitals\{display:grid;grid-template-columns:repeat\(3,minmax\(0,1fr\)\);grid-template-rows:repeat\(2,minmax\(0,1fr\)\)/, "Vitals must use vertical label/value blocks over two grid rows.");
+assert.match(injuries, /mynba-banner-visual\{[^}]*border:1px solid/, "The player portrait, jersey and team mark must share one outer frame.");
+assert.match(injuries, /mynba-banner-jersey\{[^}]*background:transparent[^}]*border:0/, "The jersey number must be plain text with no box.");
+assert.doesNotMatch(injuries, /<small>Vitesse<\/small>|<small>Force<\/small>|<small>Contre<\/small>/, "Speed, strength and blocks must no longer be shown in the player banner.");
+assert.match(injuries, /\.mynba-player-leader-row:hover/, "Player Leaders rows must highlight on hover.");
+assert.match(injuries, /\.mynba-team-leader-row:hover/, "Team Leaders rows must highlight on hover.");
+assert.doesNotMatch(fixes, /data-leader-tab="players"[\s\S]{0,100}renderLeaderTable/, "The old actual-player renderer must not overwrite the new Player Leaders viewer.");
+
+const ringColorSource = injuries.match(/function overallRingColor\(value\) \{[\s\S]*?\n  \}/);
+assert.ok(ringColorSource, "The overall ring color function must exist.");
+const ringColor = new Function("clamp", ringColorSource[0] + "; return overallRingColor;")((v,min,max)=>Math.max(min,Math.min(max,Number(v)||0)));
+for (const [rating,color] of [[0,"#ff3438"],[50,"#ff3438"],[51,"#ff653c"],[60,"#ff653c"],[61,"#ff922f"],[65,"#ff922f"],[66,"#ffc34a"],[70,"#ffc34a"],[71,"#ffeb3b"],[80,"#ffeb3b"],[81,"#d9ed36"],[85,"#d9ed36"],[86,"#a8df37"],[90,"#a8df37"],[91,"#79d34b"],[94,"#79d34b"],[95,"#35c96a"],[100,"#35c96a"]]) {
+ assert.equal(ringColor(rating),color,"Overall ring color threshold must be correct at "+rating);
+}
+
+
+console.log("OK — blessures, charge de jeu, plafonds physiques, bannière 2K, listes Roster/Free Agency, League Leaders et couleurs de général, récursion des minutes, GM et sauvegardes.");
