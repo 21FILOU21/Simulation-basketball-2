@@ -8,6 +8,7 @@ const boxScores = window.NBASimActualBoxScores = window.NBASimActualBoxScores ||
 let renderingLeaders = false;
 let applyingAuto = false;
 let lastRegularGameCount = 0;
+let minuteResolverForRoster = null;
 
 function teamCodeForSchedule(code) {
   if (!seasonCalendar || !Array.isArray(seasonCalendar.teams)) return code;
@@ -21,7 +22,8 @@ function playersForTeam(code) {
     if (String(p.team).toUpperCase() === "FA" || String(p.team).toUpperCase() === "FREE_AGENT") return false;
     if (typeof window.NBAMyNBAIsRostered === "function" && !window.NBAMyNBAIsRostered(p)) return false;
     if (typeof window.NBASimInjuryCanPlay === "function" && !window.NBASimInjuryCanPlay(p)) return false;
-    const minutes = typeof window.NBAMyNBAMinutes === "function" ? Number(window.NBAMyNBAMinutes(p)) : Number(p.mpg);
+    const getMinutes = typeof minuteResolverForRoster === "function" ? minuteResolverForRoster : window.NBAMyNBAMinutes;
+    const minutes = typeof getMinutes === "function" ? Number(getMinutes(p)) : Number(p.mpg);
     return Number.isFinite(minutes) && minutes > 0;
   });
 }
@@ -310,16 +312,23 @@ function installActualRegularBox() {
 function installMinuteBudget() {
   const current=window.NBAMyNBAMinutes;
   if(typeof current!=="function" || current.__budgetWrapped)return;
+  // Keep the pre-wrapper function for roster eligibility; using the wrapper here recurses.
+  minuteResolverForRoster=current;
+  const rawMinutes=p=>clamp(Number(current(p))||0,0,48);
+  const adjustedMinutes=p=>typeof window.NBASimInjuryAdjustedMinutes==="function"
+    ? clamp(Number(window.NBASimInjuryAdjustedMinutes(p,rawMinutes(p)))||0,0,48)
+    : rawMinutes(p);
   const wrapped=function(p){
     const team=String(p&&p.team||"");
     const roster=playersForTeam(team);
-    const bases=roster.map(x=>({p:x,m:clamp(Number(current(x))||0,0,48)}));
+    const bases=roster.map(x=>({p:x,m:adjustedMinutes(x)}));
     const sum=bases.reduce((n,x)=>n+x.m,0);
     const factor=sum>240?240/sum:1;
     const row=bases.find(x=>String(x.p.id)===String(p.id));
     return clamp((row?row.m:0)*factor,0,48);
   };
-  wrapped.__budgetWrapped=true;window.NBAMyNBAMinutes=wrapped;
+  wrapped.__budgetWrapped=true;wrapped.__baseMinutes=current;
+  window.NBAMyNBAMinutes=wrapped;
 }
 function normalizeVisibleMinuteInputs() {
   if(applyingAuto)return;
