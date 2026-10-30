@@ -6,6 +6,7 @@ const clean = value => (value || '').replace(/\s+/g,' ').trim();
 const slug = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const status = value => { const el=$('ratingsSyncStatus'); if(el) el.textContent=value; };
 let requestTimeout = null;
+let imageRequestId = 0;
 const apiBase = (() => {
     const host = location.hostname || '127.0.0.1';
     return 'http://' + (host === 'localhost' || host === '127.0.0.1' ? host : '127.0.0.1') + ':3001';
@@ -22,12 +23,33 @@ function imageUrl(doc) {
     const img=[...doc.images].find(x=>/player|basketball/i.test((x.alt||'')+' '+x.src));
     return img?new URL(img.getAttribute('src'),base).href:'';
 }
+function fetchImageViaExtension(url) {
+    return new Promise((resolve,reject) => {
+        const requestId=String(++imageRequestId);
+        const timer=setTimeout(() => { cleanup(); reject(new Error('Délai dépassé pour la photo.')); },15000);
+        const listener=event => {
+            if(event.source!==window || event.data?.source!=='nba-sim-extension' || event.data?.type!=='ratings-image' || event.data?.requestId!==requestId) return;
+            cleanup();
+            if(event.data.dataUrl) resolve(event.data.dataUrl);
+            else reject(new Error(event.data.error || 'Photo inaccessible depuis 2KRatings.'));
+        };
+        function cleanup() { clearTimeout(timer); window.removeEventListener('message',listener); }
+        window.addEventListener('message',listener);
+        window.postMessage({ source:'nba-sim-page', type:'fetch-ratings-image', requestId, url },'*');
+    });
+}
 async function resizedImage(url,name) {
     if(!url) return '';
-    let response;
-    response=await fetch(apiBase + '/api/image?url=' + encodeURIComponent(url));
-    if(!response.ok) throw new Error('Photo indisponible au téléchargement.');
-    const bitmap=await createImageBitmap(await response.blob());
+    let blob;
+    try {
+        const dataUrl=await fetchImageViaExtension(url);
+        blob=await (await fetch(dataUrl)).blob();
+    } catch(extensionError) {
+        const response=await fetch(apiBase + '/api/image?url=' + encodeURIComponent(url));
+        if(!response.ok) throw new Error('Photo indisponible au téléchargement : '+extensionError.message);
+        blob=await response.blob();
+    }
+    const bitmap=await createImageBitmap(blob);
     const ratio=Math.min(1,320/Math.max(bitmap.width,bitmap.height));
     const canvas=document.createElement('canvas');
     canvas.width=Math.max(1,Math.round(bitmap.width*ratio)); canvas.height=Math.max(1,Math.round(bitmap.height*ratio));
@@ -100,6 +122,7 @@ async function sync() {
 }
 window.addEventListener('message', async event => {
     if(event.source!==window || event.data?.source!=='nba-sim-extension') return;
+    if(event.data?.type==='ratings-image') return;
     if(event.data?.type==='ratings-error') {
         clearTimeout(requestTimeout);
         $('runRatingsSync').disabled=false;
