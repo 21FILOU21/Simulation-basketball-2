@@ -64,7 +64,7 @@ function requestRatingsPage(slugValue) {
 }
 async function importSource(source, playerName) {
     const doc=new DOMParser().parseFromString(source,'text/html');
-    const text=clean(doc.body?doc.body.innerText:doc.documentElement.textContent);
+    const text=clean(doc.body?(doc.body.innerText||doc.body.textContent):doc.documentElement.textContent);
     const name=clean(doc.querySelector('h1')?.textContent)||playerName;
     if(!/NBA 2K\d+ Rating/i.test(text)||!text.toLowerCase().includes(playerName.toLowerCase().split(' ')[0]))
         throw new Error('Page joueur introuvable ou nom incorrect. Vérifie le nom utilisé dans l’adresse.');
