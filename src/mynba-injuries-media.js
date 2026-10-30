@@ -705,7 +705,8 @@
       bannerPinned=false;
     }
     bannerPlayerId=String(player.id);banner.innerHTML=playerBannerHtml(player);banner.hidden=false;
-    setActiveBannerRow(row||event.target.closest&&event.target.target.closest(".mynba-player-row,[data-leader-player]")||event.target.closest&&event.target.closest(".mynba-player-row,[data-leader-player]"));
+    const activeRow=row||(event.target&&event.target.closest?event.target.closest(".mynba-player-row,[data-leader-player]"):null);
+    setActiveBannerRow(activeRow);
     positionBanner(event);
   }
   function selectPlayerBanner(player,mount,row) {
@@ -730,7 +731,8 @@
       const player=findPlayer(token.dataset.playerId);if(!player)return;
       const surface=token.closest("[data-player-banner-surface]");
       if(surface) {
-        const mount=surface.querySelector("[data-player-banner-mount]")||surface;
+        const host=surface.closest("[data-player-banner-host]")||surface;
+        const mount=host.querySelector("[data-player-banner-mount]")||surface.querySelector("[data-player-banner-mount]")||surface;
         showBanner(player,event,true,mount,token.closest(".mynba-player-row,[data-leader-player]")||token);
       } else showBanner(player,event,false,null,token);
     });
@@ -747,7 +749,8 @@
       const player=findPlayer(token.dataset.playerId);if(!player)return;
       const surface=token.closest("[data-player-banner-surface]");
       if(surface) {
-        const mount=surface.querySelector("[data-player-banner-mount]")||surface;
+        const host=surface.closest("[data-player-banner-host]")||surface;
+        const mount=host.querySelector("[data-player-banner-mount]")||surface.querySelector("[data-player-banner-mount]")||surface;
         showBanner(player,event,true,mount,token.closest(".mynba-player-row,[data-leader-player]")||token);
       } else if(!banner||banner.hidden||bannerPlayerId!==String(player.id))showBanner(player,event,false,null,token);else hideBanner();
     });
