@@ -283,9 +283,9 @@ function installMentorshipProgress(){
  $("mynbaRosterTable").querySelectorAll("[data-minutes]").forEach(function(i){i.onchange=function(){state.gameplans[t.code]=state.gameplans[t.code]||{};state.gameplans[t.code][i.dataset.minutes]={minutes:Math.max(0,Math.min(48,Number(i.value)||0))};};});
  $("mynbaRosterTable").querySelectorAll("[data-release]").forEach(function(b){b.onclick=function(){releasePlayer(b.dataset.release);};});
  renderMentorship(t,a);
- var mentorRows=a.filter(function(p){return Number(p.age)<25||Number(p.age)>=30;});
+ var mentorRows=a.slice();
  $("mynbaMentorshipList").innerHTML=mentorRows.map(function(p){
-  var label=Number(p.age)<25?(p.mentorship?"ROOKIE · MENTORÉ":"ROOKIE · ÉLIGIBLE"):"VÉTÉRAN · MENTOR";
+  var label=Number(p.age)<25?(p.mentorship?"ROOKIE · MENTORÉ":"ROOKIE · ÉLIGIBLE"):Number(p.age)>=30?"VÉTÉRAN · MENTOR":"JOUEUR · NON ÉLIGIBLE";
   var mentor=p.mentorship?" · "+(p.mentorship.mentorName||"Mentor associé"):"";
   return playerBannerRow(p,label+mentor);
  }).join("")||'<p class="muted">Aucun rookie ou vétéran admissible dans cet effectif.</p>';
