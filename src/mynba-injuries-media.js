@@ -501,7 +501,7 @@
   }
   function decorateTeams(root) {
     if(!root||!document.createTreeWalker)return;
-    const codes=new Set(Object.keys(teamSettings()).concat(currentTeams().map(t=>String(t.code))));
+    const savedTeamImages=readStorage(TEAM_IMAGES_KEY,{}); const codes=new Set(Object.keys(teamSettings()).concat(currentTeams().map(t=>String(t.code)),Object.keys(savedTeamImages)));
     const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),nodes=[];
     let node;
     while((node=walker.nextNode())) {
