@@ -106,7 +106,7 @@
     $("mynbaSimSpeed").addEventListener("change", () => { settings.speed = $("mynbaSimSpeed").value; updateEffectivePause(); });
     $("mynbaSimBatch").addEventListener("change", () => { settings.batchDays = $("mynbaSimBatch").value; });
     $("mynbaSimPause").addEventListener("change", () => { settings.pauseMs = Number($("mynbaSimPause").value); updateEffectivePause(); });
-    $("mynbaInjuriesEnabled").addEventListener("change", () => { settings.injuriesEnabled = $("mynbaInjuriesEnabled").checked; });
+    $("mynbaInjuriesEnabled").addEventListener("change", () => { settings.injuriesEnabled = $("mynbaInjuriesEnabled").checked; persist(); const status = $("mynbaSimStatus"); if(status) status.textContent = settings.injuriesEnabled ? "Blessures activées." : "Blessures désactivées : risque de blessure à 0 %."; });
     $("mynbaSimSaveSettings").addEventListener("click", () => {
       settings = normalize({ speed: $("mynbaSimSpeed").value, batchDays: $("mynbaSimBatch").value, pauseMs: $("mynbaSimPause").value, injuriesEnabled: $("mynbaInjuriesEnabled").checked });
       persist();
