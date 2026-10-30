@@ -18,7 +18,8 @@
     if (!window.NBAMyNBATeamSettings || typeof window.NBAMyNBATeamSettings !== "object") window.NBAMyNBATeamSettings = {};
     return window.NBAMyNBATeamSettings;
   }
-  function findPlayer(id) { return allPlayers().find(p => String(p.id) === String(id)) || null; }
+  function allKnownPlayers() { const active=allPlayers(); const old=typeof retired!=="undefined"&&Array.isArray(retired)?retired:[]; const ids=new Set(active.map(p=>String(p.id))); return active.concat(old.filter(p=>!ids.has(String(p.id)))); }
+  function findPlayer(id) { return allKnownPlayers().find(p => String(p.id) === String(id)) || null; }
   function currentSeasonLabel() {
     const year = typeof seasonYear !== "undefined" ? Number(seasonYear) || 2025 : 2025;
     return typeof seasonLabel === "function" ? seasonLabel(year) : year + "-" + String((year + 1) % 100).padStart(2, "0");
@@ -44,7 +45,7 @@
     if (typeof window.renderAll === "function") window.renderAll();
   }
   window.NBASimSetTeamImage = setTeamImage;
-  function getPlayerImage(player) { return player && player.image ? String(player.image) : ""; }
+  function getPlayerImage(player) { if(player&&player.image)return String(player.image); const known=player&&player.id!=null?allKnownPlayers().find(p=>String(p.id)===String(player.id)):null; return known&&known.image?String(known.image):""; }
   function playerPortraitMarkup(player, size) {
     const image = getPlayerImage(player);
     if (!image) return "";
@@ -400,7 +401,7 @@
   }
   function decorateNames(root) {
     if(!root||!document.createTreeWalker)return;
-    const names=new Map(allPlayers().map(p=>[String(p.name||"").trim(),p]).filter(entry=>entry[0]));
+    const names=new Map(allKnownPlayers().map(p=>[String(p.name||"").trim(),p]).filter(entry=>entry[0]));
     if(!names.size)return;
     const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),nodes=[];
     let node;
@@ -417,7 +418,7 @@
   }
   function decoratePortraits(root) {
     if(!root||!document.createTreeWalker)return;
-    const byName=new Map(allPlayers().map(p=>[String(p.name||"").trim(),p]).filter(entry=>entry[0]));
+    const byName=new Map(allKnownPlayers().map(p=>[String(p.name||"").trim(),p]).filter(entry=>entry[0]));
     const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),nodes=[];
     let node;
     while((node=walker.nextNode())) {
