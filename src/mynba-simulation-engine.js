@@ -6,7 +6,14 @@
   const num = (v, fallback = 50) => Number.isFinite(Number(v)) ? Number(v) : fallback;
   const attr = (p, keys, fallback = 50) => {
     const a = p && p.attributes || {};
-    for (const key of keys) if (a[key] !== undefined && a[key] !== null && Number.isFinite(Number(a[key]))) return Number(a[key]);
+    const injury = p && p.injury;
+    const recoveryFactor = injury && injury.stage === "returning"
+      ? clamp((Number(injury.recoveryGamesRemaining) || 0) / Math.max(1, Number(injury.recoveryGamesTotal) || 1), 0, 1)
+      : 0;
+    for (const key of keys) if (a[key] !== undefined && a[key] !== null && Number.isFinite(Number(a[key]))) {
+      const penalty = injury && injury.attributePenalties ? Number(injury.attributePenalties[key]) || 0 : 0;
+      return clamp(Number(a[key]) - penalty * recoveryFactor, 0, 100);
+    }
     return fallback;
   };
   const autoTendency = p => {
@@ -32,9 +39,15 @@
       ? seasonCalendar.teams.find(t => String(t.scheduleCode || t.code) === String(code)) : null;
     const teamCode = scheduledTeam ? scheduledTeam.code : code;
     const all = typeof players !== "undefined" ? players : [];
-    let rows = all.filter(p => String(p.team) === String(teamCode) &&
-      (typeof window.NBAMyNBAIsRostered !== "function" || window.NBAMyNBAIsRostered(p)));
-    if (rows.length < 5) rows = all.filter(p => String(p.team) === String(teamCode));
+    const eligible = p => {
+      if (String(p.team) !== String(teamCode) || p.retired === true || p.isRetired === true) return false;
+      if (String(p.team).toUpperCase() === "FA" || String(p.team).toUpperCase() === "FREE_AGENT") return false;
+      if (typeof window.NBAMyNBAIsRostered === "function" && !window.NBAMyNBAIsRostered(p)) return false;
+      if (typeof window.NBASimInjuryCanPlay === "function" && !window.NBASimInjuryCanPlay(p)) return false;
+      const minutes = typeof window.NBAMyNBAMinutes === "function" ? Number(window.NBAMyNBAMinutes(p)) : Number(p.mpg);
+      return Number.isFinite(minutes) && minutes > 0;
+    };
+    const rows = all.filter(eligible);
     const rating = p => typeof window.overallRating === "function"
       ? num(window.overallRating(p), 50)
       : (attr(p, ["offensiveIQ", "shotIQ"], 50) + attr(p, ["perimeterDefense", "interiorDefense", "defensiveIQ"], 50)) / 2;

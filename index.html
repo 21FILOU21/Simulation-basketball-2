@@ -834,7 +834,7 @@
                     stl: +(p.stl ?? p.steals ?? estStl(pos)), blk: +(p.blk ?? p.blocks ?? estBlk(pos, reb)),
                     age: +(p.age ?? demoAges[name] ?? 25),
                     season: p.season ?? '2025-26', source: p.source ?? 'Import utilisateur', previousTeam: p.previousTeam,
-                    trophies: p.trophies ?? [], history: p.history ?? [], careerGames: p.careerGames ?? [], rookie: !!p.rookie
+                    trophies: p.trophies ?? [], history: p.history ?? [], careerGames: p.careerGames ?? [], rookie: !!p.rookie, image: p.image || p.imageData || p.photo || "", jerseyNumber: p.jerseyNumber ?? p.number ?? p.jersey ?? "", wingspan: p.wingspan ?? p.wingSpan ?? "", weight: Number(p.weight ?? p.weightKg ?? 0) || 0, nationality: p.nationality ?? p.country ?? "", injury: p.injury && typeof p.injury === "object" ? p.injury : null
                 };
                 if (ids.has(player.id)) player.id = generatedId++;
                 ids.add(player.id);
@@ -877,6 +877,7 @@
                 resultsLabel = savedState.resultsLabel || '';
                 followedPlayerId = savedState.followedPlayerId || null;
                 customTeams = (savedState.customTeams || []).map(team => ({ ...team, playerIds: [...new Set((team.playerIds || []).map(id => Number.isFinite(Number(id)) ? Number(id) : id))] }));
+                if (savedState.teamSettings && typeof savedState.teamSettings === 'object') window.NBAMyNBATeamSettings = savedState.teamSettings;
                 nextCustomTeamId = Math.max(1, Number(savedState.nextCustomTeamId) || 1, ...customTeams.map(team => (Number(team.id) || 0) + 1));
                 seasonCalendar = savedState.seasonCalendar && Array.isArray(savedState.seasonCalendar.games) ? savedState.seasonCalendar : null;
                 const activeIds = new Set(players.map(player => String(player.id)));
@@ -1005,6 +1006,7 @@
                 customTeams, nextCustomTeamId, history, retired, lastAwards, lastOffseason,
                 lastDraft: lastDraft ? { season: lastDraft.season, rows: lastDraft.rows.map(row => ({ ...row, player: undefined, playerId: row.player.id })) } : null,
                 seasonResults, seasonLines: Object.fromEntries(seasonLines), seasonStatHistory,
+                teamSettings: window.NBAMyNBATeamSettings || {},
                 playoffs: savedPlayoffs
             };
             download(JSON.stringify(data, null, 2), `nba_sim_lab_save_${seasonLabel(seasonYear)}.json`, 'application/json;charset=utf-8');
@@ -1972,7 +1974,8 @@
             const box = $('offseasonBox');
             if (!lastOffseason) {
                 box.innerHTML = '<p class="muted">L’intersaison se déclenche après les séries (bouton « Intersaison »).</p>';
-                $('draftTable').innerHTML = ''; $('retiredTable').innerHTML = retired.length ? '' : '<tr><td colspan="7" class="muted">Aucun retraité pour l’instant.</td></tr>';
+                $('draftTable').innerHTML = '';
+                $('retiredTable').innerHTML = [...retired].reverse().map(r => `<tr><td><b>${esc(r.name)}</b>${r.retirementReason ? `<small class="retirement-reason">${esc(r.retirementReason)}</small>` : ''}</td><td>${esc(r.team)}</td><td>${r.age}</td><td>${r.seasons}</td><td>${Number(r.pts || 0).toFixed(1)}</td><td>${esc(r.retiredIn)}</td><td>${trophySummary(r)}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">Aucun retraité pour l’instant.</td></tr>';
                 return;
             }
             const o = lastOffseason, list = a => a.length ? a.map(esc).join(', ') : '<span class="muted">aucun</span>';
@@ -1980,7 +1983,7 @@
                 <span>📈 Plus fortes progressions : ${list(o.risers)}</span><span>📉 Plus fortes baisses : ${list(o.fallers)}</span>
                 <span>👴 Retraites (${o.retired.length}) : ${list(o.retired)}</span><span>🧒 Recrues repêchées : ${o.rookies}</span></div>`;
             $('draftTable').innerHTML = lastDraft ? lastDraft.rows.map(r => `<tr><td class="rank">${r.n}</td><td>${r.round}</td><td>${esc(r.team)}</td><td><b>${esc(r.player.name)}</b></td><td>${r.player.pos}</td><td>${r.player.age}</td><td>${r.player.pts.toFixed(1)}</td><td>${r.player.reb.toFixed(1)}</td><td>${r.player.ast.toFixed(1)}</td></tr>`).join('') : '';
-            $('retiredTable').innerHTML = [...retired].reverse().map(r => `<tr><td><b>${esc(r.name)}</b></td><td>${esc(r.team)}</td><td>${r.age}</td><td>${r.seasons}</td><td>${r.pts.toFixed(1)}</td><td>${esc(r.retiredIn)}</td><td>${trophySummary(r)}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">Aucun retraité pour l’instant.</td></tr>';
+            $('retiredTable').innerHTML = [...retired].reverse().map(r => `<tr><td><b>${esc(r.name)}</b>${r.retirementReason ? `<small class="retirement-reason">${esc(r.retirementReason)}</small>` : ''}</td><td>${esc(r.team)}</td><td>${r.age}</td><td>${r.seasons}</td><td>${r.pts.toFixed(1)}</td><td>${esc(r.retiredIn)}</td><td>${trophySummary(r)}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">Aucun retraité pour l’instant.</td></tr>';
         }
 
         /* ---------- Cycle & boutons ---------- */
@@ -2464,6 +2467,7 @@
     <script src="src/mynba-gm.js"></script>
     <script src="src/mynba-settings-simulation.js"></script>
     <script src="src/mynba-ai-trades.js"></script>
+    <script src="src/mynba-injuries-media.js"></script>
 </body>
 
 </html>

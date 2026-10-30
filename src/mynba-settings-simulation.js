@@ -2,7 +2,7 @@
 (function () {
   "use strict";
   const KEY = "nba-sim-lab-simulation-settings";
-  const DEFAULTS = { speed: "normal", batchDays: "all", pauseMs: 700 };
+  const DEFAULTS = { speed: "normal", batchDays: "all", pauseMs: 700, injuriesEnabled: true };
   const SPEEDS = { slow: 2, normal: 1, fast: 0.25, instant: 0 };
   const $ = id => document.getElementById(id);
   let settings = normalize(window.NBASimSimulationSettings || readLocal());
@@ -18,7 +18,7 @@
     const allowedDays = ["1", "5", "10", "20", "all"];
     const batchDays = allowedDays.includes(String(source.batchDays)) ? String(source.batchDays) : DEFAULTS.batchDays;
     const pauseMs = Number.isFinite(Number(source.pauseMs)) ? Math.max(0, Math.min(10000, Number(source.pauseMs))) : DEFAULTS.pauseMs;
-    return { speed, batchDays, pauseMs };
+    return { speed, batchDays, pauseMs, injuriesEnabled: source.injuriesEnabled !== false };
   }
   function readLocal() {
     try { return JSON.parse(localStorage.getItem(KEY) || "null"); } catch (_) { return null; }
@@ -92,6 +92,7 @@
           <label class="field">Pause entre les journées (ms)
             <input id="mynbaSimPause" type="number" min="0" max="10000" step="100" value="700">
           </label>
+          <label class="mynba-injury-setting"><input id="mynbaInjuriesEnabled" type="checkbox" checked> <span><b>Injuries · ON / OFF</b><small>OFF : monde sans blessures, risque de blessure exactement à 0 %. Les blessures déjà présentes dans la sauvegarde restent enregistrées.</small></span></label>
           <p id="mynbaSimEffectivePause" role="status"></p>
           <div class="controls">
             <button class="btn primary" type="button" id="mynbaSimSaveSettings">Enregistrer les réglages</button>
@@ -105,14 +106,15 @@
     $("mynbaSimSpeed").addEventListener("change", () => { settings.speed = $("mynbaSimSpeed").value; updateEffectivePause(); });
     $("mynbaSimBatch").addEventListener("change", () => { settings.batchDays = $("mynbaSimBatch").value; });
     $("mynbaSimPause").addEventListener("change", () => { settings.pauseMs = Number($("mynbaSimPause").value); updateEffectivePause(); });
+    $("mynbaInjuriesEnabled").addEventListener("change", () => { settings.injuriesEnabled = $("mynbaInjuriesEnabled").checked; persist(); const status = $("mynbaSimStatus"); if(status) status.textContent = settings.injuriesEnabled ? "Blessures activées." : "Blessures désactivées : risque de blessure à 0 %."; });
     $("mynbaSimSaveSettings").addEventListener("click", () => {
-      settings = normalize({ speed: $("mynbaSimSpeed").value, batchDays: $("mynbaSimBatch").value, pauseMs: $("mynbaSimPause").value });
+      settings = normalize({ speed: $("mynbaSimSpeed").value, batchDays: $("mynbaSimBatch").value, pauseMs: $("mynbaSimPause").value, injuriesEnabled: $("mynbaInjuriesEnabled").checked });
       persist();
       const status = $("mynbaSimStatus");
       if (status) status.textContent = "Réglages enregistrés et conservés dans les prochaines sauvegardes JSON.";
     });
     $("mynbaSimRunBatch").addEventListener("click", async () => {
-      settings = normalize({ speed: $("mynbaSimSpeed").value, batchDays: $("mynbaSimBatch").value, pauseMs: $("mynbaSimPause").value });
+      settings = normalize({ speed: $("mynbaSimSpeed").value, batchDays: $("mynbaSimBatch").value, pauseMs: $("mynbaSimPause").value, injuriesEnabled: $("mynbaInjuriesEnabled").checked });
       persist();
       await runSeasonBatch();
     });
@@ -127,6 +129,7 @@
     $("mynbaSimSpeed").value = settings.speed;
     $("mynbaSimBatch").value = settings.batchDays;
     $("mynbaSimPause").value = String(settings.pauseMs);
+    $("mynbaInjuriesEnabled").checked = settings.injuriesEnabled !== false;
     updateEffectivePause();
   }
   function openSettings() {
