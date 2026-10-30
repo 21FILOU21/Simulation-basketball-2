@@ -877,6 +877,7 @@
                 resultsLabel = savedState.resultsLabel || '';
                 followedPlayerId = savedState.followedPlayerId || null;
                 customTeams = (savedState.customTeams || []).map(team => ({ ...team, playerIds: [...new Set((team.playerIds || []).map(id => Number.isFinite(Number(id)) ? Number(id) : id))] }));
+                if (savedState.teamSettings && typeof savedState.teamSettings === 'object') window.NBAMyNBATeamSettings = savedState.teamSettings;
                 nextCustomTeamId = Math.max(1, Number(savedState.nextCustomTeamId) || 1, ...customTeams.map(team => (Number(team.id) || 0) + 1));
                 seasonCalendar = savedState.seasonCalendar && Array.isArray(savedState.seasonCalendar.games) ? savedState.seasonCalendar : null;
                 const activeIds = new Set(players.map(player => String(player.id)));
@@ -1005,6 +1006,7 @@
                 customTeams, nextCustomTeamId, history, retired, lastAwards, lastOffseason,
                 lastDraft: lastDraft ? { season: lastDraft.season, rows: lastDraft.rows.map(row => ({ ...row, player: undefined, playerId: row.player.id })) } : null,
                 seasonResults, seasonLines: Object.fromEntries(seasonLines), seasonStatHistory,
+                teamSettings: window.NBAMyNBATeamSettings || {},
                 playoffs: savedPlayoffs
             };
             download(JSON.stringify(data, null, 2), `nba_sim_lab_save_${seasonLabel(seasonYear)}.json`, 'application/json;charset=utf-8');
