@@ -18,10 +18,39 @@ function rating(text,label) {
 }
 function metric(text,pattern) { const m=text.match(pattern); return m?Number(m[1]):null; }
 function imageUrl(doc) {
+    const candidates=[];
+    const add=(raw,score=0)=>{
+        if(!raw) return;
+        try {
+            const url=new URL(raw,base);
+            if(!/^https?:$/.test(url.protocol)) return;
+            const lower=url.href.toLowerCase();
+            if(/1x1|pixel|spacer|placeholder|blank\.(png|gif)|data:image/.test(lower)) return;
+            if(/\.(svg)(?:[?#]|$)/.test(lower)) return;
+            candidates.push({url:url.href,score});
+        } catch(e) {}
+    };
     const meta=doc.querySelector('meta[property="og:image"],meta[name="twitter:image"]');
-    if(meta&&meta.content) return new URL(meta.content,base).href;
-    const img=[...doc.images].find(x=>/player|basketball/i.test((x.alt||'')+' '+x.src));
-    return img?new URL(img.getAttribute('src'),base).href:'';
+    if(meta) add(meta.content,10);
+    for(const img of doc.querySelectorAll('img')) {
+        const alt=(img.getAttribute('alt')||'').toLowerCase();
+        const cls=(img.getAttribute('class')||'').toLowerCase();
+        const src=img.getAttribute('data-lazy-src')||img.getAttribute('data-src')||img.getAttribute('data-original')||img.getAttribute('src');
+        const w=Math.max(Number(img.getAttribute('width'))||0,Number(img.getAttribute('data-width'))||0);
+        const h=Math.max(Number(img.getAttribute('height'))||0,Number(img.getAttribute('data-height'))||0);
+        const srcset=img.getAttribute('data-srcset')||img.getAttribute('srcset')||'';
+        let bestSrc=src, bestSize=0;
+        for(const item of srcset.split(',')) {
+            const parts=item.trim().split(/\s+/);
+            const size=parseFloat(parts[1])||0;
+            if(parts[0] && size>=bestSize) { bestSize=size; bestSrc=parts[0]; }
+        }
+        const descriptive=/player|portrait|headshot|profile|lebron|basketball|athlete/.test(alt+' '+cls+' '+src);
+        const dimensionScore=(w>=128?30:0)+(h>=128?30:0)+(bestSize>=128?25:0);
+        add(bestSrc,(descriptive?100:0)+dimensionScore+(w*h?Math.min(20,w*h/10000):0));
+    }
+    candidates.sort((a,b)=>b.score-a.score);
+    return candidates[0]?.url||'';
 }
 function fetchImageViaExtension(url) {
     return new Promise((resolve,reject) => {
