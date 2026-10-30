@@ -412,10 +412,12 @@
       .sort((a, b) => (Number(b.headlineValue) || 0) - (Number(a.headlineValue) || 0) || (Number(b.totalValue) || 0) - (Number(a.totalValue) || 0))
       .slice(0, 10);
     const rows = deals.map((t, i) => {
-      const aGives = (t.outgoing || []).map(p => escapeHtml(p.name) + ' <small>(GÉN ' + Number(p.ovr || 0) + ' · POT ' + Number(p.potential || 0) + ')</small>').join(", ");
-      const bGives = (t.incoming || []).map(p => escapeHtml(p.name) + ' <small>(GÉN ' + Number(p.ovr || 0) + ' · POT ' + Number(p.potential || 0) + ')</small>').join(", ");
+      const aGives = (t.outgoing || []).map(p => (typeof window.NBASimPlayerPortraitMarkup === "function" ? window.NBASimPlayerPortraitMarkup(p, 26) : "") + escapeHtml(p.name) + ' <small>(GÉN ' + Number(p.ovr || 0) + ' · POT ' + Number(p.potential || 0) + ')</small>').join(", ");
+      const bGives = (t.incoming || []).map(p => (typeof window.NBASimPlayerPortraitMarkup === "function" ? window.NBASimPlayerPortraitMarkup(p, 26) : "") + escapeHtml(p.name) + ' <small>(GÉN ' + Number(p.ovr || 0) + ' · POT ' + Number(p.potential || 0) + ')</small>').join(", ");
       const label = t.kind === "ai-ai" ? "IA ↔ IA" : t.kind === "player-ai" ? "Franchise ↔ IA" : "IA → Franchise";
-      return '<tr><td>' + (i + 1) + '</td><td><b>' + escapeHtml(label) + '</b><br><small>Journée ' + Number(t.round || 0) + '</small></td><td>' + escapeHtml(teamName(t.from)) + '<br><small>Envoie : ' + aGives + '</small></td><td>' + escapeHtml(teamName(t.to)) + '<br><small>Envoie : ' + bGives + '</small></td><td><b>' + Number(t.headlineValue || 0) + '</b></td></tr>';
+      const fromLogo = typeof window.NBASimTeamImageMarkup === "function" ? window.NBASimTeamImageMarkup(t.from, 26) : "";
+      const toLogo = typeof window.NBASimTeamImageMarkup === "function" ? window.NBASimTeamImageMarkup(t.to, 26) : "";
+      return '<tr><td>' + (i + 1) + '</td><td><b>' + escapeHtml(label) + '</b><br><small>Journée ' + Number(t.round || 0) + '</small></td><td>' + fromLogo + escapeHtml(teamName(t.from)) + '<br><small>Envoie : ' + aGives + '</small></td><td>' + toLogo + escapeHtml(teamName(t.to)) + '<br><small>Envoie : ' + bGives + '</small></td><td><b>' + Number(t.headlineValue || 0) + '</b></td></tr>';
     }).join("");
     return '<div id="' + prefix + '" class="mynba-ai-trade-recap"><div class="mynba-ai-trade-recap-heading"><div><div class="mynba-ai-trade-kicker">TRANSACTIONS · FIN DE SAISON</div><h2>Les plus gros trades de la saison ' + currentSeason() + '</h2><p>Classement par valeur du joueur le plus important de chaque échange. Les valeurs combinent GÉN, potentiel et âge.</p></div><div class="mynba-ai-trade-count">' + deals.length + ' trades</div></div>' +
       (deals.length ? '<div class="tablewrap"><table><thead><tr><th>#</th><th>Type</th><th>Équipe A</th><th>Équipe B</th><th>Valeur vedette</th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<p class="muted">Aucun trade n’a été conclu pendant cette saison.</p>') + '</div>';
