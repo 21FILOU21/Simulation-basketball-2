@@ -21,6 +21,7 @@ assert.match(injuries, /level === "severe" \? randomGames\(50,82\)/, "Severe inj
 assert.match(injuries, /Math\.max\(50,rest\)/, "Severe injuries may not return before 50 games.");
 assert.match(injuries, /retirementReason:"Retraité "\+currentSeasonLabel\(\)\+" — blessure très grave/, "Career-ending injuries must leave a retirement reason.");
 assert.match(injuries, /NBASimInjuryCanPlay/, "The injury manager must expose player availability to the match engine.");
+assert.match(injuries, /function installPlayoffInjurySimulation\(/, "Injury duration and risk must also advance during playoffs.");
 assert.match(injuries, /NBASimInjuryIndicator/, "The UI must expose the severity indicator.");
 assert.match(injuries, /injuriesEnabled !== false/, "Turning injuries off must suppress new injury rolls.");
 assert.match(settings, /id="mynbaInjuriesEnabled"/, "Settings must expose Injuries On/Off.");
