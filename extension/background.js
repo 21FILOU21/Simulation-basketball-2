@@ -26,7 +26,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type === 'fetchRatingsImage') {
     (async () => {
       const imageUrl = new URL(String(message.url || ''));
-      if (imageUrl.protocol !== 'https:' || !/(^|\\.)2kratings\\.com$/i.test(imageUrl.hostname)) {
+      if (imageUrl.protocol !== 'https:' || !/(^|\.)2kratings\.com$/i.test(imageUrl.hostname)) {
         throw new Error('Adresse de photo non autorisée.');
       }
       const response = await fetch(imageUrl.href, {
