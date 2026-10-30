@@ -14,7 +14,7 @@ function send(res, status, body, type='application/json; charset=utf-8') {
 function allowedRatingsUrl(value) {
   let url;
   try { url = new URL(value); } catch { throw new Error('Adresse URL invalide.'); }
-  if (url.protocol !== 'https:' || !/(^|\\.)2kratings\\.com$/i.test(url.hostname)) throw new Error('Seules les adresses HTTPS de 2KRatings sont autorisées.');
+  if (url.protocol !== 'https:' || !/(^|\.)2kratings\.com$/i.test(url.hostname)) throw new Error('Seules les adresses HTTPS de 2KRatings sont autorisées.');
   return url;
 }
 async function upstream(url) {
