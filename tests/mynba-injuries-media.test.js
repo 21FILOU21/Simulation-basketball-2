@@ -1,0 +1,53 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+
+const root = path.join(__dirname, "..");
+const read = p => fs.readFileSync(path.join(root, p), "utf8");
+const html = read("index.html");
+const injuries = read("src/mynba-injuries-media.js");
+const trades = read("src/mynba-ai-trades.js");
+const engine = read("src/mynba-simulation-engine.js");
+const fixes = read("src/mynba-quality-fixes.js");
+const navigation = read("src/mynba-navigation.js");
+const settings = read("src/mynba-settings-simulation.js");
+const gm = read("src/mynba-gm.js");
+
+for (const source of [injuries, trades, engine, fixes, navigation, settings, gm]) new Function(source);
+
+assert.match(html, /src="src\/mynba-injuries-media\.js"/, "The injury and media module must load.");
+assert.match(injuries, /severityLabels = \{minor:"Mineure",moderate:"Moyenne",severe:"Élevée",careerEnding:/, "All four injury levels must exist.");
+assert.match(injuries, /level === "severe" \? randomGames\(50,82\)/, "Severe injuries must require at least 50 team games.");
+assert.match(injuries, /Math\.max\(50,rest\)/, "Severe injuries may not return before 50 games.");
+assert.match(injuries, /retirementReason:"Retraité "\+currentSeasonLabel\(\)\+" — blessure très grave/, "Career-ending injuries must leave a retirement reason.");
+assert.match(injuries, /NBASimInjuryCanPlay/, "The injury manager must expose player availability to the match engine.");
+assert.match(injuries, /NBASimInjuryIndicator/, "The UI must expose the severity indicator.");
+assert.match(injuries, /injuriesEnabled !== false/, "Turning injuries off must suppress new injury rolls.");
+assert.match(settings, /id="mynbaInjuriesEnabled"/, "Settings must expose Injuries On/Off.");
+assert.match(settings, /injuriesEnabled: source\.injuriesEnabled !== false/, "The injury preference must default to ON and be normalized.");
+assert.match(engine, /window\.NBASimInjuryCanPlay/, "The match engine must exclude players unavailable due to injury.");
+assert.match(engine, /return Number\.isFinite\(minutes\) && minutes > 0/, "The match engine must exclude zero-minute players.");
+assert.doesNotMatch(engine, /if \(rows\.length < 5\) rows =/, "The match engine must not re-add excluded players through a short-roster fallback.");
+assert.match(fixes, /window\.NBASimInjuryCanPlay/, "Box-score generation must exclude unavailable players.");
+assert.match(fixes, /minutes > 0/, "Box-score generation must exclude players with zero assigned minutes.");
+assert.match(navigation, /NBASimPlayerPortraitMarkup\(p,30\)/, "View Roster must show the player portrait.");
+assert.match(navigation, /NBASimInjuryIndicator\(p\)/, "View Roster must show injury severity.");
+assert.doesNotMatch(navigation, /data-team-tab="playoffs"/, "View Team must no longer expose a Playoffs tab.");
+assert.match(navigation, /teamSettings:state\.teamSettings/, "MyNBA saves must retain team logos.");
+assert.match(navigation, /aiTradeHistory/, "MyNBA saves must retain the AI transaction history.");
+assert.match(injuries, /mynbaAITradeRecapFullscreen|fullscreen-overlay/, "Player banner exclusions must account for full-screen awards.");
+assert.match(injuries, /#seasonAwardsScreen/, "The player banner must be excluded from season awards.");
+assert.match(injuries, /#mynbaPaneDescription/, "The player banner must be excluded from View Team.");
+assert.match(injuries, /mynba-modal-backdrop/, "The player banner must be excluded from box scores.");
+assert.match(injuries, /accept="\.png,\.jpg,image\/png,image\/jpeg"/, "Player and team image pickers must accept PNG/JPG only.");
+assert.match(injuries, /function decoratePortraits/, "Player portraits must be added to player name displays.");
+assert.match(injuries, /function decorateTeams/, "Team logos must replace displayed team codes where available.");
+assert.match(injuries, /mynbaPlayerBanner/, "The detailed player banner must exist.");
+assert.match(gm, /id="gmCreateWheel"/, "GM must offer a direct wheel-franchise creation action.");
+assert.match(gm, /id="gmLoadSave"/, "GM must keep a direct Load Save action.");
+assert.match(injuries, /mynbaSaveDemoDatabase/, "The demo database must be editable and persistable.");
+assert.match(trades, /mynbaAITradeSeasonRecap/, "The trade recap must have a dedicated independent mount.");
+assert.match(trades, /mynbaAITradeRecapFullscreen/, "The trade recap must be visible in the full-screen end-of-season awards.");
+assert.match(trades, /if \(mount\.innerHTML !== recapHtml\)/, "The trade recap must avoid redundant DOM updates.");
+
+console.log("OK — blessures, disponibilité, images, bannière, GM, base démo, sauvegardes et récapitulatif des trades.");
