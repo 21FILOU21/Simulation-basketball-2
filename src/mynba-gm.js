@@ -30,9 +30,17 @@
       <p class="gm-subtitle">Construis ta franchise, choisis tes cinq premiers joueurs à la roue, gère la saison et sélectionne un prospect à la Draft après les playoffs.</p>
       <div class="gm-actions">
         <button class="gm-primary" id="gmLoadSave">Charger une sauvegarde JSON</button>
+        <button class="gm-primary" id="gmCreateWheel">Créer une franchise avec la roue</button>
         <button class="gm-secondary" id="gmStartDemo">Commencer une démo</button>
       </div>
       <p class="gm-status" id="gmStatus">Ta carrière commence ici.</p>`;
+    $("gmCreateWheel").onclick = () => {
+      if (!Array.isArray(players) || players.length < 5) {
+        setStatus("Charge une sauvegarde ou commence une démo avant d’utiliser la roue.");
+        return;
+      }
+      beginTeamSetup();
+    };
     $("gmLoadSave").onclick = () => {
       const input = $("importFile");
       if (!input) { setStatus("Le chargement JSON est indisponible."); return; }
@@ -67,9 +75,23 @@
         <label class="gm-field">Code de l'équipe (3 à 5 caractères)<input id="gmTeamCode" maxlength="5" placeholder="MTL" required></label>
         <label class="gm-field">Ville<input id="gmTeamCity" maxlength="50" placeholder="Montréal" required></label>
         <label class="gm-field">Conférence<select id="gmTeamConference"><option value="East">Est</option><option value="West">Ouest</option></select></label>
+        <label class="gm-field">Image de la franchise (.png / .jpg)<input id="gmTeamImage" type="file" accept=".png,.jpg,image/png,image/jpeg"></label>
+        <img id="gmTeamImagePreview" alt="Aperçu du logo de la franchise" hidden style="max-width:110px;max-height:110px;object-fit:contain;border-radius:12px">
       </div>
       <p class="gm-status" id="gmSetupStatus">Choisis le nom, le code, la ville et la conférence.</p>
       <div class="gm-actions"><button class="gm-primary" id="gmConfirmTeam">Continuer vers la roue →</button></div>`;
+    const teamImageInput = $("gmTeamImage");
+    if (teamImageInput) teamImageInput.onchange = async () => {
+      if (typeof window.NBASimReadImageFile !== "function") return;
+      try {
+        setup.image = await window.NBASimReadImageFile(teamImageInput.files && teamImageInput.files[0]);
+        const preview = $("gmTeamImagePreview");
+        if (preview) { preview.src = setup.image; preview.hidden = !setup.image; }
+      } catch (error) {
+        setStatus(error.message || "Image invalide. Choisis un fichier PNG ou JPG.");
+        teamImageInput.value = "";
+      }
+    };
     $("gmConfirmTeam").onclick = () => {
       const name = $("gmTeamName").value.trim();
       const city = $("gmTeamCity").value.trim();
@@ -85,7 +107,7 @@
         error.textContent = "Ce code est déjà utilisé. Choisis un autre code.";
         return;
       }
-      setup = { name, city, code, conference };
+      setup = { name, city, code, conference, image: window.NBASimPendingTeamImage || "" };
       beginWheel();
     };
   }
@@ -210,7 +232,7 @@
         return;
       }
       const team = customTeams.find(t => t.code === setup.code);
-      if (team) team.city = setup.city;
+      if (team) { team.city = setup.city; if (setup.image && typeof window.NBASimSetTeamImage === "function") window.NBASimSetTeamImage(setup.code, setup.image); }
       if (typeof render === "function") render();
       if (typeof renderAll === "function") renderAll();
       hideOverlay();
