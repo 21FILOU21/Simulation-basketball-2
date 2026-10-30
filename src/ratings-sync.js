@@ -5,19 +5,11 @@ const base = 'https://www.2kratings.com/';
 const clean = value => (value || '').replace(/\s+/g,' ').trim();
 const slug = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const status = value => { const el=$('ratingsSyncStatus'); if(el) el.textContent=value; };
+let requestTimeout = null;
 const apiBase = (() => {
     const host = location.hostname || '127.0.0.1';
     return 'http://' + (host === 'localhost' || host === '127.0.0.1' ? host : '127.0.0.1') + ':3001';
 })();
-async function fetchPage(url) {
-    const response = await fetch(apiBase + '/api/ratings?slug=' + encodeURIComponent(url.slice(base.length)));
-    if (!response.ok) {
-        let detail = '';
-        try { detail = (await response.json()).error || ''; } catch(e) {}
-        throw new Error(detail || 'Le relais Node ne répond pas. Lance « npm start » dans le dossier du jeu.');
-    }
-    return await response.text();
-}
 function rating(text,label) {
     const safe=label.replace(/[.*+?^$()|[\]\\]/g,'\\$&');
     const m=text.match(new RegExp(safe+'\\s*(?:svg\\s*)?(\\d{1,3})\\b','i'));
@@ -100,9 +92,22 @@ async function sync() {
     if (!$('editPlayerSelect').value) window.__pending2KImage='';
     status('Ouverture de 2KRatings… L’extension Chrome va récupérer les informations de la page.');
     requestRatingsPage(playerSlug);
+    clearTimeout(requestTimeout);
+    requestTimeout = setTimeout(() => {
+        $('runRatingsSync').disabled=false;
+        status('Extension non détectée. Installe et active NBA Sim - 2KRatings Import dans Chrome, puis réessaie.');
+    }, 20000);
 }
 window.addEventListener('message', async event => {
-    if(event.source!==window || event.data?.source!=='nba-sim-extension' || event.data?.type!=='ratings-page') return;
+    if(event.source!==window || event.data?.source!=='nba-sim-extension') return;
+    if(event.data?.type==='ratings-error') {
+        clearTimeout(requestTimeout);
+        $('runRatingsSync').disabled=false;
+        status('Extension : '+(event.data.error || 'impossible d’ouvrir la page 2KRatings.'));
+        return;
+    }
+    if(event.data?.type!=='ratings-page') return;
+    clearTimeout(requestTimeout);
     try {
         await importSource(event.data.html || '',clean($('ratingsSearchName').value));
     } catch(error) {
