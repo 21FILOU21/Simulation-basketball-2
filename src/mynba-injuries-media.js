@@ -55,7 +55,7 @@
     const image = getTeamImage(code);
     if (!image) return esc(code || "—");
     const dimension = clamp(size || 28, 18, 96);
-    return '<img class="mynba-team-logo" src="' + esc(image) + '" alt="' + esc(code || "Équipe") + '" width="' + dimension + '" height="' + dimension + '">';
+    return '<img class="mynba-team-logo" data-team-code="' + esc(code) + '" src="' + esc(image) + '" alt="' + esc(code || "Équipe") + '" width="' + dimension + '" height="' + dimension + '">';
   }
   window.NBASimPlayerPortraitMarkup = playerPortraitMarkup;
   window.NBASimTeamImageMarkup = teamImageMarkup;
@@ -440,16 +440,22 @@
     const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),nodes=[];
     let node;
     while((node=walker.nextNode())) {
-      const code=String(node.nodeValue||"").trim(),parent=node.parentElement;
-      if(!codes.has(code)||!getTeamImage(code)||!parent)continue;
-      if(parent.closest("select,option,input,textarea,script,style"))continue;
-      if(parent.querySelector(".mynba-team-logo"))continue;
-      nodes.push({node,code});
+      const raw=String(node.nodeValue||""),trimmed=raw.trim(),parent=node.parentElement;
+      if(!trimmed||!parent||parent.closest("select,option,input,textarea,script,style"))continue;
+      const code=[...codes].sort((a,b)=>b.length-a.length).find(value=>{
+        if(!getTeamImage(value))return false;
+        return trimmed===value || trimmed.startsWith(value) && /^[\\s·•\\-–—:]/.test(trimmed.slice(value.length));
+      });
+      if(!code)continue;
+      if(parent.querySelector('.mynba-team-logo[data-team-code="'+code.replace(/"/g,'')+'"]'))continue;
+      nodes.push({node,code,raw,trimmed});
     }
-    nodes.forEach(({node,code})=>{
+    nodes.forEach(({node,code,raw,trimmed})=>{
       if(!node.parentNode)return;
-      const img=document.createElement("img");img.className="mynba-team-logo";img.alt=code;img.width=24;img.height=24;img.src=getTeamImage(code);
+      const img=document.createElement("img");img.className="mynba-team-logo";img.dataset.teamCode=code;img.alt=code;img.width=24;img.height=24;img.src=getTeamImage(code);
+      const remainder=trimmed.slice(code.length);
       node.parentNode.insertBefore(img,node);
+      node.nodeValue=remainder;
     });
   }
   function decorateDocument() {
