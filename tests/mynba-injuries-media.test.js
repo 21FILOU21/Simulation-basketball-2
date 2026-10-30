@@ -72,6 +72,8 @@ assert.match(navigation, /class="mynba-player-row" data-player-id=/, "The entire
 assert.match(navigation, /mynba-player-row-name/, "The roster row must retain a separate player-name element.");
 assert.match(html, /id="editSecondaryPos"/, "The player editor must support a secondary position.");
 assert.match(html, /Tu peux définir manuellement tous les attributs jusqu’à 99/, "The editor must explicitly allow manual 99 attributes.");
+assert.match(html, /value\.attributes = Object\.fromEntries\(attributeNames\.map/, "Manual player attributes must be saved directly from the editor.");
+assert.doesNotMatch(html, /NBASimPhysicalAttributeCaps|physicalAttributeCaps/, "Physical growth caps must not be applied inside the manual editor.");
 assert.match(html, /secondaryPos: p\.secondaryPos \?\? p\.secondaryPosition/, "Secondary position must survive player normalization.");
 
 console.log("OK — blessures, charge de jeu, plafonds physiques, bannière 2K, récursion des minutes, GM, base démo, sauvegardes et récapitulatif des trades.");
