@@ -34,10 +34,12 @@ assert.match(navigation, /NBASimPlayerPortraitMarkup\(p,30\)/, "View Roster must
 assert.match(navigation, /NBASimInjuryIndicator\(p\)/, "View Roster must show injury severity.");
 assert.doesNotMatch(navigation, /data-team-tab="playoffs"/, "View Team must no longer expose a Playoffs tab.");
 assert.match(navigation, /teamSettings:state\.teamSettings/, "MyNBA saves must retain team logos.");
+assert.match(navigation, /data\.injuriesEnabled=window\.NBASimSimulationSettings/, "MyNBA saves must retain the Injuries setting.");
 assert.match(navigation, /aiTradeHistory/, "MyNBA saves must retain the AI transaction history.");
 assert.match(injuries, /mynbaAITradeRecapFullscreen|fullscreen-overlay/, "Player banner exclusions must account for full-screen awards.");
 assert.match(injuries, /#seasonAwardsScreen/, "The player banner must be excluded from season awards.");
-assert.match(injuries, /#mynbaPaneDescription/, "The player banner must be excluded from View Team.");
+assert.match(injuries, /#mynbaTeamScreen/, "The player banner must be excluded from every View Team tab.");
+assert.match(injuries, /#awardsSection,#historyTable/, "The player banner must be excluded from awards and history.");
 assert.match(injuries, /mynba-modal-backdrop/, "The player banner must be excluded from box scores.");
 assert.match(injuries, /accept="\.png,\.jpg,image\/png,image\/jpeg"/, "Player and team image pickers must accept PNG/JPG only.");
 assert.match(injuries, /function decoratePortraits/, "Player portraits must be added to player name displays.");
