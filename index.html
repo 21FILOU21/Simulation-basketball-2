@@ -650,6 +650,7 @@
                 <label class="field">Nom<input id="editName" placeholder="Nom du joueur"></label>
                 <label class="field">Équipe<select id="editTeam"></select></label>
                 <label class="field">Poste<select id="editPos"><option>PG</option><option>SG</option><option>SF</option><option>PF</option><option>C</option></select></label>
+                <label class="field">Deuxième poste<select id="editSecondaryPos"><option value="">Aucun</option><option>PG</option><option>SG</option><option>SF</option><option>PF</option><option>C</option></select></label>
                 <label class="field">Âge<input id="editAge" type="number" min="18" max="45" step="1" value="24"></label>
                 <label class="field">Taille (cm)<input id="editHeight" type="number" min="150" max="240" step="1" value="190"></label>
                 <label class="field">PPG<input id="editPts" type="number" min="0" max="60" step="0.1" value="10"></label>
@@ -663,7 +664,7 @@
                 <summary class="btn">Attributs individuels (0–100)</summary>
                 <div id="attributeEditor" class="attribute-groups"></div>
             </details>
-            <p class="muted">La note générale est calculée selon le poste; la taille influence les aptitudes physiques mais ne pénalise pas directement la note.</p>
+            <p class="muted">La note générale est calculée selon le poste. Tu peux définir manuellement tous les attributs jusqu’à 99, sans limite liée au physique. Taille, poids et envergure influencent uniquement les plafonds de progression automatique entre les saisons.</p>
             <div class="stat" style="margin-top:10px"><b id="editOverall">GÉN —</b><span>Note générale calculée</span></div>
             <div class="editor-actions" style="margin-top:12px">
                 <label class="field" style="flex:2">Joueur à modifier / supprimer<select id="editPlayerSelect"><option value="">— Nouveau joueur —</option></select></label>
@@ -832,7 +833,7 @@
                     ts: parseRate(p.ts ?? p.ts_pct ?? p.trueShootingPct ?? 0.56), three: parseRate(p.three ?? p.fg3_pct ?? p.threePointPct ?? 0.35),
                     mpg: +(p.mpg ?? p.minutes ?? 0),
                     stl: +(p.stl ?? p.steals ?? estStl(pos)), blk: +(p.blk ?? p.blocks ?? estBlk(pos, reb)),
-                    age: +(p.age ?? demoAges[name] ?? 25),
+                    age: +(p.age ?? demoAges[name] ?? 25), secondaryPos: p.secondaryPos ?? p.secondaryPosition ?? p.secondPosition ?? p.pos2 ?? "",
                     season: p.season ?? '2025-26', source: p.source ?? 'Import utilisateur', previousTeam: p.previousTeam,
                     trophies: p.trophies ?? [], history: p.history ?? [], careerGames: p.careerGames ?? [], rookie: !!p.rookie, image: p.image || p.imageData || p.photo || "", jerseyNumber: p.jerseyNumber ?? p.number ?? p.jersey ?? "", wingspan: p.wingspan ?? p.wingSpan ?? "", weight: Number(p.weight ?? p.weightKg ?? 0) || 0, nationality: p.nationality ?? p.country ?? "", injury: p.injury && typeof p.injury === "object" ? p.injury : null
                 };
@@ -2094,12 +2095,12 @@
             const name = $('editName').value.trim();
             if (!name) { alert('Entre le nom du joueur.'); return null; }
             const num = id => Math.max(0, Number($(id).value) || 0);
-            const value = { name, team: $('editTeam').value, pos: $('editPos').value, age: clamp(Math.round(num('editAge')) || 24, 18, 45), pts: num('editPts'), reb: num('editReb'), ast: num('editAst'), ts: Math.min(1, num('editTs') / 100), three: Math.min(1, num('editThree') / 100), mpg: Math.min(48, num('editMpg')), height: Math.round(clamp(num('editHeight') || defaultHeight($('editPos').value, name), 150, 240)), season: seasonLabel(seasonYear), source: 'Joueur personnalisé' };
+            const value = { name, team: $('editTeam').value, pos: $('editPos').value, secondaryPos: $('editSecondaryPos').value, age: clamp(Math.round(num('editAge')) || 24, 18, 45), pts: num('editPts'), reb: num('editReb'), ast: num('editAst'), ts: Math.min(1, num('editTs') / 100), three: Math.min(1, num('editThree') / 100), mpg: Math.min(48, num('editMpg')), height: Math.round(clamp(num('editHeight') || defaultHeight($('editPos').value, name), 150, 240)), season: seasonLabel(seasonYear), source: 'Joueur personnalisé' };
             value.attributes = Object.fromEntries(attributeNames.map(([key]) => [key, Math.round(clamp(num(`attr-${key}`), 0, 100))]));
             return value;
         }
         function fillEditor(p) {
-            $('editName').value = p.name; $('editTeam').value = p.team; $('editPos').value = positions.includes(p.pos) ? p.pos : 'PG'; $('editAge').value = p.age;
+            $('editName').value = p.name; $('editTeam').value = p.team; $('editPos').value = positions.includes(p.pos) ? p.pos : 'PG'; $('editSecondaryPos').value = positions.includes(p.secondaryPos) ? p.secondaryPos : ''; $('editAge').value = p.age;
             $('editPts').value = p.pts; $('editReb').value = p.reb; $('editAst').value = p.ast; $('editTs').value = (p.ts * 100).toFixed(1);
             $('editThree').value = (p.three * 100).toFixed(1); $('editMpg').value = p.mpg; $('editHeight').value = p.height;
             renderAttributeEditor(p.attributes);
