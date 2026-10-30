@@ -31,13 +31,14 @@ function imageUrl(doc) {
         } catch(e) {}
     };
     const meta=doc.querySelector('meta[property="og:image"],meta[name="twitter:image"]');
-    if(meta) add(meta.content,10);
+    if(meta) add(meta.content,-20);
     for(const img of doc.querySelectorAll('img')) {
         const alt=(img.getAttribute('alt')||'').toLowerCase();
         const cls=(img.getAttribute('class')||'').toLowerCase();
         const src=img.getAttribute('data-lazy-src')||img.getAttribute('data-src')||img.getAttribute('data-original')||img.getAttribute('src');
         const w=Math.max(Number(img.getAttribute('width'))||0,Number(img.getAttribute('data-width'))||0);
         const h=Math.max(Number(img.getAttribute('height'))||0,Number(img.getAttribute('data-height'))||0);
+        if(w>0 && h>0 && w<32 && h<32) continue;
         const srcset=img.getAttribute('data-srcset')||img.getAttribute('srcset')||'';
         let bestSrc=src, bestSize=0;
         for(const item of srcset.split(',')) {
@@ -79,6 +80,10 @@ async function resizedImage(url,name) {
         blob=await response.blob();
     }
     const bitmap=await createImageBitmap(blob);
+    if(bitmap.width<128 || bitmap.height<128) {
+        bitmap.close();
+        throw new Error('La photo source est trop petite ('+bitmap.width+' × '+bitmap.height+' px). Aucune image de joueur d’au moins 128 × 128 n’a été trouvée.');
+    }
     const ratio=Math.min(1,320/Math.max(bitmap.width,bitmap.height));
     const canvas=document.createElement('canvas');
     canvas.width=Math.max(1,Math.round(bitmap.width*ratio)); canvas.height=Math.max(1,Math.round(bitmap.height*ratio));
