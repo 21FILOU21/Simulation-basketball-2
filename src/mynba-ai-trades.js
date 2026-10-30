@@ -422,7 +422,7 @@
   }
   function removeOldRecaps() {
     document.querySelectorAll(".mynba-ai-trade-recap").forEach(el => {
-      if (el.id !== "mynbaAITradeSeasonRecap") el.remove();
+      if (el.id !== "mynbaAITradeSeasonRecap" && el.id !== "mynbaAITradeRecapFullscreen") el.remove();
     });
   }
   function renderSeasonRecap() {
@@ -443,6 +443,12 @@
       else screen.appendChild(mount);
     }
     mount.innerHTML = tradeRecapHtml("mynbaAITradeSeasonRecapContent");
+    const fullscreen = $("season-awards-fullscreen");
+    const shell = fullscreen && fullscreen.querySelector(".fullscreen-shell");
+    const grid = shell && shell.querySelector(".fullscreen-awards-grid");
+    if (grid && !fullscreen.querySelector("#mynbaAITradeRecapFullscreen")) {
+      grid.insertAdjacentHTML("afterend", tradeRecapHtml("mynbaAITradeRecapFullscreen"));
+    }
   }
   function syncSettingsControls() {
     const checkbox = $("mynbaAIAutoDeclineSetting");
@@ -544,7 +550,7 @@
     if (rosterWasRepaired && typeof window.NBAMyNBARefreshAfterAITrade === "function") window.NBAMyNBARefreshAfterAITrade();
     syncSettingsControls();
     persist();
-    const panelObserver = new MutationObserver(function () { installSettingsUi(); syncSettingsControls(); });
+    const panelObserver = new MutationObserver(function () { installSettingsUi(); syncSettingsControls(); renderSeasonRecap(); });
     panelObserver.observe(document.body, { childList: true, subtree: true });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", install, { once: true });
