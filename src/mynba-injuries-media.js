@@ -136,8 +136,25 @@
   window.NBASimInjuryCanPlay = function(player) {
     const injury = player && player.injury;
     if (!injury) return true;
-    if (injury.severity === "careerEnding" || injury.severity === "severe") return false;
-    return injury.stage === "returning" && Number(injury.restGamesRemaining) <= 0;
+    // Minor and moderate injuries remain playable at a reduced workload.
+    return injury.severity !== "careerEnding" && injury.severity !== "severe";
+  };
+  window.NBASimInjuryMinuteMultiplier = function(player) {
+    const injury=player&&player.injury;if(!injury)return 1;
+    if(injury.severity==="minor")return injury.stage==="returning"?.84:.70;
+    if(injury.severity==="moderate")return injury.stage==="returning"?.66:.50;
+    return 0;
+  };
+  window.NBASimInjuryMinuteLimit = function(player) {
+    const injury=player&&player.injury;if(!injury)return 48;
+    if(injury.severity==="minor")return injury.stage==="returning"?32:28;
+    if(injury.severity==="moderate")return injury.stage==="returning"?22:18;
+    return 0;
+  };
+  window.NBASimInjuryAdjustedMinutes = function(player,baseMinutes) {
+    const base=Number(baseMinutes);if(!Number.isFinite(base)||base<=0)return 0;
+    const multiplier=window.NBASimInjuryMinuteMultiplier(player);
+    return clamp(Math.min(base*multiplier,window.NBASimInjuryMinuteLimit(player)),0,48);
   };
   window.NBASimInjuryIndicator = function(player) {
     const injury = player && player.injury;
@@ -188,6 +205,49 @@
       }
     });
   }
+  function applyInjuryWorkload(code,lines) {
+    allPlayers().filter(player=>String(player.team)===String(code)&&player.injury).forEach(player=>{
+      const injury=player.injury;
+      if(injury.severity!=="minor"&&injury.severity!=="moderate")return;
+      const line=lines&&lines[String(player.id)];
+      const minutes=line?Number(line.minutes)||0:
+        (typeof window.NBAMyNBAMinutes==="function"?Number(window.NBAMyNBAMinutes(player))||0:0);
+      const returning=injury.stage==="returning";
+      const safeMinutes=injury.severity==="minor"?(returning?23:18):(returning?15:12);
+      if(minutes<=safeMinutes)return;
+      const overage=Math.min(20,minutes-safeMinutes);
+      const count=Math.max(0,Number(injury.workloadAggravations)||0);
+      const risk=clamp(.05+overage*.022+count*.035,.05,.42);
+      if(Math.random()>=risk)return;
+      injury.workloadAggravations=count+1;
+      const extra=clamp(Math.ceil(overage/5),1,4);
+      if(injury.stage==="returning") {
+        injury.recoveryGamesRemaining=(Number(injury.recoveryGamesRemaining)||0)+extra;
+        injury.recoveryGamesTotal=(Number(injury.recoveryGamesTotal)||0)+extra;
+      } else {
+        injury.restGamesRemaining=(Number(injury.restGamesRemaining)||0)+extra;
+        injury.restGamesTotal=(Number(injury.restGamesTotal)||0)+extra;
+      }
+      // Repeated excessive workload can upgrade an injury's severity.
+      if(injury.severity==="minor"&&injury.workloadAggravations>=2) {
+        injury.severity="moderate";injury.label=severityLabels.moderate;
+        injury.attributePenalties=injuryPenaltyMap(injury.bodyPart,"moderate");
+        if(injury.stage==="returning") {
+          injury.recoveryGamesRemaining+=2;injury.recoveryGamesTotal+=2;
+        } else {
+          injury.restGamesRemaining+=2;injury.restGamesTotal+=2;
+        }
+        injury.workloadAggravations=0;
+      } else if(injury.severity==="moderate"&&injury.workloadAggravations>=3) {
+        injury.severity="severe";injury.label=severityLabels.severe;injury.stage="out";
+        injury.restGamesRemaining=Math.max(50,Number(injury.restGamesRemaining)||0);
+        injury.restGamesTotal=Math.max(50,Number(injury.restGamesTotal)||0);
+        injury.recoveryGamesRemaining=0;injury.recoveryGamesTotal=0;
+        injury.attributePenalties=injuryPenaltyMap(injury.bodyPart,"severe");
+        injury.workloadAggravations=0;
+      }
+    });
+  }
   function injuryEnabled() { return !window.NBASimSimulationSettings || window.NBASimSimulationSettings.injuriesEnabled !== false; }
   function teamCodeForGame(scheduleCode) {
     const cal=typeof seasonCalendar!=="undefined"?seasonCalendar:null;
@@ -226,6 +286,8 @@
       const result=original.apply(this,arguments);
       if (result!==false && game && game.status==="completed") {
         try {
+          applyInjuryWorkload(teamCodeForGame(game.home.code),game.playerBoxScores&&game.playerBoxScores.home);
+          applyInjuryWorkload(teamCodeForGame(game.away.code),game.playerBoxScores&&game.playerBoxScores.away);
           processTeamInjuries(teamCodeForGame(game.home.code),game.id);
           processTeamInjuries(teamCodeForGame(game.away.code),game.id);
           applyNewInjuries(game);
@@ -285,8 +347,11 @@
         const game = findPlayoffGameRecord(gameId);
         if (game && game.completed) {
           try {
-            processTeamInjuries(teamCodeForGame(game.home.code), game.id);
-            processTeamInjuries(teamCodeForGame(game.away.code), game.id);
+            const homeCode=teamCodeForGame(game.home.code),awayCode=teamCodeForGame(game.away.code);
+            applyInjuryWorkload(homeCode,game.playerBoxScores&&game.playerBoxScores.home);
+            applyInjuryWorkload(awayCode,game.playerBoxScores&&game.playerBoxScores.away);
+            processTeamInjuries(homeCode,game.id);
+            processTeamInjuries(awayCode,game.id);
             applyPlayoffInjuries(game);
             if (typeof window.NBAMyNBARosterChanged === "function") window.NBAMyNBARosterChanged();
             if (typeof window.renderAll === "function") window.renderAll();
@@ -320,6 +385,49 @@
     window.overallRating=wrapped;
   }
 
+  function physicalAttributeCaps(player) {
+    const height=Number(player&&player.height)||200;
+    const weight=Number(player&&player.weight);
+    const wingspan=Number(player&&player.wingspan);
+    const expectedWeight=24.3*Math.pow(height/100,2);
+    const weightOffset=Number.isFinite(weight)&&weight>0?clamp((weight-expectedWeight)/10,-2.5,2.5):0;
+    const heightOffset=clamp((height-200)/10,-3,3);
+    const spanOffset=Number.isFinite(wingspan)&&wingspan>0?clamp((wingspan-height)/5,-3,3):0;
+    const caps=Object.create(null),set=(key,adjustment=0)=>{caps[key]=Math.round(clamp(97+adjustment,78,99));};
+    ["speed","acceleration","agility"].forEach(key=>set(key,-heightOffset*1.15-weightOffset*1.8-spanOffset*.15));
+    set("perimeterDefense",-.7*weightOffset+.35*heightOffset);
+    set("strength",2.1*weightOffset+.8*heightOffset);
+    set("interiorDefense",1.15*weightOffset+1.05*heightOffset+.45*spanOffset);
+    set("block",1.05*heightOffset+2.15*spanOffset);
+    set("defensiveRebound",.9*heightOffset+1.65*spanOffset);
+    set("offensiveRebound",.65*heightOffset+1.35*spanOffset);
+    ["finishing","layup","dunk"].forEach(key=>set(key,.65*heightOffset+1.55*spanOffset));
+    ["threePoint","midRange","freeThrow","closeShot","shotIQ"].forEach(key=>set(key,-1.45*spanOffset-.35*weightOffset));
+    set("ballHandle",-1.55*spanOffset-.35*heightOffset);
+    set("steal",-1.1*spanOffset-.25*weightOffset);
+    return caps;
+  }
+  window.NBASimPhysicalAttributeCaps=physicalAttributeCaps;
+  function installPhysicalProgressionCaps() {
+    const original=window.progress;
+    if(typeof original!=="function"||original.__physicalProgressionCaps)return;
+    const wrapped=function(player) {
+      const before=Object.assign({},player&&player.attributes||{});
+      const result=original.apply(this,arguments);
+      if(player&&player.attributes) {
+        const caps=physicalAttributeCaps(player);
+        Object.keys(caps).forEach(key=>{
+          const previous=Number(before[key]),current=Number(player.attributes[key]);
+          if(Number.isFinite(previous)&&Number.isFinite(current)&&current>previous) {
+            // Preserve manually entered values above the cap; only automatic gains are capped.
+            player.attributes[key]=Math.min(current,Math.max(previous,caps[key]));
+          }
+        });
+      }
+      return result;
+    };
+    wrapped.__physicalProgressionCaps=true;window.progress=wrapped;
+  }
   function installPlayerEditor() {
     const section=$("editorSection");
     if (!section || $("mynbaPlayerMediaEditor")) return;
@@ -640,7 +748,7 @@
   }
 
   function install() {
-    installCss();installInjurySimulation();installPlayoffInjurySimulation();installOverallRatingInjuryPenalty();
+    installCss();installInjurySimulation();installPlayoffInjurySimulation();installOverallRatingInjuryPenalty();installPhysicalProgressionCaps();
     installPlayerEditor();installTeamMedia();installDemoDatabaseTools();installBannerEvents();decorateDocument();
     if(typeof window.NBAMyNBARefreshAfterAITrade==="function")window.NBAMyNBARefreshAfterAITrade();
     const observer=new MutationObserver(records=>{
