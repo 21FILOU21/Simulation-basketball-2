@@ -11,7 +11,7 @@ Le serveur Node sert le jeu et fournit le relais local utilisé par « Synchroni
 
 ## Avec Live Server
 
-Tu peux aussi conserver Live Server sur le port 5500. Dans ce cas, lance également `npm start` dans un deuxième terminal. Le jeu sur Live Server communiquera avec le relais Node sur le port 3001.
+Tu peux aussi conserver Live Server sur le port 5500. L’extension Chrome communique directement avec l’onglet 2KRatings ; Node n’est pas requis pour lire les notes ni pour tenter de récupérer la photo. `npm start` reste utile si tu veux servir le jeu localement ou garder le relais d’image comme solution de secours.
 
 Le relais local évite les restrictions CORS du navigateur. Il ne peut toutefois pas contourner un éventuel blocage, CAPTCHA ou refus HTTP imposé directement par 2KRatings.
 
@@ -31,4 +31,4 @@ L’extension réutilise un onglet 2KRatings déjà ouvert. Sinon, elle en crée
 
 Après toute modification des fichiers de l’extension, retourne dans `chrome://extensions` et clique sur **Actualiser** sur la carte de l’extension.
 
-**Limites :** Chrome doit rester ouvert et l’extension doit être activée. Si 2KRatings affiche un CAPTCHA, une page d’erreur ou ne présente pas les attributs dans son HTML, l’import ne pourra pas les récupérer automatiquement. La photo peut aussi échouer séparément si son serveur bloque le téléchargement.
+**Limites :** Chrome doit rester ouvert et l’extension doit être activée. Si 2KRatings affiche un CAPTCHA, une page d’erreur ou ne présente pas les attributs dans son HTML, l’import ne pourra pas les récupérer automatiquement. La photo est également demandée par l’extension. Elle peut échouer séparément si 2KRatings héberge l’image sur un domaine externe non autorisé ou bloque sa récupération.
