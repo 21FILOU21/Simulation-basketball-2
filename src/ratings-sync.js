@@ -5,11 +5,18 @@ const base = 'https://www.2kratings.com/';
 const clean = value => (value || '').replace(/\s+/g,' ').trim();
 const slug = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const status = value => { const el=$('ratingsSyncStatus'); if(el) el.textContent=value; };
+const apiBase = (() => {
+    const host = location.hostname || '127.0.0.1';
+    return 'http://' + (host === 'localhost' || host === '127.0.0.1' ? host : '127.0.0.1') + ':3001';
+})();
 async function fetchPage(url) {
-    try { const r=await fetch(url,{credentials:'omit'}); if(r.ok) return await r.text(); } catch(e) {}
-    const r=await fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(url));
-    if(!r.ok) throw new Error('2KRatings ou le service de récupération ne répond pas.');
-    return await r.text();
+    const response = await fetch(apiBase + '/api/ratings?slug=' + encodeURIComponent(url.slice(base.length)));
+    if (!response.ok) {
+        let detail = '';
+        try { detail = (await response.json()).error || ''; } catch(e) {}
+        throw new Error(detail || 'Le relais Node ne répond pas. Lance « npm start » dans le dossier du jeu.');
+    }
+    return await response.text();
 }
 function rating(text,label) {
     const safe=label.replace(/[.*+?^$()|[\]\\]/g,'\\$&');
@@ -26,8 +33,7 @@ function imageUrl(doc) {
 async function resizedImage(url,name) {
     if(!url) return '';
     let response;
-    try { response=await fetch(url,{mode:'cors',credentials:'omit'}); }
-    catch(e) { response=await fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(url)); }
+    response=await fetch(apiBase + '/api/image?url=' + encodeURIComponent(url));
     if(!response.ok) throw new Error('Photo indisponible au téléchargement.');
     const bitmap=await createImageBitmap(await response.blob());
     const ratio=Math.min(1,320/Math.max(bitmap.width,bitmap.height));
