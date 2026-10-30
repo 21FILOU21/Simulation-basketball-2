@@ -422,7 +422,7 @@
   }
   function removeOldRecaps() {
     document.querySelectorAll(".mynba-ai-trade-recap").forEach(el => {
-      if (el.id !== "mynbaAITradeSeasonRecap" && el.id !== "mynbaAITradeRecapFullscreen") el.remove();
+      if (!["mynbaAITradeSeasonRecap","mynbaAITradeSeasonRecapContent","mynbaAITradeRecapFullscreen"].includes(el.id)) el.remove();
     });
   }
   function renderSeasonRecap() {
