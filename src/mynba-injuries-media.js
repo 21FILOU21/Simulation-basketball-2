@@ -393,8 +393,9 @@
     return !!(element&&element.closest(
       ".mynba-player-banner,.fullscreen-overlay,.fullscreen-award,.award,.award-reveal,"+
       ".mynba-modal-backdrop,.mynba-modal,.series-modal-card,.mynba-boxscore,#playoffBoxScore,"+
-      "#awardsBox,#seasonAwardsTransitionBox,#seasonAwardsScreen,#mynbaPaneDescription,#mynbaTeamInjuryRoster,"+
-      ".mynba-ai-trade-recap,#mynbaTeamMediaEditor,select,option,textarea,input,script,style"
+      "#awardsBox,#awardsSection,#historyTable,#seasonAwardsTransitionBox,#seasonAwardsScreen,"+
+      "#mynbaPaneDescription,#mynbaTeamScreen,#mynbaTeamInjuryRoster,.mynba-ai-trade-recap,#mynbaTeamMediaEditor,"+
+      "select,option,textarea,input,script,style"
     ));
   }
   function decorateNames(root) {
@@ -405,7 +406,7 @@
     let node;
     while((node=walker.nextNode())) {
       const name=String(node.nodeValue||"").trim(),player=names.get(name),parent=node.parentElement;
-      if(!player||!parent||parent.closest("[data-player-id]")||parent.closest("select,option,input,textarea,script,style"))continue;
+      if(!player||!parent||parent.closest("[data-player-id]")||parent.closest("#mynbaTeamInjuryRoster,select,option,input,textarea,script,style"))continue;
       nodes.push({node,player});
     }
     nodes.forEach(({node,player})=>{
@@ -422,7 +423,7 @@
     while((node=walker.nextNode())) {
       const player=byName.get(String(node.nodeValue||"").trim()),parent=node.parentElement;
       if(!player||!getPlayerImage(player)||!parent)continue;
-      if(parent.closest(".mynba-player-banner,select,option,input,textarea,script,style"))continue;
+      if(parent.closest(".mynba-player-banner,#mynbaTeamInjuryRoster,select,option,input,textarea,script,style"))continue;
       if(parent.querySelector(".mynba-player-portrait"))continue;
       const cell=parent.closest("td");if(cell&&cell.querySelector(".mynba-player-portrait"))continue;
       nodes.push({node,player});
