@@ -22,6 +22,34 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
+
+  if (message?.type === 'fetchRatingsImage') {
+    (async () => {
+      const imageUrl = new URL(String(message.url || ''));
+      if (imageUrl.protocol !== 'https:' || !/(^|\\.)2kratings\\.com$/i.test(imageUrl.hostname)) {
+        throw new Error('Adresse de photo non autorisée.');
+      }
+      const response = await fetch(imageUrl.href, {
+        credentials: 'omit',
+        redirect: 'follow',
+        headers: { 'Accept': 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8' }
+      });
+      if (!response.ok) throw new Error('Le serveur de la photo répond HTTP ' + response.status + '.');
+      const type = response.headers.get('content-type') || '';
+      if (!type.startsWith('image/')) throw new Error('La ressource reçue n’est pas une image.');
+      const bytes = await response.arrayBuffer();
+      if (bytes.byteLength > 12 * 1024 * 1024) throw new Error('La photo dépasse 12 Mo.');
+      const data = new Uint8Array(bytes);
+      let binary = '';
+      const chunkSize = 0x8000;
+      for (let offset = 0; offset < data.length; offset += chunkSize) {
+        binary += String.fromCharCode(...data.subarray(offset, offset + chunkSize));
+      }
+      sendResponse({ ok: true, dataUrl: 'data:' + type + ';base64,' + btoa(binary) });
+    })().catch(error => sendResponse({ ok: false, error: error.message }));
+    return true;
+  }
+
   if (message?.type === 'ratingsPageCaptured') {
     (async () => {
       const { [GAME_TAB_KEY]: gameTabId } = await chrome.storage.session.get(GAME_TAB_KEY);
@@ -35,3 +63,4 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 });
+
