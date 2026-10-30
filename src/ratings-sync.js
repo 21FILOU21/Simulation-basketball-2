@@ -45,7 +45,7 @@ async function sync() {
     if(!playerName||!addressName) { status('Entre le nom du joueur et le nom à utiliser dans l’adresse.'); return; }
     const url=base+slug(addressName);
     $('ratingsSlugName').value=slug(addressName);
-    $('runRatingsSync').disabled=true; status('Connexion à '+url+' …');
+    $('runRatingsSync').disabled=true; if (!$('editPlayerSelect').value) window.__pending2KImage=''; status('Connexion à '+url+' …');
     try {
         const source=await fetchPage(url);
         const doc=new DOMParser().parseFromString(source,'text/html');
