@@ -206,6 +206,7 @@
     });
   }
   function applyInjuryWorkload(code,lines) {
+    if(!injuryEnabled())return;
     allPlayers().filter(player=>String(player.team)===String(code)&&player.injury).forEach(player=>{
       const injury=player.injury;
       if(injury.severity!=="minor"&&injury.severity!=="moderate")return;
