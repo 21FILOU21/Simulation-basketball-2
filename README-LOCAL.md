@@ -14,3 +14,21 @@ Le serveur Node sert le jeu et fournit le relais local utilisé par « Synchroni
 Tu peux aussi conserver Live Server sur le port 5500. Dans ce cas, lance également `npm start` dans un deuxième terminal. Le jeu sur Live Server communiquera avec le relais Node sur le port 3001.
 
 Le relais local évite les restrictions CORS du navigateur. Il ne peut toutefois pas contourner un éventuel blocage, CAPTCHA ou refus HTTP imposé directement par 2KRatings.
+
+## Installer l’extension Chrome pour synchroniser 2KRatings
+
+La synchronisation automatique utilise une petite extension Chrome : elle ouvre la fiche du joueur dans un onglet 2KRatings et transmet le HTML de cette page au simulateur. Cela évite que le serveur Node tente lui-même de télécharger la page et reçoive un HTTP 403.
+
+1. Ouvre Chrome et va sur `chrome://extensions`.
+2. Active **Mode développeur**.
+3. Clique sur **Charger l’extension non empaquetée**.
+4. Sélectionne le dossier `extension` situé à la racine du projet (pas le dossier parent).
+5. Vérifie que **NBA Sim - 2KRatings Import** est activée.
+6. Lance le jeu avec `npm start` puis ouvre `http://127.0.0.1:3001`, ou garde Live Server et laisse Node fonctionner pour le téléchargement des photos.
+7. Dans le créateur de joueurs, saisis le nom et le slug, puis clique sur **Récupérer les ratings**.
+
+L’extension réutilise un onglet 2KRatings déjà ouvert. Sinon, elle en crée un. Elle lit les informations affichées dans la page et les renvoie au jeu.
+
+Après toute modification des fichiers de l’extension, retourne dans `chrome://extensions` et clique sur **Actualiser** sur la carte de l’extension.
+
+**Limites :** Chrome doit rester ouvert et l’extension doit être activée. Si 2KRatings affiche un CAPTCHA, une page d’erreur ou ne présente pas les attributs dans son HTML, l’import ne pourra pas les récupérer automatiquement. La photo peut aussi échouer séparément si son serveur bloque le téléchargement.
