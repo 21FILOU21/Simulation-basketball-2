@@ -442,7 +442,8 @@
       if (transition && transition.parentNode) transition.insertAdjacentElement("afterend", mount);
       else screen.appendChild(mount);
     }
-    mount.innerHTML = tradeRecapHtml("mynbaAITradeSeasonRecapContent");
+    const recapHtml = tradeRecapHtml("mynbaAITradeSeasonRecapContent");
+    if (mount.innerHTML !== recapHtml) mount.innerHTML = recapHtml;
     const fullscreen = $("season-awards-fullscreen");
     const shell = fullscreen && fullscreen.querySelector(".fullscreen-shell");
     const grid = shell && shell.querySelector(".fullscreen-awards-grid");
