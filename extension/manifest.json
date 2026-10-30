@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "NBA Sim - 2KRatings Import",
+  "version": "1.0.0",
+  "description": "Relie le simulateur NBA local aux pages 2KRatings ouvertes dans Chrome.",
+  "permissions": ["tabs", "storage"],
+  "host_permissions": [
+    "https://2kratings.com/*",
+    "https://*.2kratings.com/*",
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://127.0.0.1/*", "http://localhost/*"],
+      "js": ["game-bridge.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://2kratings.com/*", "https://*.2kratings.com/*"],
+      "js": ["ratings-bridge.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
