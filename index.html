@@ -2125,7 +2125,7 @@
             customTeams.forEach(t => t.playerIds = t.playerIds.filter(i => i !== id));
             render(); $('editPlayerSelect').value = ''; $('editorStatus').textContent = `${p.name} a été supprimé.`;
         };
-        $('clearEditor').onclick = () => { $('editPlayerSelect').value = ''; $('editName').value = ''; $('editAge').value = 24; $('editPts').value = 10; $('editReb').value = 4; $('editAst').value = 3; $('editTs').value = 56; $('editThree').value = 35; $('editMpg').value = 20; $('editHeight').value = defaultHeight($('editPos').value); renderAttributeEditor(); $('editorStatus').textContent = 'Champs vidés.'; };
+        $('clearEditor').onclick = () => { $('editPlayerSelect').value = ''; $('editName').value = ''; $('editSecondaryPos').value = ''; $('editAge').value = 24; $('editPts').value = 10; $('editReb').value = 4; $('editAst').value = 3; $('editTs').value = 56; $('editThree').value = 35; $('editMpg').value = 20; $('editHeight').value = defaultHeight($('editPos').value); renderAttributeEditor(); $('editorStatus').textContent = 'Champs vidés.'; };
         $('editPlayerSelect').onchange = () => { const p = players.find(x => x.id === +$('editPlayerSelect').value); if (p) fillEditor(p); };
         $('editPos').onchange = () => { if (!$('editPlayerSelect').value) { $('editHeight').value = defaultHeight($('editPos').value); renderAttributeEditor(); } else updateEditorOverall(); };
         $('attributeEditor').oninput = updateEditorOverall;
