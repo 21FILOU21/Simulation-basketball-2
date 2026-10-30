@@ -87,8 +87,107 @@ function closeMenu(){state.menu=false;$("mynbaMenu").hidden=true;document.queryS
 function openCategory(i){select(i);if(i===cats.length&&$("mynbaSimulationSettingsCard")){$("mynbaSimulationSettingsCard").click();return;}state.active=cats[i][0];state.menu=false;$("mynbaMenu").hidden=true;document.querySelectorAll(".mynba-screen").forEach(function(s){s.hidden=true;});screens[state.active].hidden=false;$("mynbaMobileBack").hidden=false;renderCategory(state.active);}
 function back(){if(state.active){state.active=null;openMenu();}else if(state.menu)closeMenu();else openMenu();}
 function teamTab(k){["description","gameplan","coach","trades"].forEach(function(n){$("mynbaPane"+n[0].toUpperCase()+n.slice(1)).hidden=n!==k;var b=document.querySelector('[data-team-tab="'+n+'"]');if(b)b.classList.toggle("primary",n===k);});if(k==="description")renderTeamDescription();if(k==="gameplan")renderGameplan();if(k==="coach")renderCoach();if(k==="trades")renderTrades();}
-function leaderTab(k){["teams","players","stats"].forEach(function(n){$("mynbaLeader"+n[0].toUpperCase()+n.slice(1)).hidden=n!==k;document.querySelector('[data-leader-tab="'+n+'"]').classList.toggle("primary",n===k);});}
-function renderTeamLeaders(){var pane=$("mynbaTeamLeaderCards");if(!pane)return;var table=(typeof seasonResults!=="undefined"?seasonResults:[]).slice().sort(function(a,b){return (b.winPct||0)-(a.winPct||0);});pane.innerHTML='<div class="mynba-feature-card"><h2>Team Leaders · puissance estimée</h2><div class="tablewrap"><table><thead><tr><th>#</th><th>Équipe</th><th>Win%</th><th>Puissance</th><th>V-D</th><th>PPG</th><th>APG</th><th>RPG</th><th>SPG</th><th>BPG</th></tr></thead><tbody>'+table.map(function(t,i){return '<tr><td>'+(i+1)+'</td><td>'+esc(t.code)+' · '+esc(t.name)+'</td><td>'+((t.winPct||0)*100).toFixed(1)+'%</td><td>'+Math.round((t.strength||.5)*100)+'</td><td>'+t.wins+'-'+t.losses+'</td><td>'+(t.ppg||0).toFixed(1)+'</td><td>'+(t.apg||0).toFixed(1)+'</td><td>'+(t.rpg||0).toFixed(1)+'</td><td>'+(t.spg||0).toFixed(1)+'</td><td>'+(t.bpg||0).toFixed(1)+'</td></tr>';}).join("")+'</tbody></table></div></div>';}function renderPlayerLeaders(){var pane=$("mynbaLeaderPlayers");if(!pane)return;var actual=window.NBASimActualPlayerStats||{};var boxes=window.NBASimActualBoxScores||{};var arr=(typeof players!=="undefined"?players:[]).filter(function(p){return activeIds().has(String(p.id));}).map(function(p){var a=actual[String(p.id)]||{},gp=Number(a.gp)||0,lines=Object.values(boxes).map(function(box){return {id:box.id,line:box.players&&box.players[String(p.id)]};}).filter(function(x){return x.line;});var best=lines.reduce(function(current,item){return !current||Number(item.line.pts||0)>Number(current.line.pts||0)?item:current;},null);return {p:p,gp:gp,pts:gp?(Number(a.pts)||0)/gp:0,ast:gp?(Number(a.ast)||0)/gp:0,reb:gp?(Number(a.reb)||0)/gp:0,stl:gp?(Number(a.stl)||0)/gp:0,blk:gp?(Number(a.blk)||0)/gp:0,totalPts:Number(a.pts)||0,totalAst:Number(a.ast)||0,totalReb:Number(a.reb)||0,totalStl:Number(a.stl)||0,totalBlk:Number(a.blk)||0,bestGamePts:best?Number(best.line.pts)||0:0,bestGameId:best?best.id:""};});var keys=[["bestGamePts","RECORD PTS EN 1 MATCH","bestGamePts","PTS"],["pts","PPG","totalPts","PTS"],["ast","APG","totalAst","AST"],["reb","RPG","totalReb","REB"],["stl","SPG","totalStl","STL"],["blk","BPG","totalBlk","BLK"]];pane.innerHTML=keys.map(function(pair){var x=arr.filter(function(a){return a.gp>0;}).sort(function(a,b){return b[pair[0]]-a[pair[0]]||(b.totalPts||0)-(a.totalPts||0);})[0];return '<div class="mynba-feature-card"><h3>'+pair[1]+'</h3><b>'+(x?esc(x.p.name)+' · '+esc(x.p.team)+' · '+(pair[0]==="bestGamePts"?x.bestGamePts:x[pair[0]]).toFixed(1)+' '+pair[3]: "—") +'</b><p class="muted">'+(x?(pair[0]==="bestGamePts"?(x.bestGamePts+' points dans le match '+esc(x.bestGameId)):x[pair[2]]+' '+pair[3]+' en '+x.gp+' match(s) joué(s)'):"Aucun match simulé") +'</p></div>';}).join("");}function renderCategory(k){if(k==="roster")renderRoster();if(k==="team")renderTeamDescription();if(k==="selection")renderTeamSelection();if(k==="teamCreator"&&typeof render==="function")render();if(k==="leaders"){if(typeof renderStandings==="function")renderStandings();renderTeamLeaders();renderPlayerLeaders();}if(k==="playoffs"&&typeof renderPlayoffs==="function")renderPlayoffs();if(k==="database"&&typeof render==="function")render();}
+function leaderTab(k){
+ state.leaderTab=k;
+ ["teams","players","stats"].forEach(function(n){
+  var pane=$("mynbaLeader"+n[0].toUpperCase()+n.slice(1));if(pane)pane.hidden=n!==k;
+  var button=document.querySelector('[data-leader-tab="'+n+'"]');if(button)button.classList.toggle("primary",n===k);
+ });
+ if(k!=="players"&&typeof window.NBASimHidePlayerBanner==="function")window.NBASimHidePlayerBanner();
+ if(k==="teams")renderTeamLeaders();
+ if(k==="players")renderPlayerLeaders();
+ if(k==="stats"&&typeof renderStandings==="function")renderStandings();
+}
+function rosterTab(k){
+ state.rosterPane=k;
+ ["roster","mentorship","freeAgency"].forEach(function(n){
+  var pane=$("mynbaRosterPane"+n[0].toUpperCase()+n.slice(1));if(pane)pane.hidden=n!==k;
+  var button=document.querySelector('[data-roster-tab="'+n+'"]');if(button)button.classList.toggle("primary",n===k);
+ });
+ var list=k==="freeAgency"?freeAgents():roster(state.team);
+ var selected=list.find(function(p){return String(p.id)===String(state.rosterPlayerId);})||list[0];
+ if(selected){
+  state.rosterPlayerId=selected.id;
+  var host=k==="roster"?"mynbaRosterTable":k==="mentorship"?"mynbaMentorshipList":"mynbaFreeAgencyList";
+  var row=rosterRowForId(host,selected.id);
+  if(typeof window.NBASimSelectPlayerBanner==="function")window.NBASimSelectPlayerBanner(selected,$("mynbaRosterBannerMount"),row);
+ } else if(typeof window.NBASimHidePlayerBanner==="function")window.NBASimHidePlayerBanner();
+}
+function freeAgents(){
+ return (typeof players!=="undefined"?players:[]).filter(function(p){return /^(FA|FREE_AGENT)$/i.test(String(p.team||""))&&!p.retired&&!p.isRetired;}).sort(function(a,b){
+  return (typeof overallRating==="function"?overallRating(b)-overallRating(a):(Number(b.mpg)||0)-(Number(a.mpg)||0))||String(a.name).localeCompare(String(b.name),"fr");
+ });
+}
+function rosterRowForId(hostId,id){
+ var host=$(hostId);if(!host)return null;
+ return Array.from(host.querySelectorAll("[data-player-id]")).find(function(row){return String(row.dataset.playerId)===String(id);})||null;
+}
+function playerBannerRow(player,sub){
+ var image=typeof window.NBASimPlayerPortraitMarkup==="function"?window.NBASimPlayerPortraitMarkup(player,36):"";
+ var injury=typeof window.NBASimInjuryIndicator==="function"?window.NBASimInjuryIndicator(player):"";
+ return '<div class="mynba-player-leader-row" data-player-id="'+esc(player.id)+'"><span class="mynba-player-leader-portrait">'+image+'</span><span class="mynba-player-leader-name"><b>'+esc(player.name)+'</b><small>'+esc(player.pos||"—")+' · '+esc(player.team||"—")+' · '+esc(sub||"")+'</small></span><b class="mynba-player-leader-ovr">'+(typeof overallRating==="function"?Math.round(overallRating(player)):"—")+'</b>'+injury+'</div>';
+}
+function renderTeamLeaders(){
+ var pane=$("mynbaTeamLeaderCards");if(!pane)return;
+ var definitions=teams(),results=typeof seasonResults!=="undefined"&&Array.isArray(seasonResults)?seasonResults:[];
+ var rows=definitions.map(function(t){
+  var result=results.find(function(r){return String(r.code)===String(t.code)||String(r.scheduleCode)===String(t.code);})||{};
+  var estimated=typeof strengthRating==="function"?Number(strengthRating(t.code))/100:.5;
+  return Object.assign({},t,{wins:Number(result.wins)||0,losses:Number(result.losses)||0,winPct:Number(result.winPct)||0,strength:Number(result.strength)||estimated||.5,ppg:Number(result.ppg)||0,apg:Number(result.apg)||0,rpg:Number(result.rpg)||0,spg:Number(result.spg)||0,bpg:Number(result.bpg)||0});
+ });
+ var key=state.teamLeaderSort||"strength";
+ rows.sort(function(a,b){
+  if(key==="name-az")return String(a.name).localeCompare(String(b.name),"fr");
+  if(key==="name-za")return String(b.name).localeCompare(String(a.name),"fr");
+  if(key==="losses")return a.losses-b.losses;
+  if(key==="wins")return b.wins-a.wins;
+  return (Number(b[key])||0)-(Number(a[key])||0);
+ });
+ var selected=rows.find(function(t){return String(t.code)===String(state.leaderTeamCode);})||rows[0];
+ if(selected)state.leaderTeamCode=selected.code;
+ var banner=selected?'<div class="mynba-team-leader-banner"><div class="mynba-team-leader-logo">'+(typeof window.NBASimTeamImageMarkup==="function"?window.NBASimTeamImageMarkup(selected.code,96):esc(selected.code))+'</div><div class="mynba-team-leader-info"><small>TEAM PROFILE · '+esc(selected.conference==="East"?"EAST":"WEST")+'</small><h2>'+esc(selected.name)+'</h2><div class="mynba-team-leader-meta"><b>'+esc(selected.code)+'</b><span>'+esc(selected.city||"Ville non définie")+'</span><span>'+esc(selected.conference==="East"?"Conférence Est":"Conférence Ouest")+'</span></div><strong class="mynba-team-leader-record">'+selected.wins+'–'+selected.losses+'</strong><small>VICTOIRES – DÉFAITES</small></div></div>':'<p class="muted">Aucune équipe disponible.</p>';
+ pane.innerHTML='<div class="mynba-leader-viewer">'+banner+'<div class="mynba-leader-list-toolbar"><h3>Team Leaders</h3><label class="field">Trier par <select id="mynbaTeamLeaderSort"><option value="strength">Puissance estimée</option><option value="winPct">Pourcentage de victoires</option><option value="wins">Victoires</option><option value="losses">Défaites (moins → plus)</option><option value="ppg">Points par match</option><option value="apg">Passes par match</option><option value="rpg">Rebonds par match</option><option value="spg">Interceptions par match</option><option value="bpg">Contres par match</option><option value="name-az">Nom A–Z</option><option value="name-za">Nom Z–A</option></select></label></div><div id="mynbaTeamLeaderList" class="mynba-team-leader-list">'+rows.map(function(t,index){
+  return '<button type="button" class="mynba-team-leader-row '+(selected&&String(t.code)===String(selected.code)?"selected":"")+'" data-leader-team="'+esc(t.code)+'"><span class="mynba-team-leader-rank">'+(index+1)+'</span><span class="mynba-team-leader-row-logo">'+(typeof window.NBASimTeamImageMarkup==="function"?window.NBASimTeamImageMarkup(t.code,34):esc(t.code))+'</span><span class="mynba-team-leader-row-name"><b>'+esc(t.name)+'</b><small>'+esc(t.code)+' · '+esc(t.city||"")+' · '+esc(t.conference==="East"?"Est":"Ouest")+'</small></span><b class="mynba-team-leader-row-record">'+t.wins+'–'+t.losses+'</b><b class="mynba-team-leader-row-power">'+Math.round(t.strength*100)+' POW</b></button>';
+ }).join("")+'</div></div>';
+ var sort=$("mynbaTeamLeaderSort");if(sort){sort.value=key;sort.onchange=function(){state.teamLeaderSort=sort.value;renderTeamLeaders();};}
+ $("mynbaTeamLeaderList").querySelectorAll("[data-leader-team]").forEach(function(row){row.onclick=function(){state.leaderTeamCode=row.dataset.leaderTeam;renderTeamLeaders();};});
+}
+function renderPlayerLeaders(){
+ var pane=$("mynbaLeaderPlayers");if(!pane)return;
+ var actual=window.NBASimActualPlayerStats||{},boxes=window.NBASimActualBoxScores||{};
+ var arr=(typeof players!=="undefined"?players:[]).filter(function(p){return activeIds().has(String(p.id));}).map(function(p){
+  var a=actual[String(p.id)]||{},gp=Number(a.gp)||0;
+  var lines=Object.values(boxes).map(function(box){return {id:box.id,line:box.players&&box.players[String(p.id)]};}).filter(function(x){return x.line;});
+  var best=lines.reduce(function(current,item){return !current||Number(item.line.pts||0)>Number(current.line.pts||0)?item:current;},null);
+  return {p:p,gp:gp,pts:gp?(Number(a.pts)||0)/gp:0,ast:gp?(Number(a.ast)||0)/gp:0,reb:gp?(Number(a.reb)||0)/gp:0,stl:gp?(Number(a.stl)||0)/gp:0,blk:gp?(Number(a.blk)||0)/gp:0,totalPts:Number(a.pts)||0,totalAst:Number(a.ast)||0,totalReb:Number(a.reb)||0,totalStl:Number(a.stl)||0,totalBlk:Number(a.blk)||0,bestGamePts:best?Number(best.line.pts)||0:0,bestGameId:best?best.id:""};
+ });
+ var key=state.playerLeaderSort||"pts";
+ arr.sort(function(a,b){
+  if(key==="name")return String(a.p.name).localeCompare(String(b.p.name),"fr");
+  if(key==="ovr")return overallRating(b.p)-overallRating(a.p);
+  return (Number(b[key])||0)-(Number(a[key])||0)||overallRating(b.p)-overallRating(a.p);
+ });
+ var selected=arr.find(function(x){return String(x.p.id)===String(state.leaderPlayerId);})||arr[0];
+ if(selected)state.leaderPlayerId=selected.p.id;
+ pane.innerHTML='<div class="mynba-leader-viewer"><div id="mynbaPlayerBannerMount" class="mynba-leader-player-banner-mount" data-player-banner-mount></div><div class="mynba-leader-list-toolbar"><h3>Player Leaders</h3><label class="field">Trier par <select id="mynbaPlayerLeaderSort"><option value="pts">Points par match</option><option value="ast">Passes par match</option><option value="reb">Rebonds par match</option><option value="stl">Interceptions par match</option><option value="blk">Contres par match</option><option value="totalPts">Points cumulés</option><option value="ovr">Puissance</option><option value="name">Nom A–Z</option></select></label></div><div id="mynbaPlayerLeaderList" class="mynba-player-leader-list" data-player-banner-surface">'+arr.map(function(x,index){
+  return '<div class="mynba-player-leader-row '+(selected&&String(x.p.id)===String(selected.p.id)?"selected":"")+'" data-player-id="'+esc(x.p.id)+'" data-leader-player="'+esc(x.p.id)+'"><span class="mynba-player-leader-rank">'+(index+1)+'</span><span class="mynba-player-leader-portrait">'+(typeof window.NBASimPlayerPortraitMarkup==="function"?window.NBASimPlayerPortraitMarkup(x.p,36):"")+'</span><span class="mynba-player-leader-name"><b>'+esc(x.p.name)+'</b><small>'+esc(x.p.pos||"—")+' · '+esc(x.p.team||"—")+' · '+x.gp+' MJ</small></span><span class="mynba-player-leader-stats"><b>'+x.pts.toFixed(1)+' PPG</b><small>'+x.ast.toFixed(1)+' AST · '+x.reb.toFixed(1)+' REB · '+x.stl.toFixed(1)+' STL · '+x.blk.toFixed(1)+' BLK</small></span><b class="mynba-player-leader-ovr">'+overallRating(x.p)+'</b></div>';
+ }).join("")+'</div></div>';
+ var sort=$("mynbaPlayerLeaderSort");if(sort){sort.value=key;sort.onchange=function(){state.playerLeaderSort=sort.value;renderPlayerLeaders();};}
+ var mount=$("mynbaPlayerBannerMount"),initialRow=rosterRowForId("mynbaPlayerLeaderList",selected&&selected.p.id);
+ if(selected&&typeof window.NBASimSelectPlayerBanner==="function")window.NBASimSelectPlayerBanner(selected.p,mount,initialRow);
+ $("mynbaPlayerLeaderList").querySelectorAll("[data-leader-player]").forEach(function(row){
+  row.onclick=function(){state.leaderPlayerId=row.dataset.leaderPlayer;var p=players.find(function(x){return String(x.id)===String(state.leaderPlayerId);});$("mynbaPlayerLeaderList").querySelectorAll(".mynba-player-leader-row").forEach(function(el){el.classList.toggle("selected",el===row);});if(p&&typeof window.NBASimSelectPlayerBanner==="function")window.NBASimSelectPlayerBanner(p,mount,row);};
+ });
+}
+function renderCategory(k){
+ if(k==="roster")renderRoster();
+ if(k==="team")renderTeamDescription();
+ if(k==="selection")renderTeamSelection();
+ if(k==="teamCreator"&&typeof render==="function")render();
+ if(k==="leaders"){if(typeof renderStandings==="function")renderStandings();renderTeamLeaders();renderPlayerLeaders();leaderTab(state.leaderTab||"teams");}
+ if(k==="playoffs"&&typeof renderPlayoffs==="function")renderPlayoffs();
+ if(k==="database"&&typeof render==="function")render();
+}
 function renderTeamSelection(){var q=($("mynbaTeamSearch").value||"").toLowerCase(),conf=$("mynbaTeamFilter").value;$("mynbaTeamGrid").innerHTML=teams().filter(function(t){return(conf==="ALL"||t.conference===conf)&&((t.name+" "+t.code).toLowerCase().includes(q));}).map(function(t){return '<button class="mynba-team-card '+(t.code===state.team?"selected":"")+'" data-team-code="'+esc(t.code)+'"><span class="mynba-team-code">'+esc(t.code)+'</span><strong>'+esc(t.name)+'</strong><small>'+esc(t.conference)+(t.custom?" · CUSTOM":"")+'</small><b>GÉN. '+strengthRating(t.code)+'</b></button>';}).join("")||'<p>Aucune équipe trouvée.</p>';$("mynbaTeamGrid").querySelectorAll("[data-team-code]").forEach(function(b){b.onclick=function(){state.team=b.dataset.teamCode;if($("scheduleTeamFilter")){$("scheduleTeamFilter").value=state.team;if(typeof renderSeasonCalendar==="function")renderSeasonCalendar();}renderTeamSelection();renderRoster();renderTeamDescription();};});}
 function strengthRating(code){var a=roster(code);return a.length&&typeof overallRating==="function"?Math.round(a.reduce(function(s,p){return s+overallRating(p);},0)/a.length):"—";}
 function mentorshipGain(rookie,mentor){
