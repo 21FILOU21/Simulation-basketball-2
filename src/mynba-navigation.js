@@ -190,7 +190,8 @@ function renderPlayerLeaders(){
  var mount=$("mynbaPlayerBannerMount"),initialRow=rosterRowForId("mynbaPlayerLeaderList",selected&&selected.p.id);
  if(selected&&typeof window.NBASimSelectPlayerBanner==="function")window.NBASimSelectPlayerBanner(selected.p,mount,initialRow);
  $("mynbaPlayerLeaderList").querySelectorAll("[data-leader-player]").forEach(function(row){
-  row.onclick=function(){state.leaderPlayerId=row.dataset.leaderPlayer;var p=players.find(function(x){return String(x.id)===String(state.leaderPlayerId);});$("mynbaPlayerLeaderList").querySelectorAll(".mynba-player-leader-row").forEach(function(el){el.classList.toggle("selected",el===row);});if(p&&typeof window.NBASimSelectPlayerBanner==="function")window.NBASimSelectPlayerBanner(p,mount,row);};
+  var selectRow=function(){state.leaderPlayerId=row.dataset.leaderPlayer;var p=players.find(function(x){return String(x.id)===String(state.leaderPlayerId);});$("mynbaPlayerLeaderList").querySelectorAll(".mynba-player-leader-row").forEach(function(el){el.classList.toggle("selected",el===row);});if(p&&typeof window.NBASimSelectPlayerBanner==="function")window.NBASimSelectPlayerBanner(p,mount,row);};
+  row.onclick=selectRow;row.onpointerenter=selectRow;
  });
 }
 function renderCategory(k){
@@ -293,17 +294,21 @@ function installMentorshipProgress(){
  $("mynbaFreeAgent").innerHTML='<option value="">— Choisir —</option>'+fa.map(function(p){return '<option value="'+esc(p.id)+'">'+esc(p.name+" · GÉN "+overallRating(p))+'</option>';}).join("");
  $("mynbaFreeAgencyList").innerHTML=fa.map(function(p){return playerBannerRow(p,Number(p.age)+" ans · GÉN "+overallRating(p));}).join("")||'<p class="muted">Aucun agent libre disponible.</p>';
  $("mynbaRosterTable").querySelectorAll("[data-player-id]").forEach(function(row){
-  row.onclick=function(event){
-   if(event.target.closest("button,input,select"))return;
+  var selectRow=function(event){
+   if(event&&event.target&&event.target.closest("button,input,select"))return;
    var p=players.find(function(x){return String(x.id)===String(row.dataset.playerId);});
    if(p){state.rosterPlayerId=p.id;row.parentNode.querySelectorAll(".mynba-player-row").forEach(function(el){el.classList.toggle("selected",el===row);});if(typeof window.NBASimSelectPlayerBanner==="function")window.NBASimSelectPlayerBanner(p,$("mynbaRosterBannerMount"),row);}
   };
+  row.onclick=selectRow;row.onpointerenter=selectRow;
  });
- $("mynbaMentorshipList").querySelectorAll("[data-player-id]").forEach(function(row){
-  row.onclick=function(){var p=players.find(function(x){return String(x.id)===String(row.dataset.playerId);});if(p){state.rosterPlayerId=p.id;$("mynbaMentorshipList").querySelectorAll(".mynba-player-leader-row").forEach(function(el){el.classList.toggle("selected",el===row);});if(typeof window.NBASimSelectPlayerBanner==="function")window.NBASimSelectPlayerBanner(p,$("mynbaRosterBannerMount"),row);}};
- });
- $("mynbaFreeAgencyList").querySelectorAll("[data-player-id]").forEach(function(row){
-  row.onclick=function(){var p=players.find(function(x){return String(x.id)===String(row.dataset.playerId);});if(p){state.rosterPlayerId=p.id;$("mynbaFreeAgencyList").querySelectorAll(".mynba-player-leader-row").forEach(function(el){el.classList.toggle("selected",el===row);});if(typeof window.NBASimSelectPlayerBanner==="function")window.NBASimSelectPlayerBanner(p,$("mynbaRosterBannerMount"),row);}};
+ ["mynbaMentorshipList","mynbaFreeAgencyList"].forEach(function(hostId){
+  $(hostId).querySelectorAll("[data-player-id]").forEach(function(row){
+   var selectRow=function(){
+    var p=players.find(function(x){return String(x.id)===String(row.dataset.playerId);});
+    if(p){state.rosterPlayerId=p.id;$(hostId).querySelectorAll(".mynba-player-leader-row").forEach(function(el){el.classList.toggle("selected",el===row);});if(typeof window.NBASimSelectPlayerBanner==="function")window.NBASimSelectPlayerBanner(p,$("mynbaRosterBannerMount"),row);}
+   };
+   row.onclick=selectRow;row.onpointerenter=selectRow;
+  });
  });
  rosterTab(state.rosterPane||"roster");
 }
