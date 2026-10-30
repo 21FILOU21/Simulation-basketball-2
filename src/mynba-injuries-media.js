@@ -237,6 +237,70 @@
     wrapped.__mynbaInjuryWrapped=true;
     window.simulateScheduledGame=wrapped;
   }
+  function findPlayoffGameRecord(gameId) {
+    if (typeof playoffs === "undefined" || !playoffs) return null;
+    const games = [];
+    const readRounds = rounds => (rounds || []).forEach(round => (round.series || []).forEach(series => {
+      (series.games || []).forEach(game => games.push(game));
+    }));
+    if (playoffs.confRounds) {
+      readRounds(playoffs.confRounds.West);
+      readRounds(playoffs.confRounds.East);
+    }
+    readRounds(playoffs.rounds);
+    if (playoffs.final && Array.isArray(playoffs.final.games)) games.push(...playoffs.final.games);
+    return games.find(game => String(game.id) === String(gameId)) || null;
+  }
+  function applyPlayoffInjuries(game) {
+    if (!injuryEnabled() || !game) return;
+    [game.home && game.home.code, game.away && game.away.code].filter(Boolean).forEach(scheduleCode => {
+      const code = teamCodeForGame(scheduleCode);
+      allPlayers().filter(player => {
+        if (String(player.team) !== code || player.injury || player.retired === true || String(player.team).toUpperCase() === "FA") return false;
+        if (typeof window.NBAMyNBAIsRostered === "function" && !window.NBAMyNBAIsRostered(player)) return false;
+        return true;
+      }).forEach(player => {
+        const minutes = typeof window.NBAMyNBAMinutes === "function" ? Number(window.NBAMyNBAMinutes(player)) || 0 : Number(player.mpg) || 0;
+        if (minutes <= 0) return;
+        const attributes = player.attributes || {};
+        const ageFactor = 1 + Math.max(0, (Number(player.age) || 25) - 29) * .025;
+        const durability = clamp(attributes.durability == null ? 65 : attributes.durability, 20, 99);
+        const risk = .0015 * clamp(minutes / 32, .25, 1.5) * ageFactor * (1 + (100 - durability) * .002);
+        if (Math.random() >= risk) return;
+        const roll = Math.random();
+        const severity = roll < .76 ? "minor" : roll < .965 ? "moderate" : roll < .999 ? "severe" : "careerEnding";
+        const parts = Object.keys(bodyParts);
+        const injury = newInjury(player, severity, parts[Math.floor(Math.random() * parts.length)], null, game.id);
+        player.injury = injury;
+        if (severity === "careerEnding") retireFromCareerEnding(player, injury);
+      });
+    });
+  }
+  function installPlayoffInjurySimulation() {
+    const original = window.simulateOnePlayoffGame;
+    if (typeof original !== "function" || original.__mynbaPlayoffInjuryWrapped) return;
+    const wrapped = function (gameId) {
+      const result = original.apply(this, arguments);
+      if (result !== false) {
+        const game = findPlayoffGameRecord(gameId);
+        if (game && game.completed) {
+          try {
+            processTeamInjuries(teamCodeForGame(game.home.code), game.id);
+            processTeamInjuries(teamCodeForGame(game.away.code), game.id);
+            applyPlayoffInjuries(game);
+            if (typeof window.NBAMyNBARosterChanged === "function") window.NBAMyNBARosterChanged();
+            if (typeof window.renderAll === "function") window.renderAll();
+          } catch (error) {
+            console.error("Playoff injury system:", error);
+          }
+        }
+      }
+      return result;
+    };
+    wrapped.__mynbaPlayoffInjuryWrapped = true;
+    window.simulateOnePlayoffGame = wrapped;
+  }
+
   function installOverallRatingInjuryPenalty() {
     const original=window.overallRating;
     if (typeof original!=="function" || original.__injuryPenaltyWrapped) return;
@@ -575,7 +639,7 @@
   }
 
   function install() {
-    installCss();installInjurySimulation();installOverallRatingInjuryPenalty();
+    installCss();installInjurySimulation();installPlayoffInjurySimulation();installOverallRatingInjuryPenalty();
     installPlayerEditor();installTeamMedia();installDemoDatabaseTools();installBannerEvents();decorateDocument();
     if(typeof window.NBAMyNBARefreshAfterAITrade==="function")window.NBAMyNBARefreshAfterAITrade();
     const observer=new MutationObserver(records=>{
