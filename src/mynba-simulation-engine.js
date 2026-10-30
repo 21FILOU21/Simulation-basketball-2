@@ -61,13 +61,16 @@
       const configured = typeof window.NBAMyNBAMinutes === "function" ? Number(window.NBAMyNBAMinutes(l.p)) : 20;
       return Number.isFinite(configured) ? clamp(configured, 0, 48) : 20;
     };
+    const minuteLimit = l => typeof window.NBASimInjuryMinuteLimit === "function"
+      ? clamp(Number(window.NBASimInjuryMinuteLimit(l.p)) || 0, 0, 48)
+      : 48;
     const totalMpg = lines.reduce((sum, l) => sum + minutePreference(l), 0);
-    if (totalMpg > 0) lines.forEach(l => { l.minutes = clamp(Math.round(240 * minutePreference(l) / totalMpg), 0, 48); });
-    if (lines.length && lines.every(l => !l.minutes)) lines.slice(0, 5).forEach(l => { l.minutes = 48; });
+    if (totalMpg > 0) lines.forEach(l => { l.minutes = clamp(Math.round(240 * minutePreference(l) / totalMpg), 0, minuteLimit(l)); });
+    if (lines.length && lines.every(l => !l.minutes)) lines.slice(0, 5).forEach(l => { l.minutes = minuteLimit(l); });
     // Correct rounding while preserving the 240 team-minute budget and the 48-minute player cap.
     let difference = 240 - lines.reduce((sum, l) => sum + l.minutes, 0);
     for (let guard = 0; difference !== 0 && lines.length && guard < 1000; guard++) {
-      const eligible = lines.filter(l => difference > 0 ? l.minutes < 48 : l.minutes > 0);
+      const eligible = lines.filter(l => difference > 0 ? l.minutes < minuteLimit(l) : l.minutes > 0);
       if (!eligible.length) break;
       const player = pickWeighted(eligible, l => Math.max(1, minutePreference(l)));
       player.minutes += difference > 0 ? 1 : -1;
