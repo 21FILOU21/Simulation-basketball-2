@@ -53,4 +53,25 @@ assert.match(trades, /mynbaAITradeSeasonRecap/, "The trade recap must have a ded
 assert.match(trades, /mynbaAITradeRecapFullscreen/, "The trade recap must be visible in the full-screen end-of-season awards.");
 assert.match(trades, /if \(mount\.innerHTML !== recapHtml\)/, "The trade recap must avoid redundant DOM updates.");
 
-console.log("OK — blessures, disponibilité, images, bannière, GM, base démo, sauvegardes et récapitulatif des trades.");
+
+assert.match(fixes, /minuteResolverForRoster/, "Roster filtering must use the pre-wrapper minutes resolver to prevent recursion.");
+assert.match(fixes, /NBASimInjuryAdjustedMinutes/, "Minute budgets must apply injury workload multipliers.");
+assert.match(engine, /NBASimInjuryMinuteLimit/, "Possession-minute redistribution must respect injured-player minute limits.");
+assert.match(injuries, /NBASimInjuryCanPlay = function\(player\)[\s\S]*?return injury\.severity !== "careerEnding" && injury\.severity !== "severe"/, "Minor and moderate injuries must remain eligible to play.");
+assert.match(injuries, /function applyInjuryWorkload/, "Excessive minutes must be able to aggravate an existing injury.");
+assert.match(injuries, /workloadAggravations/, "Repeated overload must increase aggravation risk and severity.");
+assert.match(injuries, /function physicalAttributeCaps/, "Physical measurements must define automatic growth ceilings.");
+assert.match(injuries, /installPhysicalProgressionCaps/, "Physical ceilings must only wrap automatic season progression.");
+assert.match(injuries, /Preserve manually entered values above the cap/, "Manual editor ratings above physical ceilings must be preserved.");
+assert.match(injuries, /heightOffset[\s\S]*?weightOffset[\s\S]*?spanOffset/, "Height, weight and wingspan must all contribute to physical progression ceilings.");
+assert.match(injuries, /height:30vh/, "The player banner must occupy roughly thirty percent of the page height.");
+assert.match(injuries, /mynba-player-row:hover td/, "The hovered player row must use the NBA 2K yellow highlight.");
+assert.match(injuries, /mynba-banner-team-back/, "The team logo or code must sit behind the player portrait.");
+assert.match(injuries, /mynba-banner-jersey/, "The jersey number must be displayed above the player portrait.");
+assert.match(navigation, /class="mynba-player-row" data-player-id=/, "The entire View Roster row must trigger the player banner.");
+assert.match(navigation, /mynba-player-row-name/, "The roster row must retain a separate player-name element.");
+assert.match(html, /id="editSecondaryPos"/, "The player editor must support a secondary position.");
+assert.match(html, /Tu peux définir manuellement tous les attributs jusqu’à 99/, "The editor must explicitly allow manual 99 attributes.");
+assert.match(html, /secondaryPos: p\.secondaryPos \?\? p\.secondaryPosition/, "Secondary position must survive player normalization.");
+
+console.log("OK — blessures, charge de jeu, plafonds physiques, bannière 2K, récursion des minutes, GM, base démo, sauvegardes et récapitulatif des trades.");
