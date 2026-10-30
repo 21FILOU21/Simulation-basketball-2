@@ -7,9 +7,9 @@
   const attr = (p, keys, fallback = 50) => {
     const a = p && p.attributes || {};
     const injury = p && p.injury;
-    const recoveryFactor = injury && injury.stage === "returning"
+    const recoveryFactor = !injury ? 0 : injury.stage === "returning"
       ? clamp((Number(injury.recoveryGamesRemaining) || 0) / Math.max(1, Number(injury.recoveryGamesTotal) || 1), 0, 1)
-      : 0;
+      : (injury.severity === "minor" || injury.severity === "moderate" ? 1 : 0);
     for (const key of keys) if (a[key] !== undefined && a[key] !== null && Number.isFinite(Number(a[key]))) {
       const penalty = injury && injury.attributePenalties ? Number(injury.attributePenalties[key]) || 0 : 0;
       return clamp(Number(a[key]) - penalty * recoveryFactor, 0, 100);
