@@ -199,7 +199,7 @@ function renderCategory(k){
  if(k==="team")renderTeamDescription();
  if(k==="selection")renderTeamSelection();
  if(k==="teamCreator"&&typeof render==="function")render();
- if(k==="leaders"){if(typeof renderStandings==="function")renderStandings();renderTeamLeaders();renderPlayerLeaders();leaderTab(state.leaderTab||"teams");}
+ if(k==="leaders")leaderTab(state.leaderTab||"teams");
  if(k==="playoffs"&&typeof renderPlayoffs==="function")renderPlayoffs();
  if(k==="database"&&typeof render==="function")render();
 }
