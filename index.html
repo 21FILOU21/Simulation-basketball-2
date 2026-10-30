@@ -1974,7 +1974,8 @@
             const box = $('offseasonBox');
             if (!lastOffseason) {
                 box.innerHTML = '<p class="muted">L’intersaison se déclenche après les séries (bouton « Intersaison »).</p>';
-                $('draftTable').innerHTML = ''; $('retiredTable').innerHTML = retired.length ? '' : '<tr><td colspan="7" class="muted">Aucun retraité pour l’instant.</td></tr>';
+                $('draftTable').innerHTML = '';
+                $('retiredTable').innerHTML = [...retired].reverse().map(r => `<tr><td><b>${esc(r.name)}</b>${r.retirementReason ? `<small class="retirement-reason">${esc(r.retirementReason)}</small>` : ''}</td><td>${esc(r.team)}</td><td>${r.age}</td><td>${r.seasons}</td><td>${Number(r.pts || 0).toFixed(1)}</td><td>${esc(r.retiredIn)}</td><td>${trophySummary(r)}</td></tr>`).join('') || '<tr><td colspan="7" class="muted">Aucun retraité pour l’instant.</td></tr>';
                 return;
             }
             const o = lastOffseason, list = a => a.length ? a.map(esc).join(', ') : '<span class="muted">aucun</span>';
