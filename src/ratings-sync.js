@@ -78,8 +78,8 @@ async function sync() {
         const data={
             name,team,positions,attributes:attrs,imageData,
             jerseyNumber:(text.match(/Jersey:\s*#?(\d+)/i)||[])[1]||'',
-            nationality:(text.match(/Nationality:\s*([A-Za-z][A-Za-z -]+)/i)||[])[1]||'',
-            priorToNBA:(text.match(/Prior to NBA:\s*([^\n]+)/i)||[])[1]||'',
+            nationality:(text.match(/Nationality:\s*([A-Za-z][A-Za-z -]*?)(?:\s+Image:|\s+Team:)/i)||[])[1]||'',
+            priorToNBA:(text.match(/Prior to NBA:\s*(.+?)(?:\s+canvas|\s+Compare|\s+Badges|\s+\d{2}\s+OVERALL)/i)||[])[1]||'',
             heightCm:metric(text,/Height:\s*[\d'’" ]+\((\d{2,3})\s*cm\)/i),
             weightKg:metric(text,/Weight:\s*[\d,]+\s*lbs\s*\((\d{2,3})\s*kg\)/i),
             wingspanCm:metric(text,/Wingspan:\s*[\d'’" ]+\((\d{2,3})\s*cm\)/i),
