@@ -16,8 +16,14 @@ function teamCodeForSchedule(code) {
 }
 function playersForTeam(code) {
   const teamCode = teamCodeForSchedule(code);
-  return (players || []).filter(p => p.team === teamCode &&
-    (typeof window.NBAMyNBAIsRostered !== "function" || window.NBAMyNBAIsRostered(p)));
+  return (players || []).filter(p => {
+    if (p.team !== teamCode || p.retired === true || p.isRetired === true) return false;
+    if (String(p.team).toUpperCase() === "FA" || String(p.team).toUpperCase() === "FREE_AGENT") return false;
+    if (typeof window.NBAMyNBAIsRostered === "function" && !window.NBAMyNBAIsRostered(p)) return false;
+    if (typeof window.NBASimInjuryCanPlay === "function" && !window.NBASimInjuryCanPlay(p)) return false;
+    const minutes = typeof window.NBAMyNBAMinutes === "function" ? Number(window.NBAMyNBAMinutes(p)) : Number(p.mpg);
+    return Number.isFinite(minutes) && minutes > 0;
+  });
 }
 function overall(p) {
   try { return typeof window.overallRating === "function" ? Number(window.overallRating(p)) || 50 : 50; }
