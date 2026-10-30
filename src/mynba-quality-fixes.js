@@ -562,24 +562,8 @@ function installDirectPlayoffs() {
 function start() {
   window.NBASimEnsureMinimumRoster=ensureMinimumRoster;trimOversizedRosters();installGameTracking();installPlayoffRosterTracking();recoverCalendarAfterLoad();installScheduleActions();installAutoMinutes();installMinuteBudget();installActualRegularBox();recordDevelopment();normalizeVisibleMinuteInputs();installDirectPlayoffs();
   document.addEventListener("change",enforceMinuteCap,true);
-  document.addEventListener("click",event=>{
-    if(event.target.closest('[data-leader-tab="players"]'))setTimeout(renderLeaderTable,0);
-    if(event.target.closest('[data-leader-tab="teams"]'))setTimeout(()=>{
-      const pane=$("mynbaTeamLeaderCards");
-      if(pane && !pane.querySelector("#mynbaTeamSort")) {
-        const table=pane.querySelector("table");
-        if(table){
-          const select=document.createElement("select");select.id="mynbaTeamSort";select.className="field";
-          select.innerHTML='<option value="strength">Puissance estimée</option><option value="winPct">Pourcentage de victoires</option><option value="wins">Victoires</option><option value="losses">Défaites (moins → plus)</option><option value="ppg">Points/match</option><option value="apg">Passes/match</option><option value="rpg">Rebonds/match</option><option value="spg">Interceptions/match</option><option value="bpg">Contres/match</option><option value="name-az">Nom A–Z</option><option value="name-za">Nom Z–A</option>';
-          select.addEventListener("change",()=>{const body=table.tBodies[0];[...body.rows].sort((a,b)=>{const v=select.value;if(v==="name-az"||v==="name-za"){const c=a.cells[1].textContent.localeCompare(b.cells[1].textContent,"fr");return v==="name-az"?c:-c;}if(v==="wins"||v==="losses"){const read=row=>{const m=row.cells[4]?.textContent.match(/(\d+)\s*[-–]\s*(\d+)/);return m?(v==="wins"?Number(m[1]):-Number(m[2])):0;};return read(b)-read(a);}const ix={winPct:2,strength:3,ppg:5,apg:6,rpg:7,spg:8,bpg:9}[v];return (parseFloat(b.cells[ix]?.textContent)||0)-(parseFloat(a.cells[ix]?.textContent)||0);}).forEach((row,i)=>{row.cells[0].textContent=i+1;body.appendChild(row);});});
-          pane.prepend(select);
-        }
-      }
-    },0);
-  },true);
   const observer=new MutationObserver(records=>{
     hidePlayoffsCategory();installAutoMinutes();normalizeVisibleMinuteInputs();clearOldDevelopment();decorateDevelopment();
-    if(records.some(r=>r.type==="attributes" && r.target && r.target.id==="mynbaLeaderPlayers" && !r.target.hidden))setTimeout(renderLeaderTable,0);
   });
   observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["hidden"]});
   setTimeout(()=>{hidePlayoffsCategory();installAutoMinutes();decorateDevelopment();},0);
