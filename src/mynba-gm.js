@@ -107,7 +107,7 @@
         error.textContent = "Ce code est déjà utilisé. Choisis un autre code.";
         return;
       }
-      setup = { name, city, code, conference, image: window.NBASimPendingTeamImage || "" };
+      setup = { name, city, code, conference, image: setup.image || window.NBASimPendingTeamImage || "" };
       beginWheel();
     };
   }
