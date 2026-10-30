@@ -700,9 +700,11 @@
     ensureBanner();
     if(pinned&&mount) {
       if(banner.parentNode!==mount)mount.appendChild(banner);
+      banner.style.left="";banner.style.top="";
       bannerPinned=true;banner.classList.add("mynba-player-banner-pinned");
     } else {
       if(bannerPinned){document.body.appendChild(banner);banner.classList.remove("mynba-player-banner-pinned");}
+      banner.style.left="";banner.style.top="";
       bannerPinned=false;
     }
     bannerPlayerId=String(player.id);banner.innerHTML=playerBannerHtml(player);banner.hidden=false;
