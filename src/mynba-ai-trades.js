@@ -322,7 +322,7 @@
       const deltaA=rosterFitScore(nextA)-beforeA,deltaB=rosterFitScore(nextB)-beforeB;
       if(deltaA<-.45||deltaB<-.45||deltaA+deltaB<.7)return;
       const valueGap=Math.abs(valueA-valueB)/Math.max(valueA,valueB);
-      const multiBonus=packageA.players.length>1||packageB.players.length>1?.18:0;
+      const multiBonus = (packageA.players.length > 1 || packageB.players.length > 1) ? 0.18 : 0;
       const score=deltaA+deltaB+Math.min(deltaA,deltaB)*.3-valueGap*.8+multiBonus+Math.random()*.12;
       candidates.push({playersA:packageA.players,playersB:packageB.players,valueA,valueB,deltaA,deltaB,score});
     }));
@@ -371,7 +371,7 @@
       const projected=teamRoster.filter(p=>p!==cut).concat(freeAgent);
       if(projected.length<5||projected.length>15)return;
       const gain=rosterFitScore(projected)-before;
-      const minGain=teamRoster.length>=15?.85:teamRoster.length<10?-1.4:-.15;
+      const minGain = teamRoster.length >= 15 ? 0.85 : teamRoster.length < 10 ? -1.4 : -0.15;
       if(gain<minGain)return;
       const score=gain+need*.12+(rating(freeAgent)-(cut?rating(cut):0))*.012+Math.random()*.08;
       if(!best||score>best.score)best={freeAgent,cut,score};
@@ -415,7 +415,7 @@
     if(!currentCalendarIsInProgress())return;
     const round=seasonRound(game),userCode=currentManagedTeamCode();
     if(Math.random()<.006)makeAITrade(round);
-    if(Math.random()<.009)manageAIRosterActivity(round);
+    if(Math.random()<.10)manageAIRosterActivity(round);
     if(userCode&&Math.random()<.0018)makeOffer(round);
   }
 
@@ -585,6 +585,9 @@
       ".mynba-ai-offer-trade{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;margin:20px 0;align-items:stretch;}" +
       ".mynba-ai-offer-trade>div:not(.mynba-ai-offer-arrow){background:#18253a;border:1px solid #344a69;border-radius:12px;padding:16px;min-width:0;}" +
       ".mynba-ai-offer-trade h3{margin:.5rem 0;overflow-wrap:anywhere;}" +
+      ".mynba-ai-offer-player{margin:8px 0;padding:9px;background:#101d31;border:1px solid #2d4261;border-radius:9px;}" +
+      ".mynba-ai-offer-player p{margin:4px 0;font-size:.88rem;color:#b7c7de;}" +
+      ".mynba-ai-offer-player small{display:block;color:#d8e5f7;}" +
       ".mynba-ai-offer-trade small{font-size:.72rem;color:#9eb1ce;font-weight:900;letter-spacing:.08em;}" +
       ".mynba-ai-offer-arrow{align-self:center;font-size:1.6rem;color:#82b7ff;}" +
       ".mynba-ai-offer-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}" +
