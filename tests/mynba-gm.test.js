@@ -16,4 +16,8 @@ assert.match(gm, /if \(Array\.isArray\(customTeams\) && customTeams\.length\) \{
 assert.match(gm, /const loadSave = input\.onchange;[\s\S]*?input\.onchange = async function \(event\)[\s\S]*?mynba:save-load-result/, "MyGM must receive the result from the navigation menu's save loader.");
 assert.match(nav, /\$\("importFile"\)\.onchange=async function/, "The navigation menu remains responsible for importing and validating save files.");
 
-console.log("OK — MyGM : fermeture de l’overlay, continuation après cinq choix et chargement de sauvegarde.");
+assert.match(gm, /const chosenIds = new Set\(picks\.map\(p => String\(p\.id\)\)\)/, "The wheel must track selected original player IDs.");
+assert.match(gm, /alreadyCustomRostered[\s\S]*!alreadyCustomRostered\.has\(String\(p\.id\)\)/, "The wheel must not recruit players already assigned to another custom franchise.");
+assert.match(gm, /picks\.push\(original\)/, "The wheel must add the original player object to the selected roster.");
+assert.doesNotMatch(gm, /JSON\.parse\(JSON\.stringify\(original\)\)/, "GM recruitment must not clone players and create duplicates.");
+console.log("OK — MyGM : transfert des joueurs originaux, absence de doublons, fermeture de l’overlay et chargement de sauvegarde.");
