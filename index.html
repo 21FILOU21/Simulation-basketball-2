@@ -2483,7 +2483,6 @@
             if (positions.length) { $('editPos').value = positions[0]; $('editSecondaryPos').value = positions[1] || ''; }
             if (data.team) {
                 const normalizeTeamName = value => String(value || '')
-                    .normalize('NFD').replace(/[\\u0300-\\u036f]/g, '')
                     .toLowerCase().replace(/[^a-z0-9]/g, '');
                 const teamCodes = {
                     'atlanta hawks': 'ATL',
