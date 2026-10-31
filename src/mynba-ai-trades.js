@@ -21,6 +21,9 @@
   if (typeof window.NBASimAIAutoDecline !== "boolean") {
     window.NBASimAIAutoDecline = stored.autoDecline === true;
   }
+  if (!Array.isArray(window.NBASimAIRosterMoves)) {
+    window.NBASimAIRosterMoves = Array.isArray(stored.rosterMoves) ? stored.rosterMoves : [];
+  }
   function allPlayers() { return typeof players !== "undefined" && Array.isArray(players) ? players : []; }
   function currentSeason() { return typeof seasonYear !== "undefined" ? Number(seasonYear) || 2025 : 2025; }
   function calendar() { return typeof seasonCalendar !== "undefined" ? seasonCalendar : null; }
@@ -28,11 +31,16 @@
     if (!Array.isArray(window.NBASimAITradeHistory)) window.NBASimAITradeHistory = [];
     return window.NBASimAITradeHistory;
   }
+  function getRosterMoves() {
+    if (!Array.isArray(window.NBASimAIRosterMoves)) window.NBASimAIRosterMoves = [];
+    return window.NBASimAIRosterMoves;
+  }
   function persist() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
         autoDecline: window.NBASimAIAutoDecline === true,
-        history: getHistory().slice(-200)
+        history: getHistory().slice(-200),
+        rosterMoves: getRosterMoves().slice(-200)
       }));
     } catch (_) {}
     syncSettingsControls();
@@ -42,7 +50,13 @@
     const cal = calendar();
     return cal && Array.isArray(cal.games) ? Math.floor(cal.games.filter(g => g.status === "completed").length / 15) + 1 : 1;
   }
+  const POSITION_CODES = ["PG", "SG", "SF", "PF", "C"];
   function position(p) { return String(p && (p.pos || p.position) || "SF").toUpperCase().split(/[\/, ]/)[0]; }
+  function playerPositions(p) {
+    const raw = [p && (p.pos || p.position), p && (p.secondaryPos || p.secondaryPosition)].filter(Boolean).join("/");
+    const found = raw.toUpperCase().split(/[\/,| ]+/).filter(value => POSITION_CODES.includes(value));
+    return Array.from(new Set(found.length ? found : [position(p)]));
+  }
   function potential(p) {
     if (p && p.potential != null && p.attributes == null) return clamp(p.potential, 40, 99);
     const attrs = p && p.attributes || {};
@@ -76,6 +90,26 @@
       value: playerValue(p)
     };
   }
+  function recordAIRosterMove(code, signedPlayer, releasedPlayer, round) {
+    const move = {
+      id: "roster-" + Date.now() + "-" + Math.floor(Math.random() * 100000),
+      date: new Date().toISOString(),
+      season: currentSeason(),
+      round: Number(round) || seasonRound(null),
+      team: String(code || ""),
+      kind: signedPlayer && releasedPlayer ? "sign-release" : signedPlayer ? "sign" : "release",
+      signed: signedPlayer ? snapshot(signedPlayer) : null,
+      released: releasedPlayer ? snapshot(releasedPlayer) : null
+    };
+    const moves = getRosterMoves();
+    moves.push(move);
+    if (moves.length > 200) moves.splice(0, moves.length - 200);
+    persist();
+    try { window.dispatchEvent(new CustomEvent("NBASimAIRosterMove", { detail: move })); } catch (_) {}
+    return move;
+  }
+  window.NBASimAIRosterMoves = getRosterMoves();
+
   function getTeamCodes() {
     const codes = new Set();
     if (typeof nbaTeams !== "undefined" && Array.isArray(nbaTeams)) nbaTeams.forEach(t => {
@@ -127,20 +161,24 @@
       t.playerIds = roster(t.code).map(p => p.id);
     });
   }
+  function retentionScore(player, teamRoster) {
+    const counts = {};
+    POSITION_CODES.forEach(pos => { counts[pos] = 0; });
+    teamRoster.forEach(member => playerPositions(member).forEach(pos => { counts[pos] = (counts[pos] || 0) + 1; }));
+    const covered = playerPositions(player);
+    const rarestDepth = covered.length ? Math.min.apply(null, covered.map(pos => counts[pos] || 0)) : 0;
+    const depthProtection = rarestDepth <= 1 ? 28 : rarestDepth === 2 ? 12 : rarestDepth === 3 ? 0 : -12 * (rarestDepth - 3);
+    return playerValue(player) + depthProtection;
+  }
   function enforceRosterCaps() {
     const list = allPlayers();
     let changed = false;
     getTeamCodes().forEach(code => {
       let teamRoster = list.filter(p => String(p.team) === String(code));
       while (teamRoster.length > 15) {
-        teamRoster.sort((a, b) => {
-          const valueDiff = rating(a) - rating(b);
-          if (valueDiff) return valueDiff;
-          const rookieDiff = Number(!!b.rookie) - Number(!!a.rookie);
-          if (rookieDiff) return rookieDiff;
-          return (Number(a.mpg) || 0) - (Number(b.mpg) || 0);
-        });
+        teamRoster.sort((a, b) => retentionScore(a, teamRoster) - retentionScore(b, teamRoster));
         const cut = teamRoster.shift();
+        if (!cut) break;
         cut.team = "FA";
         if (cut.rookie || cut.drafted || cut.draftYear) {
           cut.undrafted = true;
@@ -148,6 +186,7 @@
           cut.draftStatus = "undrafted";
           cut.draftStatusLabel = "Undrafted";
         }
+        if (String(code) !== String(currentManagedTeamCode())) recordAIRosterMove(code, null, cut, seasonRound(null));
         changed = true;
       }
     });
@@ -192,7 +231,9 @@
     const outgoing = (Array.isArray(data.outgoing) ? data.outgoing : []).map(snapshot);
     const incoming = (Array.isArray(data.incoming) ? data.incoming : []).map(snapshot);
     if (!outgoing.length || !incoming.length) return null;
-    const values = outgoing.concat(incoming).map(p => Number(p.value) || 0);
+    const allAssets = outgoing.concat(incoming);
+    const values = allAssets.map(p => Number(p.value) || 0);
+    const headlinePlayer = allAssets.slice().sort((a, b) => (Number(b.value) || 0) - (Number(a.value) || 0))[0];
     const record = {
       id: "trade-" + Date.now() + "-" + Math.floor(Math.random() * 100000),
       date: data.date || new Date().toISOString(),
@@ -204,7 +245,8 @@
       outgoing: outgoing,
       incoming: incoming,
       accepted: true,
-      headlineValue: Math.max.apply(null, values),
+      headlineValue: Number(headlinePlayer && headlinePlayer.value) || 0,
+      headlinePlayer: String(headlinePlayer && headlinePlayer.name || ""),
       totalValue: values.reduce((sum, value) => sum + value, 0)
     };
     const h = getHistory();
@@ -216,117 +258,173 @@
   }
   window.NBASimRecordTrade = recordCompletedTrade;
 
-  function applySwap(teamA, teamB, playerA, playerB, kind, round) {
-    if (!playerA || !playerB || String(playerA.team) !== String(teamA) || String(playerB.team) !== String(teamB)) return false;
-    const beforeA = snapshot(playerA), beforeB = snapshot(playerB);
-    if (roster(teamA).length > 15 || roster(teamB).length > 15) enforceRosterCaps();
-    playerA.team = String(teamB);
-    playerB.team = String(teamA);
-    const record = recordCompletedTrade({
-      kind: kind,
-      season: currentSeason(),
-      round: round,
-      from: teamA,
-      to: teamB,
-      outgoing: [beforeA],
-      incoming: [beforeB]
-    });
+  function applyMultiTrade(teamA, teamB, outgoingA, outgoingB, kind, round) {
+    const givesA = Array.isArray(outgoingA) ? outgoingA : [];
+    const givesB = Array.isArray(outgoingB) ? outgoingB : [];
+    if (!givesA.length || !givesB.length || String(teamA) === String(teamB)) return false;
+    if (new Set(givesA).size !== givesA.length || new Set(givesB).size !== givesB.length) return false;
+    if (givesA.some(p => !p || String(p.team) !== String(teamA)) || givesB.some(p => !p || String(p.team) !== String(teamB))) return false;
+    const nextA = roster(teamA).length - givesA.length + givesB.length;
+    const nextB = roster(teamB).length - givesB.length + givesA.length;
+    if (nextA < 5 || nextB < 5 || nextA > 15 || nextB > 15) return false;
+    const beforeA = givesA.map(snapshot), beforeB = givesB.map(snapshot);
+    givesA.forEach(p => { p.team = String(teamB); });
+    givesB.forEach(p => { p.team = String(teamA); });
+    const record = recordCompletedTrade({kind:kind,season:currentSeason(),round:round,from:teamA,to:teamB,outgoing:beforeA,incoming:beforeB});
     updateCustomMembership();
     notifyRosterChange();
     return !!record;
   }
-  function positionCount(code, pos) {
-    return roster(code).filter(p => position(p) === pos).length;
+  function applySwap(teamA, teamB, playerA, playerB, kind, round) {
+    return applyMultiTrade(teamA, teamB, [playerA], [playerB], kind, round);
+  }
+  function rosterFitScore(teamRoster) {
+    const ranked = teamRoster.slice().sort((a, b) => rating(b) - rating(a)).slice(0, 8);
+    const weights = [1, .93, .86, .79, .72, .65, .58, .51];
+    let weighted = 0, weightTotal = 0;
+    ranked.forEach((p, i) => { weighted += rating(p) * weights[i]; weightTotal += weights[i]; });
+    const core = weightTotal ? weighted / weightTotal : 0;
+    const counts = {};
+    POSITION_CODES.forEach(pos => { counts[pos] = 0; });
+    teamRoster.forEach(p => playerPositions(p).forEach(pos => { counts[pos] = (counts[pos] || 0) + 1; }));
+    const balance = POSITION_CODES.reduce((sum, pos) => {
+      const count = counts[pos] || 0;
+      return sum + (count === 0 ? -4 : count === 1 ? -1.5 : count === 2 ? 1.1 : count === 3 ? .45 : -.25);
+    }, 0);
+    return core + balance + Math.min(teamRoster.length, 12) * .12;
   }
   function teamTradeCandidates(code) {
-    const r = roster(code);
-    return r.filter(p => rating(p) >= 58).sort((a, b) => playerValue(b) - playerValue(a));
+    return roster(code).filter(p => rating(p) >= 50).sort((a, b) => playerValue(b) - playerValue(a)).slice(0, 7);
   }
-  function chooseFairPair(teamA, teamB) {
-    const aRows = teamTradeCandidates(teamA).slice(0, 9);
-    const bRows = teamTradeCandidates(teamB).slice(0, 9);
-    const candidates = [];
-    aRows.forEach(a => bRows.forEach(b => {
-      const va = playerValue(a), vb = playerValue(b);
-      const ratio = Math.max(va, vb) / Math.max(1, Math.min(va, vb));
-      if (ratio > 1.34) return;
-      const surplusA = Math.max(0, positionCount(teamA, position(a)) - 3);
-      const surplusB = Math.max(0, positionCount(teamB, position(b)) - 3);
-      const fitBonus = (surplusA ? .06 : 0) + (surplusB ? .06 : 0);
-      const difference = Math.abs(va - vb) / Math.max(1, Math.max(va, vb));
-      candidates.push({ a, b, score: difference - fitBonus + Math.random() * .07, headline: Math.max(va, vb) });
+  function buildTradePackages(code) {
+    const teamRoster=roster(code), candidates=teamTradeCandidates(code);
+    const maxSize=Math.min(3,teamRoster.length-5,candidates.length), packages=[];
+    function addCombinations(start,picked) {
+      if (picked.length) packages.push({players:picked.slice(),value:picked.reduce((sum,p)=>sum+playerValue(p),0)});
+      if (picked.length>=maxSize) return;
+      for(let i=start;i<candidates.length;i++) addCombinations(i+1,picked.concat(candidates[i]));
+    }
+    if(maxSize>0) addCombinations(0,[]);
+    return packages;
+  }
+  function chooseFairTrade(teamA,teamB) {
+    const rosterA=roster(teamA),rosterB=roster(teamB);
+    if(rosterA.length<5||rosterB.length<5||rosterA.length>15||rosterB.length>15)return null;
+    const packagesA=buildTradePackages(teamA),packagesB=buildTradePackages(teamB);
+    if(!packagesA.length||!packagesB.length)return null;
+    const beforeA=rosterFitScore(rosterA),beforeB=rosterFitScore(rosterB),candidates=[];
+    packagesA.forEach(packageA=>packagesB.forEach(packageB=>{
+      const valueA=packageA.value,valueB=packageB.value;
+      if(Math.max(valueA,valueB)/Math.max(1,Math.min(valueA,valueB))>1.2)return;
+      const nextA=rosterA.filter(p=>!packageA.players.includes(p)).concat(packageB.players);
+      const nextB=rosterB.filter(p=>!packageB.players.includes(p)).concat(packageA.players);
+      if(nextA.length<5||nextB.length<5||nextA.length>15||nextB.length>15)return;
+      const deltaA=rosterFitScore(nextA)-beforeA,deltaB=rosterFitScore(nextB)-beforeB;
+      if(deltaA<-.45||deltaB<-.45||deltaA+deltaB<.7)return;
+      const valueGap=Math.abs(valueA-valueB)/Math.max(valueA,valueB);
+      const multiBonus=packageA.players.length>1||packageB.players.length>1?.18:0;
+      const score=deltaA+deltaB+Math.min(deltaA,deltaB)*.3-valueGap*.8+multiBonus+Math.random()*.12;
+      candidates.push({playersA:packageA.players,playersB:packageB.players,valueA,valueB,deltaA,deltaB,score});
     }));
-    candidates.sort((a, b) => a.score - b.score);
-    if (!candidates.length) return null;
-    const pool = candidates.slice(0, Math.min(4, candidates.length));
-    return pool[Math.floor(Math.random() * pool.length)];
+    candidates.sort((a,b)=>b.score-a.score);
+    if(!candidates.length)return null;
+    return candidates[Math.floor(Math.random()*Math.min(4,candidates.length))];
   }
   function aiTeamCodes(excludeManaged) {
     const managed = currentManagedTeamCode();
     return getTeamCodes().filter(code => code !== "FA" && (!excludeManaged || String(code) !== String(managed)) && roster(code).length >= 5);
   }
   function makeAITrade(round) {
-    const teams = aiTeamCodes(true);
-    if (teams.length < 2) return false;
-    for (let attempt = 0; attempt < 8; attempt++) {
-      const a = teams[Math.floor(Math.random() * teams.length)];
-      let b = teams[Math.floor(Math.random() * teams.length)];
-      if (a === b || teamRecentlyTraded(a, round, 7) || teamRecentlyTraded(b, round, 7)) continue;
-      if (roster(a).length > 15 || roster(b).length > 15) enforceRosterCaps();
-      const pair = chooseFairPair(a, b);
-      if (!pair) continue;
-      return applySwap(a, b, pair.a, pair.b, "ai-ai", round);
+    const teams=aiTeamCodes(true);
+    if(teams.length<2)return false;
+    for(let attempt=0;attempt<8;attempt++){
+      const a=teams[Math.floor(Math.random()*teams.length)],b=teams[Math.floor(Math.random()*teams.length)];
+      if(a===b||teamRecentlyTraded(a,round,7)||teamRecentlyTraded(b,round,7))continue;
+      if(roster(a).length>15||roster(b).length>15)enforceRosterCaps();
+      const deal=chooseFairTrade(a,b);
+      if(!deal)continue;
+      return applyMultiTrade(a,b,deal.playersA,deal.playersB,"ai-ai",round);
     }
     return false;
   }
-  function makeOffer(round) {
-    const userCode = currentManagedTeamCode();
-    if (!userCode || roster(userCode).length < 5 || roster(userCode).length > 15) return;
-    if (round - userOfferCooldownRound < 8 || offerQueue.length > 1 || activeOffer) return;
-    const aiCodes = aiTeamCodes(true).filter(code => !teamRecentlyTraded(code, round, 5));
-    const userRows = roster(userCode).slice().sort((a, b) => playerValue(b) - playerValue(a)).slice(0, 8);
-    if (!aiCodes.length || !userRows.length) return;
-    const userPlayer = userRows[Math.floor(Math.random() * Math.min(5, userRows.length))];
-    const requestedValue = playerValue(userPlayer);
-    const options = [];
-    aiCodes.forEach(code => teamTradeCandidates(code).slice(0, 12).forEach(p => {
-      const ratio = playerValue(p) / Math.max(1, requestedValue);
-      if (ratio >= .82 && ratio <= 1.16) options.push({ code: code, player: p, value: playerValue(p), score: Math.abs(1 - ratio) + Math.random() * .08 });
+  function teamNeedScore(teamRoster,player) {
+    const counts={};POSITION_CODES.forEach(pos=>{counts[pos]=0;});
+    teamRoster.forEach(member=>playerPositions(member).forEach(pos=>{counts[pos]=(counts[pos]||0)+1;}));
+    return Math.max.apply(null,playerPositions(player).map(pos=>{
+      const count=counts[pos]||0;return count===0?6:count===1?3:count===2?1:count===3?-1:-3;
     }));
-    options.sort((a, b) => a.score - b.score);
-    if (!options.length) return;
-    const chosen = options[Math.floor(Math.random() * Math.min(options.length, 3))];
-    userOfferCooldownRound = round;
-    const offer = {
-      id: "offer-" + Date.now() + "-" + Math.floor(Math.random() * 100000),
-      season: currentSeason(),
-      round: round,
-      userCode: userCode,
-      aiCode: chosen.code,
-      aiPlayer: chosen.player,
-      userPlayer: userPlayer,
-      createdAt: new Date().toISOString()
-    };
-    if (window.NBASimAIAutoDecline === true) {
-      window.NBASimLastAITradeNotice = teamName(chosen.code) + " a proposé un échange; refus automatique activé.";
+  }
+  function manageAIRoster(code,round) {
+    if(!code||String(code)===String(currentManagedTeamCode()))return false;
+    const teamRoster=roster(code);
+    if(teamRoster.length<5||teamRoster.length>15)return false;
+    if(getRosterMoves().some(move=>move&&String(move.team)===String(code)&&Number(move.season)===currentSeason()&&Math.abs(Number(round)-Number(move.round||0))<7))return false;
+    const freeAgents=allPlayers().filter(p=>p&&(String(p.team)==="FA"||String(p.team)==="FREE_AGENT")&&rating(p)>=50)
+      .sort((a,b)=>(playerValue(b)+rating(b)*.15)-(playerValue(a)+rating(a)*.15)).slice(0,24);
+    if(!freeAgents.length)return false;
+    const before=rosterFitScore(teamRoster);
+    const cuts=teamRoster.length>=15?teamRoster.slice().sort((a,b)=>retentionScore(a,teamRoster)-retentionScore(b,teamRoster)).slice(0,7):[null];
+    let best=null;
+    freeAgents.forEach(freeAgent=>cuts.forEach(cut=>{
+      const need=teamNeedScore(teamRoster,freeAgent);
+      if(cut&&rating(freeAgent)<rating(cut)+1&&need<4)return;
+      const projected=teamRoster.filter(p=>p!==cut).concat(freeAgent);
+      if(projected.length<5||projected.length>15)return;
+      const gain=rosterFitScore(projected)-before;
+      const minGain=teamRoster.length>=15?.85:teamRoster.length<10?-1.4:-.15;
+      if(gain<minGain)return;
+      const score=gain+need*.12+(rating(freeAgent)-(cut?rating(cut):0))*.012+Math.random()*.08;
+      if(!best||score>best.score)best={freeAgent,cut,score};
+    }));
+    if(!best)return false;
+    if(best.cut)best.cut.team="FA";
+    best.freeAgent.team=String(code);
+    updateCustomMembership();
+    recordAIRosterMove(code,best.freeAgent,best.cut,round);
+    notifyRosterChange();
+    return true;
+  }
+  function manageAIRosterActivity(round) {
+    const teams=aiTeamCodes(true).sort(()=>Math.random()-.5);
+    for(const code of teams.slice(0,10))if(manageAIRoster(code,round))return true;
+    return false;
+  }
+  function makeOffer(round) {
+    const userCode=currentManagedTeamCode();
+    if(!userCode||roster(userCode).length<5||roster(userCode).length>15)return;
+    if(round-userOfferCooldownRound<8||offerQueue.length>1||activeOffer)return;
+    const aiCodes=aiTeamCodes(true).filter(code=>!teamRecentlyTraded(code,round,5));
+    if(!aiCodes.length)return;
+    const options=aiCodes.map(code=>{
+      const deal=chooseFairTrade(code,userCode);
+      return deal?{code,deal,score:deal.score+Math.random()*.12}:null;
+    }).filter(Boolean).sort((a,b)=>b.score-a.score);
+    if(!options.length)return;
+    const chosen=options[Math.floor(Math.random()*Math.min(options.length,3))];
+    userOfferCooldownRound=round;
+    const offer={id:"offer-"+Date.now()+"-"+Math.floor(Math.random()*100000),season:currentSeason(),round:round,
+      userCode:userCode,aiCode:chosen.code,aiPlayers:chosen.deal.playersA,userPlayers:chosen.deal.playersB,createdAt:new Date().toISOString()};
+    if(window.NBASimAIAutoDecline===true){
+      window.NBASimLastAITradeNotice=teamName(chosen.code)+" a proposé un échange; refus automatique activé.";
       return;
     }
     offerQueue.push(offer);
     showNextOffer();
   }
   function simulateTradeActivity(game) {
-    if (!currentCalendarIsInProgress()) return;
-    const round = seasonRound(game);
-    const userCode = currentManagedTeamCode();
-    if (Math.random() < .006) makeAITrade(round);
-    if (userCode && Math.random() < .0018) makeOffer(round);
+    if(!currentCalendarIsInProgress())return;
+    const round=seasonRound(game),userCode=currentManagedTeamCode();
+    if(Math.random()<.006)makeAITrade(round);
+    if(Math.random()<.009)manageAIRosterActivity(round);
+    if(userCode&&Math.random()<.0018)makeOffer(round);
   }
 
   function offerStillValid(offer) {
-    return offer && offer.aiPlayer && offer.userPlayer &&
-      String(offer.aiPlayer.team) === String(offer.aiCode) &&
-      String(offer.userPlayer.team) === String(offer.userCode) &&
-      roster(offer.aiCode).length <= 15 && roster(offer.userCode).length <= 15;
+    if(!offer||!Array.isArray(offer.aiPlayers)||!Array.isArray(offer.userPlayers)||!offer.aiPlayers.length||!offer.userPlayers.length)return false;
+    if(offer.aiPlayers.some(p=>!p||String(p.team)!==String(offer.aiCode))||offer.userPlayers.some(p=>!p||String(p.team)!==String(offer.userCode)))return false;
+    const nextAI=roster(offer.aiCode).length-offer.aiPlayers.length+offer.userPlayers.length;
+    const nextUser=roster(offer.userCode).length-offer.userPlayers.length+offer.aiPlayers.length;
+    return nextAI>=5&&nextAI<=15&&nextUser>=5&&nextUser<=15;
   }
   function closeOfferModal() {
     if (offerModal && offerModal.parentNode) offerModal.parentNode.removeChild(offerModal);
@@ -334,41 +432,34 @@
   }
   function renderOffer(offer) {
     closeOfferModal();
-    offerModal = document.createElement("div");
-    offerModal.className = "mynba-ai-offer-overlay";
-    offerModal.id = "mynbaAITradeOfferOverlay";
-    const ai = offer.aiPlayer, user = offer.userPlayer;
-    offerModal.innerHTML =
-      '<section class="mynba-ai-offer-dialog" role="dialog" aria-modal="true" aria-labelledby="mynbaAITradeTitle">' +
-      '<div class="mynba-ai-offer-kicker">MYNBA · PROPOSITION D’ÉCHANGE</div>' +
-      '<h2 id="mynbaAITradeTitle">' + escapeHtml(teamName(offer.aiCode)) + ' vous contacte</h2>' +
-      '<p>' + escapeHtml(teamName(offer.aiCode)) + ' souhaite acquérir votre joueur et vous propose un échange direct.</p>' +
-      '<div class="mynba-ai-offer-trade">' +
-      '<div><small>VOUS RECEVEZ</small><h3>' + escapeHtml(ai.name) + '</h3><p>' + escapeHtml(position(ai)) + ' · GÉN ' + rating(ai) + ' · POT ' + potential(ai) + '</p><b>Valeur : ' + playerValue(ai) + '</b></div>' +
-      '<div class="mynba-ai-offer-arrow">⇄</div>' +
-      '<div><small>VOUS CÉDEZ</small><h3>' + escapeHtml(user.name) + '</h3><p>' + escapeHtml(position(user)) + ' · GÉN ' + rating(user) + ' · POT ' + potential(user) + '</p><b>Valeur : ' + playerValue(user) + '</b></div>' +
-      '</div>' +
-      '<p class="mynba-ai-offer-note">La proposition reste en attente jusqu’à votre décision. Les échanges entre équipes IA continuent indépendamment.</p>' +
-      '<div class="mynba-ai-offer-actions">' +
-      '<button type="button" class="btn primary" id="mynbaAITradeAccept">Accepter le trade</button>' +
-      '<button type="button" class="btn" id="mynbaAITradeReject">Refuser</button>' +
-      '<button type="button" class="btn warn" id="mynbaAITradeAutoDecline">Refuser automatiquement les prochaines offres</button>' +
-      '</div>' +
-      '<p class="mynba-ai-offer-status" id="mynbaAITradeOfferStatus" role="status"></p>' +
-      '</section>';
+    offerModal=document.createElement("div");
+    offerModal.className="mynba-ai-offer-overlay";
+    offerModal.id="mynbaAITradeOfferOverlay";
+    const renderPlayers=list=>list.map(p=>'<article class="mynba-ai-offer-player"><b>'+escapeHtml(p.name)+'</b><p>'+
+      escapeHtml(playerPositions(p).join("/"))+' · GÉN '+rating(p)+' · POT '+potential(p)+'</p><small>Valeur individuelle : '+playerValue(p)+'</small></article>').join("");
+    const valueTotal=list=>list.reduce((sum,p)=>sum+playerValue(p),0);
+    offerModal.innerHTML='<section class="mynba-ai-offer-dialog" role="dialog" aria-modal="true" aria-labelledby="mynbaAITradeTitle">'+
+      '<div class="mynba-ai-offer-kicker">MYNBA · PROPOSITION D’ÉCHANGE</div>'+
+      '<h2 id="mynbaAITradeTitle">'+escapeHtml(teamName(offer.aiCode))+' vous contacte</h2>'+
+      '<p>'+escapeHtml(teamName(offer.aiCode))+' propose un échange de plusieurs joueurs si nécessaire.</p>'+
+      '<div class="mynba-ai-offer-trade"><div><small>VOUS RECEVEZ · '+offer.aiPlayers.length+' JOUEUR(S)</small>'+renderPlayers(offer.aiPlayers)+'<b>Total indicatif : '+valueTotal(offer.aiPlayers)+'</b></div>'+
+      '<div class="mynba-ai-offer-arrow">⇄</div><div><small>VOUS CÉDEZ · '+offer.userPlayers.length+' JOUEUR(S)</small>'+renderPlayers(offer.userPlayers)+'<b>Total indicatif : '+valueTotal(offer.userPlayers)+'</b></div></div>'+
+      '<p class="mynba-ai-offer-note">La valeur totale équilibre le paquet. Le classement des plus gros échanges regarde uniquement le joueur individuel le plus précieux.</p>'+
+      '<div class="mynba-ai-offer-actions"><button type="button" class="btn primary" id="mynbaAITradeAccept">Accepter le trade</button>'+
+      '<button type="button" class="btn" id="mynbaAITradeReject">Refuser</button><button type="button" class="btn warn" id="mynbaAITradeAutoDecline">Refuser automatiquement les prochaines offres</button></div>'+
+      '<p class="mynba-ai-offer-status" id="mynbaAITradeOfferStatus" role="status"></p></section>';
     document.body.appendChild(offerModal);
-    $("mynbaAITradeAccept").onclick = function () {
-      if (!offerStillValid(offer)) {
-        $("mynbaAITradeOfferStatus").textContent = "Offre expirée : un des joueurs n’est plus disponible.";
-        setTimeout(function () { resolveOffer(false, "offre expirée"); }, 700);
-        return;
+    $("mynbaAITradeAccept").onclick=function(){
+      if(!offerStillValid(offer)){
+        $("mynbaAITradeOfferStatus").textContent="Offre expirée : un des joueurs n’est plus disponible.";
+        setTimeout(function(){resolveOffer(false,"offre expirée");},700);return;
       }
-      const ok = applySwap(offer.aiCode, offer.userCode, offer.aiPlayer, offer.userPlayer, "ai-to-player", offer.round);
-      if (ok) resolveOffer(true);
-      else $("mynbaAITradeOfferStatus").textContent = "Le trade n’a pas pu être appliqué. Vérifiez les effectifs.";
+      const ok=applyMultiTrade(offer.aiCode,offer.userCode,offer.aiPlayers,offer.userPlayers,"ai-to-player",offer.round);
+      if(ok)resolveOffer(true);
+      else $("mynbaAITradeOfferStatus").textContent="Le trade n’a pas pu être appliqué. Vérifiez les effectifs.";
     };
-    $("mynbaAITradeReject").onclick = function () { resolveOffer(false, "refusée par le joueur"); };
-    $("mynbaAITradeAutoDecline").onclick = function () { setAutoDecline(true); };
+    $("mynbaAITradeReject").onclick=function(){resolveOffer(false,"refusée par le joueur");};
+    $("mynbaAITradeAutoDecline").onclick=function(){setAutoDecline(true);};
   }
   function resolveOffer(accepted, reason) {
     const offer = activeOffer;
@@ -409,7 +500,7 @@
 
   function tradeRecapHtml(prefix) {
     const deals = getHistory().filter(t => t && t.accepted && Number(t.season) === currentSeason())
-      .sort((a, b) => (Number(b.headlineValue) || 0) - (Number(a.headlineValue) || 0) || (Number(b.totalValue) || 0) - (Number(a.totalValue) || 0))
+      .sort((a, b) => (Number(b.headlineValue) || 0) - (Number(a.headlineValue) || 0))
       .slice(0, 10);
     const rows = deals.map((t, i) => {
       const aGives = (t.outgoing || []).map(p => (typeof window.NBASimPlayerPortraitMarkup === "function" ? window.NBASimPlayerPortraitMarkup(p, 26) : "") + escapeHtml(p.name) + ' <small>(GÉN ' + Number(p.ovr || 0) + ' · POT ' + Number(p.potential || 0) + ')</small>').join(", ");
@@ -417,10 +508,19 @@
       const label = t.kind === "ai-ai" ? "IA ↔ IA" : t.kind === "player-ai" ? "Franchise ↔ IA" : "IA → Franchise";
       const fromLogo = typeof window.NBASimTeamImageMarkup === "function" ? window.NBASimTeamImageMarkup(t.from, 26) : "";
       const toLogo = typeof window.NBASimTeamImageMarkup === "function" ? window.NBASimTeamImageMarkup(t.to, 26) : "";
-      return '<tr><td>' + (i + 1) + '</td><td><b>' + escapeHtml(label) + '</b><br><small>Journée ' + Number(t.round || 0) + '</small></td><td>' + fromLogo + escapeHtml(teamName(t.from)) + '<br><small>Envoie : ' + aGives + '</small></td><td>' + toLogo + escapeHtml(teamName(t.to)) + '<br><small>Envoie : ' + bGives + '</small></td><td><b>' + Number(t.headlineValue || 0) + '</b></td></tr>';
+      return '<tr><td>'+(i+1)+'</td><td><b>'+escapeHtml(label)+'</b><br><small>Journée '+Number(t.round||0)+'</small></td><td>'+fromLogo+escapeHtml(teamName(t.from))+'<br><small>Envoie : '+aGives+'</small></td><td>'+toLogo+escapeHtml(teamName(t.to))+'<br><small>Envoie : '+bGives+'</small></td><td><b>'+Number(t.headlineValue||0)+'</b><br><small>'+escapeHtml(t.headlinePlayer||"Joueur vedette")+'</small></td></tr>';
     }).join("");
-    return '<div id="' + prefix + '" class="mynba-ai-trade-recap"><div class="mynba-ai-trade-recap-heading"><div><div class="mynba-ai-trade-kicker">TRANSACTIONS · FIN DE SAISON</div><h2>Les plus gros trades de la saison ' + currentSeason() + '</h2><p>Classement par valeur du joueur le plus important de chaque échange. Les valeurs combinent GÉN, potentiel et âge.</p></div><div class="mynba-ai-trade-count">' + deals.length + ' trades</div></div>' +
-      (deals.length ? '<div class="tablewrap"><table><thead><tr><th>#</th><th>Type</th><th>Équipe A</th><th>Équipe B</th><th>Valeur vedette</th></tr></thead><tbody>' + rows + '</tbody></table></div>' : '<p class="muted">Aucun trade n’a été conclu pendant cette saison.</p>') + '</div>';
+    const moves=getRosterMoves().filter(move=>move&&Number(move.season)===currentSeason())
+      .sort((a,b)=>new Date(b.date||0)-new Date(a.date||0)).slice(0,12);
+    const moveRows=moves.map(move=>{
+      const signed=move.signed?escapeHtml(move.signed.name)+' <small>(GÉN '+Number(move.signed.ovr||0)+')</small>':'—';
+      const released=move.released?escapeHtml(move.released.name)+' <small>(GÉN '+Number(move.released.ovr||0)+')</small>':'—';
+      const label=move.signed&&move.released?'Signature + libération':move.signed?'Signature':'Libération';
+      return '<tr><td>'+escapeHtml(teamName(move.team))+'</td><td>'+label+'</td><td>'+signed+'</td><td>'+released+'</td></tr>';
+    }).join("");
+    return '<div id="'+prefix+'" class="mynba-ai-trade-recap"><div class="mynba-ai-trade-recap-heading"><div><div class="mynba-ai-trade-kicker">TRANSACTIONS · FIN DE SAISON</div><h2>Les plus gros trades de la saison '+currentSeason()+'</h2><p>Classement selon la valeur du joueur individuel le plus important de chaque échange, jamais selon la somme des paquets.</p></div><div class="mynba-ai-trade-count">'+deals.length+' trades</div></div>'+
+      (deals.length?'<div class="tablewrap"><table><thead><tr><th>#</th><th>Type</th><th>Équipe A</th><th>Équipe B</th><th>Joueur le plus précieux</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<p class="muted">Aucun trade n’a été conclu pendant cette saison.</p>')+
+      (moves.length?'<h3>Signatures et libérations des équipes IA</h3><div class="tablewrap"><table><thead><tr><th>Équipe</th><th>Mouvement</th><th>Joueur signé</th><th>Joueur libéré</th></tr></thead><tbody>'+moveRows+'</tbody></table></div>':'')+'</div>';
   }
   function removeOldRecaps() {
     document.querySelectorAll(".mynba-ai-trade-recap").forEach(el => {
