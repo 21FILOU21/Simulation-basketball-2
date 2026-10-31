@@ -46,6 +46,26 @@ async function handle(req, res) {
       return send(res, 200, html, 'text/html; charset=utf-8');
     } catch (error) { return send(res, 502, JSON.stringify({ error:error.message || 'Impossible de récupérer la page 2KRatings.' })); }
   }
+  if (req.method === 'POST' && parsed.pathname === '/api/save-image') {
+    try {
+      let body = '';
+      for await (const chunk of req) {
+        body += chunk;
+        if (body.length > 16 * 1024 * 1024) return send(res, 413, JSON.stringify({ error:'Image trop volumineuse.' }));
+      }
+      const payload = JSON.parse(body || '{}');
+      const filename = String(payload.filename || '').toLowerCase();
+      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*\\.png$/.test(filename)) return send(res, 400, JSON.stringify({ error:'Nom de fichier PNG invalide.' }));
+      const match = String(payload.dataUrl || '').match(/^data:image\\/png;base64,([A-Za-z0-9+/=]+)$/);
+      if (!match) return send(res, 415, JSON.stringify({ error:'Seules les images PNG sont acceptées.' }));
+      const bytes = Buffer.from(match[1], 'base64');
+      if (!bytes.length || bytes.length > 12 * 1024 * 1024) return send(res, 413, JSON.stringify({ error:'Image PNG vide ou trop volumineuse.' }));
+      const imageDir = path.join(ROOT, 'Images');
+      await fs.promises.mkdir(imageDir, { recursive:true });
+      await fs.promises.writeFile(path.join(imageDir, filename), bytes);
+      return send(res, 200, JSON.stringify({ ok:true, image:'/Images/' + filename, replaced:true }));
+    } catch (error) { return send(res, 400, JSON.stringify({ error:error.message || 'Impossible d’enregistrer la photo.' })); }
+  }
   if (req.method === 'GET' && parsed.pathname === '/api/image') {
     try {
       const target = allowedRatingsUrl(parsed.searchParams.get('url') || '');
