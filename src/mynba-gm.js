@@ -122,7 +122,7 @@
     card.innerHTML = `
       <div class="gm-brand">ÉTAPE 2 SUR 2 · RECRUTEMENT</div>
       <h1 class="gm-title" style="font-size:clamp(32px,5vw,52px)">Fais tourner la roue.</h1>
-      <p class="gm-subtitle">Chaque tour sélectionne un joueur différent. Les cinq joueurs seront ajoutés à ta nouvelle franchise sans retirer les joueurs originaux de leurs équipes NBA.</p>
+      <p class="gm-subtitle">Chaque tour sélectionne un joueur différent. Les cinq joueurs seront transférés directement depuis leurs équipes actuelles vers ta nouvelle franchise.</p>
       <div class="gm-progress"><span id="gmProgress"></span></div>
       <div class="gm-wheel-stage"><span class="gm-wheel-pointer" aria-hidden="true">▼</span><div class="gm-wheel" id="gmWheel" aria-label="Roue de recrutement">MY<br>GM</div></div>
       <div class="gm-roster" id="gmRoster"></div>
@@ -175,8 +175,9 @@
   async function spinForPlayer() {
     const button = $("gmSpin");
     if (!button || button.disabled || picks.length >= 5) return;
-    const chosenIds = new Set(picks.map(p => String(p.originalId)));
-    const pool = players.filter(p => p && p.id != null && !p.originalId && !chosenIds.has(String(p.id)));
+    const chosenIds = new Set(picks.map(p => String(p.id)));
+    const alreadyCustomRostered = new Set((Array.isArray(customTeams) ? customTeams : []).flatMap(team => Array.isArray(team.playerIds) ? team.playerIds : []).map(id => String(id)));
+    const pool = players.filter(p => p && p.id != null && !p.originalId && !chosenIds.has(String(p.id)) && !alreadyCustomRostered.has(String(p.id)));
     if (!pool.length) { $("gmWheelStatus").textContent = "Il n'y a plus assez de joueurs disponibles."; return; }
     button.disabled = true;
     const total = pool.reduce((sum,p) => sum + Math.max(1, typeof overallRating==="function" ? overallRating(p) : 60),0);
@@ -189,16 +190,8 @@
     wheel.textContent = "🎡";
     $("gmWheelStatus").textContent = "La roue tourne…";
     await animateWheel(wheel, startRotation, wheelRotation, 2400);
-    const clone = JSON.parse(JSON.stringify(original));
-    clone.originalId = original.id;
-    clone.id = typeof nextPlayerId !== "undefined" ? nextPlayerId++ : Date.now()+picks.length;
-    clone.previousTeam = original.team;
-    clone.team = "FA";
-    clone.history = Array.isArray(clone.history) ? clone.history : [];
-    clone.trophies = Array.isArray(clone.trophies) ? clone.trophies : [];
-    clone.careerGames = Array.isArray(clone.careerGames) ? clone.careerGames : [];
-    players.push(clone);
-    picks.push(clone);
+    // Keep the real player object: assignCustomRoster will transfer it out of its current team.
+    picks.push(original);
     wheel.textContent = original.name;
     $("gmWheelStatus").textContent = "Sélection " + picks.length + "/5 : " + original.name + " (" + original.pos + ").";
     renderRosterSlots();
