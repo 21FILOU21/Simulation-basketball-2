@@ -55,8 +55,8 @@ async function handle(req, res) {
       }
       const payload = JSON.parse(body || '{}');
       const filename = String(payload.filename || '').toLowerCase();
-      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*\\.png$/.test(filename)) return send(res, 400, JSON.stringify({ error:'Nom de fichier PNG invalide.' }));
-      const match = String(payload.dataUrl || '').match(/^data:image\\/png;base64,([A-Za-z0-9+/=]+)$/);
+      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*\.png$/.test(filename)) return send(res, 400, JSON.stringify({ error:'Nom de fichier PNG invalide.' }));
+      const match = String(payload.dataUrl || '').match(/^data:image\/png;base64,([A-Za-z0-9+/=]+)$/);
       if (!match) return send(res, 415, JSON.stringify({ error:'Seules les images PNG sont acceptées.' }));
       const bytes = Buffer.from(match[1], 'base64');
       if (!bytes.length || bytes.length > 12 * 1024 * 1024) return send(res, 413, JSON.stringify({ error:'Image PNG vide ou trop volumineuse.' }));
