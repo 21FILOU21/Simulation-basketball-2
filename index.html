@@ -2486,6 +2486,7 @@
                 const match = options.find(option => option.textContent.toLowerCase().includes(data.team.toLowerCase()));
                 if (match) $('editTeam').value = match.value;
                 else if (/miami heat/i.test(data.team)) $('editTeam').value = 'MIA';
+                else if (/los angeles clippers|la clippers/i.test(data.team)) $('editTeam').value = 'LAC';
                 else if (/los angeles lakers/i.test(data.team)) $('editTeam').value = 'LAL';
                 else if (/cleveland cavaliers/i.test(data.team)) $('editTeam').value = 'CLE';
                 else if (/philadelphia 76ers/i.test(data.team)) $('editTeam').value = 'PHI';
