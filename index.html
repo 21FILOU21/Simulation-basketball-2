@@ -658,6 +658,7 @@
                 <label class="field">Envergure (cm)<input id="editWingspan" type="number" min="0" max="260" step="1" value=""></label>
                 <label class="field">Nationalité<input id="editNationality" placeholder="Nationalité"></label>
                 <label class="field">Avant la NBA<input id="editPriorToNBA" placeholder="Université / lycée"></label>
+                <label class="field">Image du joueur (chemin ou URL)<input id="editImage" placeholder="/Images/victor-wembanyama-2kratings.png"></label>
                 <label class="field">PPG<input id="editPts" type="number" min="0" max="60" step="0.1" value="10"></label>
                 <label class="field">RPG<input id="editReb" type="number" min="0" max="30" step="0.1" value="4"></label>
                 <label class="field">APG<input id="editAst" type="number" min="0" max="25" step="0.1" value="3"></label>
@@ -2112,7 +2113,7 @@
             const name = $('editName').value.trim();
             if (!name) { alert('Entre le nom du joueur.'); return null; }
             const num = id => Math.max(0, Number($(id).value) || 0);
-            const value = { name, team: $('editTeam').value, pos: $('editPos').value, secondaryPos: $('editSecondaryPos').value, age: clamp(Math.round(num('editAge')) || 24, 18, 45), pts: num('editPts'), reb: num('editReb'), ast: num('editAst'), ts: Math.min(1, num('editTs') / 100), three: Math.min(1, num('editThree') / 100), mpg: Math.min(48, num('editMpg')), height: Math.round(clamp(num('editHeight') || defaultHeight($('editPos').value, name), 150, 240)), jerseyNumber: $('editJersey').value.trim(), weight: num('editWeight'), wingspan: num('editWingspan'), nationality: $('editNationality').value.trim(), priorToNBA: $('editPriorToNBA').value.trim(), image: window.__pending2KImage || '', season: seasonLabel(seasonYear), source: window.__pending2KImage ? '2KRatings' : 'Joueur personnalisé' };
+            const value = { name, team: $('editTeam').value, pos: $('editPos').value, secondaryPos: $('editSecondaryPos').value, age: clamp(Math.round(num('editAge')) || 24, 18, 45), pts: num('editPts'), reb: num('editReb'), ast: num('editAst'), ts: Math.min(1, num('editTs') / 100), three: Math.min(1, num('editThree') / 100), mpg: Math.min(48, num('editMpg')), height: Math.round(clamp(num('editHeight') || defaultHeight($('editPos').value, name), 150, 240)), jerseyNumber: $('editJersey').value.trim(), weight: num('editWeight'), wingspan: num('editWingspan'), nationality: $('editNationality').value.trim(), priorToNBA: $('editPriorToNBA').value.trim(), image: $('editImage').value.trim() || window.__pending2KImage || '', season: seasonLabel(seasonYear), source: window.__pending2KImage ? '2KRatings' : 'Joueur personnalisé' };
             value.attributes = Object.fromEntries(attributeNames.map(([key]) => [key, Math.round(clamp(num(`attr-${key}`), 0, 100))]));
             return value;
         }
@@ -2121,7 +2122,7 @@
             $('editPts').value = p.pts; $('editReb').value = p.reb; $('editAst').value = p.ast; $('editTs').value = (p.ts * 100).toFixed(1);
             $('editThree').value = (p.three * 100).toFixed(1); $('editMpg').value = p.mpg; $('editHeight').value = p.height;
             $('editJersey').value = p.jerseyNumber || ''; $('editWeight').value = p.weight || ''; $('editWingspan').value = p.wingspan || '';
-            $('editNationality').value = p.nationality || ''; $('editPriorToNBA').value = p.priorToNBA || ''; window.__pending2KImage = p.image || '';
+            $('editNationality').value = p.nationality || ''; $('editPriorToNBA').value = p.priorToNBA || ''; $('editImage').value = p.image || ''; window.__pending2KImage = p.image || '';
             renderAttributeEditor(p.attributes);
         }
         $('createPlayer').onclick = () => {
@@ -2144,7 +2145,7 @@
             customTeams.forEach(t => t.playerIds = t.playerIds.filter(i => i !== id));
             render(); $('editPlayerSelect').value = ''; $('editorStatus').textContent = `${p.name} a été supprimé.`;
         };
-        $('clearEditor').onclick = () => { $('editPlayerSelect').value = ''; $('editName').value = ''; $('editSecondaryPos').value = ''; $('editAge').value = 24; $('editPts').value = 10; $('editReb').value = 4; $('editAst').value = 3; $('editTs').value = 56; $('editThree').value = 35; $('editMpg').value = 20; $('editHeight').value = defaultHeight($('editPos').value); $('editJersey').value = ''; $('editWeight').value = ''; $('editWingspan').value = ''; $('editNationality').value = ''; $('editPriorToNBA').value = ''; window.__pending2KImage = ''; renderAttributeEditor(); $('editorStatus').textContent = 'Champs vidés.'; };
+        $('clearEditor').onclick = () => { $('editPlayerSelect').value = ''; $('editName').value = ''; $('editSecondaryPos').value = ''; $('editAge').value = 24; $('editPts').value = 10; $('editReb').value = 4; $('editAst').value = 3; $('editTs').value = 56; $('editThree').value = 35; $('editMpg').value = 20; $('editHeight').value = defaultHeight($('editPos').value); $('editJersey').value = ''; $('editWeight').value = ''; $('editWingspan').value = ''; $('editNationality').value = ''; $('editPriorToNBA').value = ''; $('editImage').value = ''; window.__pending2KImage = ''; renderAttributeEditor(); $('editorStatus').textContent = 'Champs vidés.'; };
         $('editPlayerSelect').onchange = () => { const p = players.find(x => x.id === +$('editPlayerSelect').value); if (p) fillEditor(p); };
         $('editPos').onchange = () => { if (!$('editPlayerSelect').value) { $('editHeight').value = defaultHeight($('editPos').value); renderAttributeEditor(); } else updateEditorOverall(); };
         $('attributeEditor').oninput = updateEditorOverall;
@@ -2515,7 +2516,7 @@
                 const grade = {'A+':99,'A':95,'A-':92,'B+':89,'B':85,'B-':82,'C+':79,'C':75}[data.potentialGrade];
                 if (grade) $('attr-potential').value = grade;
             }
-            if (data.imageData) window.__pending2KImage = data.imageData;
+            if (data.imageData) { window.__pending2KImage = data.imageData; $('editImage').value = data.imageData; }
             renderAttributeEditor(Object.fromEntries(attributeNames.map(([key]) => [key, Number($('attr-' + key).value) || 50])));
             $('editorStatus').textContent = 'Ratings importés depuis 2KRatings : ' + (data.name || 'joueur') + '.';
         };
