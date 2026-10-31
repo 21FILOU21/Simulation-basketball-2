@@ -88,10 +88,16 @@ async function resizedImage(url,name) {
     const canvas=document.createElement('canvas');
     canvas.width=Math.max(1,Math.round(bitmap.width*ratio)); canvas.height=Math.max(1,Math.round(bitmap.height*ratio));
     canvas.getContext('2d').drawImage(bitmap,0,0,canvas.width,canvas.height); bitmap.close();
-    const data=canvas.toDataURL('image/jpeg',0.82);
-    const link=document.createElement('a'); link.href=data; link.download=slug(name||'player')+'-2kratings.jpg';
-    document.body.appendChild(link); link.click(); link.remove();
-    return data;
+    const data=canvas.toDataURL('image/png');
+    const filename=slug(name||'player')+'-2kratings.png';
+    const response=await fetch(apiBase+'/api/save-image',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({filename,dataUrl:data})
+    });
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok || !result.image) throw new Error(result.error||'Impossible d’enregistrer la photo dans Images.');
+    return result.image;
 }
 function requestRatingsPage(slugValue) {
     window.postMessage({ source:'nba-sim-page', type:'open-ratings', slug:slugValue }, '*');
