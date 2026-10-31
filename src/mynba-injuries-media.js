@@ -440,10 +440,6 @@
     panel.innerHTML =
       '<h3>Informations du joueur · Health & Media</h3>' +
       '<div class="editor-grid">' +
-      '<label class="field">Numéro de maillot<input id="mynbaPlayerJersey" type="number" min="0" max="99" placeholder="0"></label>' +
-      '<label class="field">Poids (kg)<input id="mynbaPlayerWeight" type="number" min="35" max="220" step="0.1" placeholder="—"></label>' +
-      '<label class="field">Envergure (cm)<input id="mynbaPlayerWingspan" type="number" min="140" max="260" step="1" placeholder="—"></label>' +
-      '<label class="field">Nationalité<input id="mynbaPlayerNationality" maxlength="48" placeholder="Canada, USA…"></label>' +
       '<label class="field">État de santé<select id="mynbaPlayerInjuryLevel"><option value="healthy">En santé</option><option value="minor">Blessure mineure</option><option value="moderate">Blessure moyenne</option><option value="severe">Blessure élevée</option><option value="careerEnding">Très élevée · Career ending</option></select></label>' +
       '<label class="field">Partie du corps<select id="mynbaPlayerInjuryPart">' +
       Object.entries(bodyParts).map(([key,part])=>'<option value="'+key+'">'+esc(part.label)+'</option>').join("") +
@@ -471,10 +467,6 @@
       $("mynbaPlayerMediaStatus").textContent="L’image sera retirée lors du prochain clic sur Modifier.";
     });
     const populate=player=>{
-      $("mynbaPlayerJersey").value=player&&player.jerseyNumber!=null?player.jerseyNumber:"";
-      $("mynbaPlayerWeight").value=player&&player.weight?player.weight:"";
-      $("mynbaPlayerWingspan").value=player&&player.wingspan?player.wingspan:"";
-      $("mynbaPlayerNationality").value=player&&player.nationality?player.nationality:"";
       $("mynbaPlayerInjuryLevel").value=player&&player.injury?player.injury.severity:"healthy";
       $("mynbaPlayerInjuryPart").value=player&&player.injury?player.injury.bodyPart||"leg":"leg";
       $("mynbaPlayerInjuryGames").value=player&&player.injury?Number(player.injury.restGamesRemaining)||0:0;
@@ -490,10 +482,6 @@
       const button=$(id);if(!button)return;
       button.addEventListener("click",()=>{
         const player=selector&&findPlayer(selector.value);if(!player)return;
-        player.jerseyNumber=$("mynbaPlayerJersey").value===""?"":clamp($("mynbaPlayerJersey").value,0,99);
-        player.weight=Number($("mynbaPlayerWeight").value)||0;
-        player.wingspan=Number($("mynbaPlayerWingspan").value)||"";
-        player.nationality=$("mynbaPlayerNationality").value.trim();
         if(window.NBASimPendingPlayerImage!==undefined)player.image=window.NBASimPendingPlayerImage;
         const severity=$("mynbaPlayerInjuryLevel").value;
         if(severity==="healthy")delete player.injury;
