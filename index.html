@@ -2482,14 +2482,57 @@
             const positions = (data.positions || []).filter(pos => ['PG','SG','SF','PF','C'].includes(pos));
             if (positions.length) { $('editPos').value = positions[0]; $('editSecondaryPos').value = positions[1] || ''; }
             if (data.team) {
+                const normalizeTeamName = value => String(value || '')
+                    .normalize('NFD').replace(/[\\u0300-\\u036f]/g, '')
+                    .toLowerCase().replace(/[^a-z0-9]/g, '');
+                const teamCodes = {
+                    'atlanta hawks': 'ATL',
+                    'boston celtics': 'BOS',
+                    'brooklyn nets': 'BKN',
+                    'charlotte hornets': 'CHA',
+                    'chicago bulls': 'CHI',
+                    'cleveland cavaliers': 'CLE',
+                    'dallas mavericks': 'DAL',
+                    'denver nuggets': 'DEN',
+                    'detroit pistons': 'DET',
+                    'golden state warriors': 'GSW',
+                    'houston rockets': 'HOU',
+                    'indiana pacers': 'IND',
+                    'los angeles clippers': 'LAC',
+                    'la clippers': 'LAC',
+                    'los angeles lakers': 'LAL',
+                    'la lakers': 'LAL',
+                    'memphis grizzlies': 'MEM',
+                    'miami heat': 'MIA',
+                    'milwaukee bucks': 'MIL',
+                    'minnesota timberwolves': 'MIN',
+                    'new orleans pelicans': 'NOP',
+                    'new york knicks': 'NYK',
+                    'oklahoma city thunder': 'OKC',
+                    'orlando magic': 'ORL',
+                    'philadelphia 76ers': 'PHI',
+                    'phoenix suns': 'PHX',
+                    'portland trail blazers': 'POR',
+                    'sacramento kings': 'SAC',
+                    'san antonio spurs': 'SAS',
+                    'toronto raptors': 'TOR',
+                    'utah jazz': 'UTA',
+                    'washington wizards': 'WAS'
+                };
+                const normalizedTeam = normalizeTeamName(data.team);
+                const mappedCode = Object.entries(teamCodes).find(([name]) =>
+                    normalizeTeamName(name) === normalizedTeam
+                )?.[1];
                 const options = [...$('editTeam').options];
-                const match = options.find(option => option.textContent.toLowerCase().includes(data.team.toLowerCase()));
-                if (match) $('editTeam').value = match.value;
-                else if (/miami heat/i.test(data.team)) $('editTeam').value = 'MIA';
-                else if (/los angeles clippers|la clippers/i.test(data.team)) $('editTeam').value = 'LAC';
-                else if (/los angeles lakers/i.test(data.team)) $('editTeam').value = 'LAL';
-                else if (/cleveland cavaliers/i.test(data.team)) $('editTeam').value = 'CLE';
-                else if (/philadelphia 76ers/i.test(data.team)) $('editTeam').value = 'PHI';
+                const match = options.find(option =>
+                    normalizeTeamName(option.textContent) === normalizedTeam ||
+                    (mappedCode && option.value === mappedCode)
+                );
+                if (mappedCode && options.some(option => option.value === mappedCode)) {
+                    $('editTeam').value = mappedCode;
+                } else if (match) {
+                    $('editTeam').value = match.value;
+                }
             }
             if (data.heightCm) $('editHeight').value = data.heightCm;
             if (data.jerseyNumber !== undefined) $('editJersey').value = data.jerseyNumber;
