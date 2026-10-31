@@ -5,6 +5,36 @@ const base = 'https://www.2kratings.com/';
 const clean = value => (value || '').replace(/\s+/g,' ').trim();
 const slug = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const status = value => { const el=$('ratingsSyncStatus'); if(el) el.textContent=value; };
+const TEAM_CODES = {
+    'atlanta hawks':'ATL','boston celtics':'BOS','brooklyn nets':'BKN','charlotte hornets':'CHA','chicago bulls':'CHI',
+    'cleveland cavaliers':'CLE','dallas mavericks':'DAL','denver nuggets':'DEN','detroit pistons':'DET','golden state warriors':'GSW',
+    'houston rockets':'HOU','indiana pacers':'IND','los angeles clippers':'LAC','la clippers':'LAC','l.a. clippers':'LAC',
+    'los angeles lakers':'LAL','la lakers':'LAL','l.a. lakers':'LAL','memphis grizzlies':'MEM','miami heat':'MIA',
+    'milwaukee bucks':'MIL','minnesota timberwolves':'MIN','new orleans pelicans':'NOP','new york knicks':'NYK',
+    'oklahoma city thunder':'OKC','orlando magic':'ORL','philadelphia 76ers':'PHI','phoenix suns':'PHX',
+    'portland trail blazers':'POR','sacramento kings':'SAC','san antonio spurs':'SAS','toronto raptors':'TOR',
+    'utah jazz':'UTA','washington wizards':'WAS'
+};
+const normalizeTeamName = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+function extractTeamName(text) {
+    const match = String(text || '').match(/\bTeam:\s*(.+?)(?=\s+(?:Jersey|Position|Nationality|Height|Weight|Wingspan):|$)/i);
+    if (!match) return '';
+    return clean(match[1].replace(/\[([^\]]+)\]\([^)]*\)/g,'$1').replace(/https?:\/\/\S+/g,'').replace(/\s+/g,' ')).replace(/[|,;]+$/,'').trim();
+}
+function resolveTeamCode(teamName, optionList) {
+    const normalized = normalizeTeamName(teamName);
+    if (!normalized) return '';
+    const mapped = Object.entries(TEAM_CODES).find(([name]) => normalizeTeamName(name) === normalized)?.[1];
+    const options = Array.from(optionList || $('editTeam')?.options || []);
+    if (mapped && options.some(option => String(option.value).toUpperCase() === mapped)) return mapped;
+    const exact = options.find(option => normalizeTeamName(option.textContent) === normalized);
+    if (exact) return exact.value;
+    const codeMatch = options.find(option => mapped && String(option.value).toUpperCase() === mapped);
+    return codeMatch ? codeMatch.value : '';
+}
+window.NBASimExtractRatingsTeamName = extractTeamName;
+window.NBASimResolveRatingsTeamCode = resolveTeamCode;
+
 let requestTimeout = null;
 let imageRequestId = 0;
 const apiBase = (() => {
@@ -109,7 +139,7 @@ async function importSource(source, playerName) {
     if(!/NBA 2K\d+ Rating/i.test(text)||!text.toLowerCase().includes(playerName.toLowerCase().split(' ')[0]))
         throw new Error('Page joueur introuvable ou nom incorrect. Vérifie le nom utilisé dans l’adresse.');
     const positions=(text.match(/Position:\s*([A-Z]{1,2})\s*\/?\s*([A-Z]{1,2})?/i)||[]).slice(1).filter(Boolean).map(x=>x.toUpperCase());
-    const team=(text.match(/Team:\s*([^\n]+?)(?=\s+Jersey:|\s+Position:)/i)||[])[1]||'';
+    const team=extractTeamName(text);
     const attrs={
         threePoint:rating(text,'Three-Point Shot'),midRange:rating(text,'Mid-Range Shot'),closeShot:rating(text,'Close Shot'),
         freeThrow:rating(text,'Free Throw'),offensiveConsistency:rating(text,'Offensive Consistency'),shotIQ:rating(text,'Shot IQ'),
