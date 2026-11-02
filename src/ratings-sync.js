@@ -13,7 +13,7 @@ const TEAM_CODES = {
     'milwaukee bucks':'MIL','minnesota timberwolves':'MIN','new orleans pelicans':'NOP','new york knicks':'NYK',
     'oklahoma city thunder':'OKC','orlando magic':'ORL','philadelphia 76ers':'PHI','phoenix suns':'PHX',
     'portland trail blazers':'POR','sacramento kings':'SAC','san antonio spurs':'SAS','toronto raptors':'TOR',
-    'utah jazz':'UTA','washington wizards':'WAS'
+    'utah jazz':'UTA','washington wizards':'WAS','free agent':'FA','nba free agent':'FA'
 };
 const normalizeTeamName = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
 function extractTeamName(text, doc) {
@@ -45,6 +45,7 @@ function resolveTeamCode(teamName, optionList) {
     return codeMatch ? codeMatch.value : '';
 }
 window.NBASimExtractRatingsTeamName = extractTeamName;
+window.NBASimReadRatingsValue = rating;
 window.NBASimResolveRatingsTeamCode = resolveTeamCode;
 
 let requestTimeout = null;
