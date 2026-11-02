@@ -32,6 +32,7 @@
         <button class="gm-primary" id="gmLoadSave">Charger une sauvegarde JSON</button>
         <button class="gm-primary" id="gmCreateWheel">Créer une franchise avec la roue</button>
         <button class="gm-secondary" id="gmStartDemo">Commencer une démo</button>
+        <button class="gm-secondary" id="gmBackToModes">Retour au choix du mode</button>
       </div>
       <p class="gm-status" id="gmStatus">Ta carrière commence ici.</p>`;
     $("gmCreateWheel").onclick = () => {
@@ -48,6 +49,7 @@
       input.value = "";
       input.click();
     };
+    $("gmBackToModes").onclick = () => { if(typeof window.NBASimReturnToModePicker==="function")window.NBASimReturnToModePicker(); };
     $("gmStartDemo").onclick = async () => {
       setLoadingStatus("Chargement des joueurs et préparation de ta franchise…");
       const button = $("gmStartDemo"); button.disabled = true;
@@ -79,7 +81,8 @@
         <img id="gmTeamImagePreview" alt="Aperçu du logo de la franchise" hidden style="max-width:110px;max-height:110px;object-fit:contain;border-radius:12px">
       </div>
       <p class="gm-status" id="gmSetupStatus">Choisis le nom, le code, la ville et la conférence.</p>
-      <div class="gm-actions"><button class="gm-primary" id="gmConfirmTeam">Continuer vers la roue →</button></div>`;
+      <div class="gm-actions"><button class="gm-primary" id="gmConfirmTeam">Continuer vers la roue →</button><button class="gm-secondary" id="gmBackToModes">Retour au choix du mode</button></div>`;
+    $("gmBackToModes").onclick = () => { if(typeof window.NBASimReturnToModePicker==="function")window.NBASimReturnToModePicker(); };
     const teamImageInput = $("gmTeamImage");
     if (teamImageInput) teamImageInput.onchange = async () => {
       if (typeof window.NBASimReadImageFile !== "function") return;

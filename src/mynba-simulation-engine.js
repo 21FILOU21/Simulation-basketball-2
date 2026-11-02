@@ -12,7 +12,8 @@
       : (injury.severity === "minor" || injury.severity === "moderate" ? 1 : 0);
     for (const key of keys) if (a[key] !== undefined && a[key] !== null && Number.isFinite(Number(a[key]))) {
       const penalty = injury && injury.attributePenalties ? Number(injury.attributePenalties[key]) || 0 : 0;
-      return clamp(Number(a[key]) - penalty * recoveryFactor, 0, 100);
+      const moodBonus = p && p.myCareerMoodModifiers ? Number(p.myCareerMoodModifiers[key]) || 0 : 0;
+      return clamp(Number(a[key]) - penalty * recoveryFactor + moodBonus, 0, 100);
     }
     return fallback;
   };
@@ -44,7 +45,7 @@
       if (String(p.team).toUpperCase() === "FA" || String(p.team).toUpperCase() === "FREE_AGENT") return false;
       if (typeof window.NBAMyNBAIsRostered === "function" && !window.NBAMyNBAIsRostered(p)) return false;
       if (typeof window.NBASimInjuryCanPlay === "function" && !window.NBASimInjuryCanPlay(p)) return false;
-      const minutes = typeof window.NBAMyNBAMinutes === "function" ? Number(window.NBAMyNBAMinutes(p)) : Number(p.mpg);
+      const minutes = typeof window.NBAMyNBAMinutes === "function" ? Number(window.NBAMyNBAMinutes(p)) : 20;
       return Number.isFinite(minutes) && minutes > 0;
     };
     const rows = all.filter(eligible);

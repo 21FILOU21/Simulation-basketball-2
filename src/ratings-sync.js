@@ -13,19 +13,33 @@ const TEAM_CODES = {
     'milwaukee bucks':'MIL','minnesota timberwolves':'MIN','new orleans pelicans':'NOP','new york knicks':'NYK',
     'oklahoma city thunder':'OKC','orlando magic':'ORL','philadelphia 76ers':'PHI','phoenix suns':'PHX',
     'portland trail blazers':'POR','sacramento kings':'SAC','san antonio spurs':'SAS','toronto raptors':'TOR',
-    'utah jazz':'UTA','washington wizards':'WAS'
+    'utah jazz':'UTA','washington wizards':'WAS','free agent':'FA','nba free agent':'FA'
 };
 const normalizeTeamName = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
-function extractTeamName(text) {
-    const match = String(text || '').match(/\bTeam:\s*(.+?)(?=\s+(?:Jersey|Position|Nationality|Height|Weight|Wingspan):|$)/i);
-    if (!match) return '';
-    return clean(match[1].replace(/\[([^\]]+)\]\([^)]*\)/g,'$1').replace(/https?:\/\/\S+/g,'').replace(/\s+/g,' ')).replace(/[|,;]+$/,'').trim();
+function extractTeamName(text, doc) {
+    const source = String(text || '');
+    const match = source.match(/\bTeam\s*:\s*(.+?)(?=\s+(?:Jersey|Position|Nationality|Height|Weight|Wingspan|Age|NBA 2K):|$)/i);
+    let candidate = match ? clean(match[1].replace(/\[([^\]]+)\]\([^)]*\)/g,'$1').replace(/https?:\/\/\S+/g,'').replace(/[|,;]+$/,'').trim()) : '';
+    if ((!candidate || /^team$/i.test(candidate)) && doc) {
+        const links = Array.from(doc.querySelectorAll('a[href*="/teams/"]'));
+        const marker = source.toLowerCase().indexOf('team:');
+        const context = marker >= 0 ? source.slice(marker, marker + 180).toLowerCase() : '';
+        const nearest = links.find(link => {
+            const label = clean(link.textContent || link.getAttribute('aria-label') || '').toLowerCase();
+            return label && context.includes(label);
+        });
+        if (nearest) candidate = clean(nearest.textContent || nearest.getAttribute('aria-label') || '');
+        if (!candidate && links.length === 1) candidate = clean(links[0].textContent || links[0].getAttribute('aria-label') || '');
+    }
+    return candidate.replace(/^Image:\s*/i,'').trim();
 }
 function resolveTeamCode(teamName, optionList) {
     const normalized = normalizeTeamName(teamName);
     if (!normalized) return '';
     const mapped = Object.entries(TEAM_CODES).find(([name]) => normalizeTeamName(name) === normalized)?.[1];
     const options = Array.from(optionList || $('editTeam')?.options || []);
+    const directCode = options.find(option => String(option.value).toUpperCase() === String(teamName || '').trim().toUpperCase());
+    if (directCode) return directCode.value;
     if (mapped && options.some(option => String(option.value).toUpperCase() === mapped)) return mapped;
     const exact = options.find(option => normalizeTeamName(option.textContent) === normalized);
     if (exact) return exact.value;
@@ -33,7 +47,9 @@ function resolveTeamCode(teamName, optionList) {
     return codeMatch ? codeMatch.value : '';
 }
 window.NBASimExtractRatingsTeamName = extractTeamName;
+window.NBASimReadRatingsValue = rating;
 window.NBASimResolveRatingsTeamCode = resolveTeamCode;
+window.NBASimParseRatingsSummary = function(source){const value=String(source||"");return {totalAttributes:metric(value,/Total Attributes\s*(\d[\d,]*)/i),potential:(value.match(/Potential\s*(?:svg\s*)?([A-F][+-]?|\d{1,3})/i)||[])[1]||""};};
 
 let requestTimeout = null;
 let imageRequestId = 0;
@@ -43,10 +59,15 @@ const apiBase = (() => {
 })();
 function rating(text,label) {
     const safe=label.replace(/[.*+?^$()|[\]\\]/g,'\\$&');
-    const m=text.match(new RegExp(safe+'\\s*(?:svg\\s*)?(\\d{1,3})\\b','i'));
-    return m?Number(m[1]):null;
+    const source=String(text||'');
+    const patterns=[
+        new RegExp('(?:^|\\s)'+safe+'\\s*(?:svg\\s*)?[:：-]?\\s*(\\d{1,3})\\b','i'),
+        new RegExp(safe+'(?:\\s|\\u00a0|&nbsp;){1,3}(\\d{1,3})\\b','i')
+    ];
+    for(const pattern of patterns){const match=source.match(pattern);if(match)return Number(match[1]);}
+    return null;
 }
-function metric(text,pattern) { const m=text.match(pattern); return m?Number(m[1]):null; }
+function metric(text,pattern) { const m=String(text||'').match(pattern); return m?Number(String(m[1]).replace(/,/g,'')):null; }
 function imageUrl(doc) {
     const candidates=[];
     const add=(raw,score=0)=>{
@@ -139,7 +160,7 @@ async function importSource(source, playerName) {
     if(!/NBA 2K\d+ Rating/i.test(text)||!text.toLowerCase().includes(playerName.toLowerCase().split(' ')[0]))
         throw new Error('Page joueur introuvable ou nom incorrect. Vérifie le nom utilisé dans l’adresse.');
     const positions=(text.match(/Position:\s*([A-Z]{1,2})\s*\/?\s*([A-Z]{1,2})?/i)||[]).slice(1).filter(Boolean).map(x=>x.toUpperCase());
-    const team=extractTeamName(text);
+    const team=extractTeamName(text,doc);
     const attrs={
         threePoint:rating(text,'Three-Point Shot'),midRange:rating(text,'Mid-Range Shot'),closeShot:rating(text,'Close Shot'),
         freeThrow:rating(text,'Free Throw'),offensiveConsistency:rating(text,'Offensive Consistency'),shotIQ:rating(text,'Shot IQ'),
@@ -159,8 +180,8 @@ async function importSource(source, playerName) {
         insideScoring:rating(text,'Inside Scoring'),playmaking:rating(text,'Playmaking'),
         defense:rating(text,'Defense'),rebounding:rating(text,'Rebounding')
     };
-    const totalAttributes=metric(text,/Total Attributes\\s*(\\d[\\d,]*)/i);
-    const potentialValue=(text.match(/Potential\\s*(?:svg\\s*)?([A-F][+-]?|\\d{1,3})/i)||[])[1]||'';
+    const totalAttributes=metric(text,/Total Attributes\s*(\d[\d,]*)/i);
+    const potentialValue=(text.match(/Potential\s*(?:svg\s*)?([A-F][+-]?|\d{1,3})/i)||[])[1]||'';
     const count=Object.values(attrs).filter(Number.isFinite).length;
     if(count<12) throw new Error('La page est ouverte, mais seulement '+count+' attributs ont été lus. Vérifie que la page du joueur est complètement chargée.');
     status('Joueur trouvé : '+count+' attributs. Récupération de la photo…');
@@ -168,7 +189,7 @@ async function importSource(source, playerName) {
     try { imageData=await resizedImage(imageUrl(doc),playerName); }
     catch(error) { status(error.message+' Import des notes en cours…'); }
     const data={
-        name,team,positions,attributes:attrs,twoKRatings:{attributes:attrs,categoryRatings,totalAttributes,potential:potentialValue},imageData,
+        name,team,teamCode:resolveTeamCode(team,$('editTeam')?.options),positions,attributes:attrs,twoKRatings:{attributes:attrs,categoryRatings,totalAttributes,potential:potentialValue},imageData,
         jerseyNumber:(text.match(/Jersey:\s*#?(\d+)/i)||[])[1]||'',
         nationality:(text.match(/Nationality:\s*([A-Za-z][A-Za-z -]*?)(?:\s+Image:|\s+Team:)/i)||[])[1]||'',
         priorToNBA:(text.match(/Prior to NBA:\s*(.+?)(?:\s+canvas|\s+Compare|\s+Badges|\s+\d{2}\s+OVERALL)/i)||[])[1]||'',

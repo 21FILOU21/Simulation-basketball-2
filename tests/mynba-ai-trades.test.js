@@ -17,7 +17,7 @@ new Function(fixes);
 assert.match(html, /src="src\/mynba-ai-trades\.js"/, "The AI trade manager must be loaded.");
 assert.match(ai, /function makeAITrade\(/, "The AI league must be able to trade players between teams.");
 assert.match(ai, /function makeOffer\(/, "The AI must be able to make proposals to the managed franchise.");
-assert.match(ai, /if \(Math\.random\(\) < \.006\) makeAITrade\(round\)/, "AI-to-AI trades must continue independently of auto-decline.");
+assert.match(ai, /if\s*\(\s*Math\.random\(\)\s*<\s*\.006\s*\)\s*makeAITrade\(round\)\s*;/, "AI-to-AI trades must continue independently of auto-decline.");
 assert.match(ai, /window\.NBASimAIAutoDecline === true/, "The auto-decline preference must be checked.");
 assert.match(ai, /mynbaAITradeAutoDecline/, "The incoming offer must expose an auto-decline action.");
 assert.match(ai, /mynbaAIAutoDeclineSetting/, "Settings must expose the auto-decline toggle.");
