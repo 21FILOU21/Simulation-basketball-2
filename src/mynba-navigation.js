@@ -403,6 +403,7 @@ function restoreModeSave(data){
  if(!data||data.format!=="nba-sim-lab-save"||!Array.isArray(data.players))return false;
  try{
   load(data.players,"Reprise de la franchise MyGM.",data);
+  state.menu=false;state.active=null;state.rosterCache=null;if($("mynbaMenu"))$("mynbaMenu").hidden=true;if($("mynbaMobileBack"))$("mynbaMobileBack").hidden=true;document.querySelectorAll(".mynba-screen").forEach(function(screen){screen.hidden=true;});
   if(data.mynba){state.rosterOrder=data.mynba.rosterOrder||{};state.rosterCache=null;state.tendencies=data.mynba.tendencies||{};state.teamSettings=data.mynba.teamSettings||{};state.coachSettings=data.mynba.coachSettings||{};state.gameplans=data.mynba.gameplans||{};state.tradeHistory=data.mynba.tradeHistory||[];state.team=data.mynba.team||state.team;if(Array.isArray(data.mynba.aiTradeHistory))window.NBASimAITradeHistory=data.mynba.aiTradeHistory;if(typeof data.mynba.aiTradeAutoDecline==="boolean")window.NBASimAIAutoDecline=data.mynba.aiTradeAutoDecline;window.NBAMyNBATeamSettings=state.teamSettings;}
   renderTeamSelection();renderRoster();renderTeamDescription();renderGameplan();renderCoach();renderAll();return true;
  }catch(error){console.error("MyGM mode restore:",error);return false;}
