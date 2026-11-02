@@ -19,5 +19,8 @@ assert.equal(window.NBASimResolveRatingsTeamCode("WAS", options), "WAS");
 assert.equal(window.NBASimResolveRatingsTeamCode("Free Agent", options), "FA");
 assert.equal(window.NBASimReadRatingsValue("Mid-Range Shot 87", "Mid-Range Shot"), 87);
 assert.equal(window.NBASimReadRatingsValue("Intangibles 92", "Intangibles"), 92);
+const summary = window.NBASimParseRatingsSummary("Total Attributes 1,234 Potential A-");
+assert.equal(summary.totalAttributes, 1234);
+assert.equal(summary.potential, "A-");
 assert.equal(window.NBASimResolveRatingsTeamCode("Unknown Team", options), "");
 console.log("OK — synchronisation 2KRatings : extraction du nom d'équipe et correspondance des codes NBA.");
