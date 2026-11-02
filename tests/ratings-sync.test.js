@@ -15,5 +15,9 @@ assert.equal(window.NBASimResolveRatingsTeamCode("Los Angeles Clippers", options
 assert.equal(window.NBASimResolveRatingsTeamCode("LA Clippers", options), "LAC");
 assert.equal(window.NBASimResolveRatingsTeamCode("Atlanta Hawks", options), "ATL");
 assert.equal(window.NBASimResolveRatingsTeamCode("Miami Heat", options), "MIA");
+assert.equal(window.NBASimResolveRatingsTeamCode("WAS", options), "WAS");
+assert.equal(window.NBASimResolveRatingsTeamCode("Free Agent", options), "FA");
+assert.equal(window.NBASimReadRatingsValue("Mid-Range Shot 87", "Mid-Range Shot"), 87);
+assert.equal(window.NBASimReadRatingsValue("Intangibles 92", "Intangibles"), 92);
 assert.equal(window.NBASimResolveRatingsTeamCode("Unknown Team", options), "");
 console.log("OK — synchronisation 2KRatings : extraction du nom d'équipe et correspondance des codes NBA.");
