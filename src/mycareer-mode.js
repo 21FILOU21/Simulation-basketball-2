@@ -38,7 +38,7 @@ function saveCareer(){
 }
 function restoreStored(data){
  if(!data||!data.career||!Array.isArray(data.players))return false;
- try{players=data.players;seasonYear=Number(data.seasonYear)||2025;phase=data.phase||"regular";seasonCalendar=data.seasonCalendar||null;seasonResults=data.seasonResults||[];if(typeof retired!=="undefined")retired=data.retired||[];career=data.career;window.NBASimActualPlayerStats=data.actualPlayerStats||{};window.NBASimActualBoxScores=data.actualBoxScores||{};if(!findPlayer(career.playerId)&&career.player)players.push(career.player);if(typeof renderAll==="function")renderAll();return true;}catch(error){saveError="Reprise impossible : "+error.message;return false;}
+ try{players=data.players;seasonYear=Number(data.seasonYear)||2025;phase=data.phase||"regular";seasonCalendar=data.seasonCalendar||null;seasonResults=data.seasonResults||[];if(typeof retired!=="undefined")retired=data.retired||[];customTeams=[];nextCustomTeamId=1;nextPlayerId=Math.max(1000,...players.map(p=>(Number(p.id)||0)+1));career=data.career;career.player=findPlayer(career.playerId)||career.player||null;window.NBASimActualPlayerStats=data.actualPlayerStats||{};window.NBASimActualBoxScores=data.actualBoxScores||{};if(!findPlayer(career.playerId)&&career.player&&!career.retired)players.push(career.player);if(typeof window.NBAMyNBARosterChanged==="function")window.NBAMyNBARosterChanged();if(typeof renderAll==="function")renderAll();return true;}catch(error){saveError="Reprise impossible : "+error.message;return false;}
 }
 function showPicker(){
  hideGM();render('<div style="padding-top:clamp(25px,8vh,90px)"><div class="mc-kicker">NBA SIM LAB · CHOISIS TON EXPÉRIENCE</div><h1 class="mc-title">Quelle carrière<br>vas-tu écrire ?</h1><p class="mc-muted">Choisis ton mode de jeu. MyGM conserve la gestion de franchise. MyCareer te place dans la peau d’un seul joueur NBA.</p><div class="mc-mode-grid"><button class="mc-mode" id="mcChooseCareer"><div class="mc-kicker">MODE JOUEUR</div><h2>MyCareer</h2><p>Crée ton joueur, passe par la Draft et construis ta légende jusqu’à la retraite.</p></button><button class="mc-mode" id="mcChooseGM"><div class="mc-kicker">MODE FRANCHISE</div><h2>MyGM</h2><p>Contrôle une franchise, gère ton effectif, les transferts, la saison et les playoffs.</p></button></div></div>');
@@ -52,8 +52,10 @@ function openCareerHome(){
 }
 function beginNewCareer(){
  if(loadStored()&&!confirm("Remplacer la sauvegarde MyCareer actuelle par une nouvelle carrière ?"))return;
- localStorage.removeItem(KEY);
- if(!allPlayers().length&&$("demo")){$("demo").click();setTimeout(showCreation,180);}else showCreation();
+ localStorage.removeItem(KEY);career=null;draftPlayer=null;
+ players=allPlayers().filter(p=>!p.myCareer&&p.source!=="MyCareer · Rival généré");
+ customTeams=[];nextCustomTeamId=1;
+ if(!players.length&&$("demo")){$("demo").click();showCreation();}else showCreation();
 }
 function specialtyOptions(pos){return(profiles[pos]||profiles.SF).map(x=>'<option value="'+x.id+'">'+x.name+'</option>').join("");}
 function profileFor(pos,id){const list=profiles[pos]||profiles.SF;return list.find(x=>x.id===id)||list[0];}
@@ -112,6 +114,55 @@ function showDraftStory(){
   career.storyHistory.push({stage:"Draft",event:scene.title,choice:x.label});career.draftScene++;if(career.draftScene>=draftScenes.length)revealDraft();else showDraftStory();
  });
 }
+function randomAttributes(pos){
+ const overall=59+rand()*15;
+ const big=["PF","C"].includes(pos),guard=["PG","SG"].includes(pos);
+ const result={};
+ attrs.forEach(([key])=>{
+  let bonus=0;
+  if(["threePoint","midRange","freeThrow","shotIQ"].includes(key))bonus=guard?5:big?-5:2;
+  if(["block","interiorDefense","defensiveRebound","offensiveRebound","strength"].includes(key))bonus=big?8:-3;
+  if(["speed","acceleration","agility","ballHandle","passing","playmaking"].includes(key))bonus=guard?7:big?-6:1;
+  if(["finishing","closeShot","dunk","vertical"].includes(key))bonus=big?5:2;
+  result[key]=clamp(Math.round(overall+bonus+(rand()-.5)*18),35,88);
+ });
+ result.potential=clamp(Math.round(76+rand()*19),65,95);
+ result.workEthic=clamp(Math.round(55+rand()*40),40,99);
+ result.consistency=clamp(Math.round(55+rand()*30),40,90);
+ result.intangibles=clamp(Math.round(55+rand()*25),40,90);
+ return result;
+}
+function createLeaguePlayer(team,pos,index){
+ const first=["Marcus","Jordan","Darius","Malik","Cameron","Tyler","Jalen","Isaiah","Devin","Andre","Trevor","Noah","Jayden","Aaron","Dylan"];
+ const last=["Carter","Brooks","Williams","Hayes","Mitchell","Parker","Reed","Bennett","Morris","Foster","Collins","Price","Turner","Cooper","Ward"];
+ const name=first[Math.floor(rand()*first.length)]+" "+last[Math.floor(rand()*last.length)]+" "+team[0];
+ const height=(typeof defaultHeight==="function"?defaultHeight(pos,name):({PG:188,SG:195,SF:202,PF:208,C:214}[pos]||198));
+ const weight=Math.round((({PG:82,SG:88,SF:98,PF:108,C:116}[pos]||95)+(rand()-.5)*12));
+ const age=19+Math.floor(rand()*14);
+ return {id:typeof nextPlayerId!=="undefined"?nextPlayerId++:Date.now()+index,name,team:team[0],pos,age,height,weight,wingspan:height+Math.round(4+rand()*13),pts:+(4+rand()*12).toFixed(1),reb:+(1.5+rand()*6).toFixed(1),ast:+(.5+rand()*4.5).toFixed(1),stl:+(.3+rand()*1.2).toFixed(1),blk:+(rand()*(pos==="C"?.9:.5)).toFixed(1),ts:.49+rand()*.13,three:.28+rand()*.13,mpg:12+Math.round(rand()*18),season:seasonName(typeof seasonYear!=="undefined"?seasonYear:2025),source:"MyCareer · Joueur généré",attributes:randomAttributes(pos),trophies:[],history:[],careerGames:[],rookie:age<=21};
+}
+function ensureCareerLeague(){
+ if(typeof nbaTeams==="undefined"||!Array.isArray(nbaTeams))return;
+ customTeams=[];
+ const rotation=["PG","SG","SF","PF","C"];
+ nbaTeams.forEach(team=>{
+  players.forEach(p=>{if(p.team!==team[0]&&!nbaTeams.some(n=>n[0]===p.team)&&p.team!=="FA"&&!p.myCareer)p.team="FA";});
+  let roster=players.filter(p=>p.team===team[0]&&!p.retired&&!p.isRetired);
+  let guard=0;
+  while(roster.length<10&&guard<12){const created=createLeaguePlayer(team,rotation[roster.length%rotation.length],guard++);players.push(created);roster.push(created);}
+ });
+ if(typeof window.NBAMyNBARosterChanged==="function")window.NBAMyNBARosterChanged();
+}
+function secureCareerRoster(player){
+ if(!player)return;
+ const roster=players.filter(p=>p!==player&&p.team===player.team&&!p.retired&&!p.isRetired);
+ while(roster.length>=14){
+  roster.sort((a,b)=>(typeof overallRating==="function"?overallRating(a):Number(a.mpg)||50)-(typeof overallRating==="function"?overallRating(b):Number(b.mpg)||50));
+  const released=roster.shift();released.team="FA";released.mpg=0;released.previousTeam=player.team;
+ }
+ player.mpg=Math.max(30,Number(player.mpg)||0);
+ if(typeof window.NBAMyNBARosterChanged==="function")window.NBAMyNBARosterChanged();
+}
 function revealDraft(){
  const grade=clamp(Math.round(74+career.draftScore*2.1+(rand()-.5)*8),60,98),pick=clamp(Math.round(18-(grade-74)*.52+(rand()-.5)*5),1,30);
  const list=(typeof nbaTeams!=="undefined"?nbaTeams:[]).slice().sort((a,b)=>((a[0].charCodeAt(0)*13+a[0].charCodeAt(1)*7)%31)-((b[0].charCodeAt(0)*13+b[0].charCodeAt(1)*7)%31));
@@ -119,8 +170,7 @@ function revealDraft(){
  draftPlayer.id=typeof nextPlayerId!=="undefined"?nextPlayerId++:Date.now();draftPlayer.team=chosen[0];draftPlayer.age=19;draftPlayer.pts=0;draftPlayer.reb=0;draftPlayer.ast=0;draftPlayer.stl=.8;draftPlayer.blk=.3;draftPlayer.ts=.55;draftPlayer.three=.34;draftPlayer.mpg=24;draftPlayer.season=seasonName(typeof seasonYear!=="undefined"?seasonYear:2025);draftPlayer.source="MyCareer · Draft #"+pick;draftPlayer.rookie=true;draftPlayer.trophies=[];draftPlayer.history=[];draftPlayer.careerGames=[];draftPlayer.myCareer=true;draftPlayer.myCareerProfile={specialty:profileFor(draftPlayer.pos,draftPlayer.specialty).name,core:profileFor(draftPlayer.pos,draftPlayer.specialty).core,secondary:profileFor(draftPlayer.pos,draftPlayer.specialty).secondary};
  draftPlayer.attributes.potential=99;career.draftGrade=grade;career.draftPick=pick;career.teamCode=chosen[0];career.teamName=chosen[1];career.playerId=draftPlayer.id;career.player=draftPlayer;
  const rival=allPlayers().filter(p=>p&&p.team!==chosen[0]&&p.retired!==true).sort((a,b)=>Math.abs((typeof overallRating==="function"?overallRating(a):70)-grade)-Math.abs((typeof overallRating==="function"?overallRating(b):70)-grade))[0];
- career.rivalId=rival?rival.id:null;career.rivalName=rival?rival.name:"Rival à déterminer";players.push(draftPlayer);
- if(typeof window.NBASimEnsureMinimumRoster==="function")(typeof nbaTeams!=="undefined"?nbaTeams:[]).forEach(t=>window.NBASimEnsureMinimumRoster(t[0]));
+ career.rivalId=rival?rival.id:null;career.rivalName=rival?rival.name:"Rival à déterminer";players.push(draftPlayer);ensureCareerLeague();secureCareerRoster(draftPlayer);
  if(typeof initializeSeasonCalendar==="function")initializeSeasonCalendar();if(typeof phase!=="undefined")phase="regular";career.lastRoundPlayed=0;career.gamesPlayed=0;career.wins=0;career.losses=0;saveCareer();
  render(header("LA DRAFT NBA","Pick #"+pick+" · "+grade+" de scouting")+'<div class="mc-result"><div class="mc-kicker">ON T’A CHOISI</div><h2 style="font-size:clamp(28px,5vw,48px);margin:10px 0">'+chosen[1]+'</h2><p class="mc-muted">'+chosen[0]+' sélectionne '+escHtml(draftPlayer.name)+' au choix #'+pick+'.</p><div class="mc-grid three"><div class="mc-metric"><strong>'+pick+'</strong><span>Choix de Draft</span></div><div class="mc-metric"><strong>'+grade+'</strong><span>Scouting</span></div><div class="mc-metric"><strong>19</strong><span>Âge de départ</span></div></div></div><div class="mc-card"><h3>Ta rivalité commence</h3><p class="mc-muted">'+(rival?"Les recruteurs te comparent déjà à "+rival.name+".":"La ligue va bientôt te trouver un rival.")+'</p><button class="mc-btn primary" id="mcStartSeason">Commencer ma saison rookie →</button></div>');
  attachReturn();$("mcStartSeason").onclick=()=>{career.pendingStory=true;saveCareer();renderStory();};
