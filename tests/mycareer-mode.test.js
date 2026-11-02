@@ -13,7 +13,7 @@ assert.match(html, /intangibles:\['intangibles'\]/);
 
 for (const contract of [
   "MyCareer", "MyGM", "Meneur organisateur", "Ailier 3&D", "Pivot protecteur de cercle",
-  "buildBudget", "draftScore", "simulateScheduledGame", "NBASimEnsureMinimumRoster",
+  "buildBudget", "draftScore", "simulateScheduledGame", "ensureCareerLeague", "secureCareerRoster", "NBASimCaptureMyGMState", "NBASimRestoreMyGMState",
   "lossStreak>=4", "seasonStats", "pendingStory", "localStorage", "p.age>=40",
   "emotions", "chemistry", "popularity", "rivalId"
 ]) {
