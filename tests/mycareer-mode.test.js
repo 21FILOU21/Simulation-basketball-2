@@ -10,6 +10,8 @@ assert.match(html, /src="src\/mycareer-mode\.js"/);
 assert.match(html, /\['intangibles',\s*'Intangibles'\]/);
 assert.match(html, /midRange:\['midRange'\]/);
 assert.match(html, /intangibles:\['intangibles'\]/);
+assert.match(html, /intangibles:\s*1\.55/);
+assert.match(html, /value !== null && value !== undefined && value !== ''/);
 
 for (const contract of [
   "MyCareer", "MyGM", "Meneur organisateur", "Ailier 3&D", "Pivot protecteur de cercle",
