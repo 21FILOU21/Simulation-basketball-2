@@ -34,7 +34,8 @@ function saveGMStored(snapshot){try{if(snapshot)localStorage.setItem(GM_KEY,JSON
 function saveCareer(){
  if(!career)return;
  try{
-  const data=JSON.stringify({career,draftPlayer,players:allPlayers(),seasonYear:typeof seasonYear!=="undefined"?seasonYear:2025,phase:typeof phase!=="undefined"?phase:"regular",seasonCalendar:typeof seasonCalendar!=="undefined"?seasonCalendar:null,seasonResults:typeof seasonResults!=="undefined"?seasonResults:[],retired:typeof retired!=="undefined"?retired:[],actualPlayerStats:window.NBASimActualPlayerStats||{},actualBoxScores:window.NBASimActualBoxScores||{}});
+  const calendar=typeof seasonCalendar!=="undefined"&&seasonCalendar?{seasonType:seasonCalendar.seasonType,gamesPerTeam:seasonCalendar.gamesPerTeam,teamCount:seasonCalendar.teamCount,totalGames:seasonCalendar.totalGames,stages:seasonCalendar.stages,teams:seasonCalendar.teams,season:seasonCalendar.season,games:(seasonCalendar.games||[]).map(game=>{const saved=Object.assign({},game);delete saved.playerBoxScores;return saved;})}:null;
+  const data=JSON.stringify({career,draftPlayer,players:allPlayers(),seasonYear:typeof seasonYear!=="undefined"?seasonYear:2025,phase:typeof phase!=="undefined"?phase:"regular",seasonCalendar:calendar,seasonResults:typeof seasonResults!=="undefined"?seasonResults:[],retired:typeof retired!=="undefined"?retired:[],actualPlayerStats:window.NBASimActualPlayerStats||{},actualBoxScores:window.NBASimActualBoxScores||{}});
   localStorage.setItem(KEY,data);saveError="";
  }catch(error){saveError="Sauvegarde locale impossible : "+error.message;}
 }
