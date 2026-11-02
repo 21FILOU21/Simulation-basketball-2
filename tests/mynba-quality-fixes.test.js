@@ -24,8 +24,8 @@ assert.match(fixes, /window\.NBASimEnsureMinimumRoster=ensureMinimumRoster/, "Bo
 assert.match(fixes, /window\.simulateThroughRound\(game\.round\)/, "A selected game must advance all earlier rounds and its full round.");
 assert.match(fixes, /function attributeTeamStrength\(code\)/, "Team strength should be calculated from player attributes.");
 assert.match(fixes, /weightedAllocate\(minuteBudget, roster, p => Math\.max\(\.01, xMinutes\(mins,p\)\), 48\)/, "Player minutes should be allocated with a hard 48-minute cap.");
-assert.match(fixes, /option value="spg"/, "Team leaders should be sortable by steals.");
-assert.match(fixes, /option value="bpg"/, "Team leaders should be sortable by blocks.");
+assert.match(nav, /option value="spg"/, "Team leaders should be sortable by steals.");
+assert.match(nav, /option value="bpg"/, "Team leaders should be sortable by blocks.");
 assert.match(html, /const offense = read\(\['finishing', 'threePoint', 'playmaking', 'passing', 'ballHandle'\]\)/, "Team strength should incorporate offensive attributes.");
 
 console.log("OK — playoffs directs, Team Creator, statistiques de saison, rookies automatiques, minutes plafonnées, tri et simulation fondée sur les attributs.");
