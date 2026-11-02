@@ -54,7 +54,7 @@ function beginNewCareer(){
  if(loadStored()&&!confirm("Remplacer la sauvegarde MyCareer actuelle par une nouvelle carrière ?"))return;
  localStorage.removeItem(KEY);career=null;draftPlayer=null;
  players=allPlayers().filter(p=>!p.myCareer&&p.source!=="MyCareer · Rival généré");
- customTeams=[];nextCustomTeamId=1;
+ customTeams=[];nextCustomTeamId=1;if(typeof window.NBASimPrepareMyCareerMode==="function")window.NBASimPrepareMyCareerMode();
  if(!players.length&&$("demo")){$("demo").click();showCreation();}else showCreation();
 }
 function specialtyOptions(pos){return(profiles[pos]||profiles.SF).map(x=>'<option value="'+x.id+'">'+x.name+'</option>').join("");}
@@ -156,7 +156,7 @@ function ensureCareerLeague(){
 function secureCareerRoster(player){
  if(!player)return;
  const roster=players.filter(p=>p!==player&&p.team===player.team&&!p.retired&&!p.isRetired);
- while(roster.length>=14){
+ while(roster.length>14){
   roster.sort((a,b)=>(typeof overallRating==="function"?overallRating(a):Number(a.mpg)||50)-(typeof overallRating==="function"?overallRating(b):Number(b.mpg)||50));
   const released=roster.shift();released.team="FA";released.mpg=0;released.previousTeam=player.team;
  }
