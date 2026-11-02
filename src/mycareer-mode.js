@@ -32,13 +32,13 @@ function loadStored(){try{const raw=localStorage.getItem(KEY);return raw?JSON.pa
 function saveCareer(){
  if(!career)return;
  try{
-  const data=JSON.stringify({career,players:allPlayers(),seasonYear:typeof seasonYear!=="undefined"?seasonYear:2025,phase:typeof phase!=="undefined"?phase:"regular",seasonCalendar:typeof seasonCalendar!=="undefined"?seasonCalendar:null,seasonResults:typeof seasonResults!=="undefined"?seasonResults:[],retired:typeof retired!=="undefined"?retired:[],actualPlayerStats:window.NBASimActualPlayerStats||{},actualBoxScores:window.NBASimActualBoxScores||{}});
+  const data=JSON.stringify({career,draftPlayer,players:allPlayers(),seasonYear:typeof seasonYear!=="undefined"?seasonYear:2025,phase:typeof phase!=="undefined"?phase:"regular",seasonCalendar:typeof seasonCalendar!=="undefined"?seasonCalendar:null,seasonResults:typeof seasonResults!=="undefined"?seasonResults:[],retired:typeof retired!=="undefined"?retired:[],actualPlayerStats:window.NBASimActualPlayerStats||{},actualBoxScores:window.NBASimActualBoxScores||{}});
   localStorage.setItem(KEY,data);saveError="";
  }catch(error){saveError="Sauvegarde locale impossible : "+error.message;}
 }
 function restoreStored(data){
  if(!data||!data.career||!Array.isArray(data.players))return false;
- try{players=data.players;seasonYear=Number(data.seasonYear)||2025;phase=data.phase||"regular";seasonCalendar=data.seasonCalendar||null;seasonResults=data.seasonResults||[];if(typeof retired!=="undefined")retired=data.retired||[];customTeams=[];nextCustomTeamId=1;nextPlayerId=Math.max(1000,...players.map(p=>(Number(p.id)||0)+1));career=data.career;career.player=findPlayer(career.playerId)||career.player||null;window.NBASimActualPlayerStats=data.actualPlayerStats||{};window.NBASimActualBoxScores=data.actualBoxScores||{};if(!findPlayer(career.playerId)&&career.player&&!career.retired)players.push(career.player);if(typeof window.NBAMyNBARosterChanged==="function")window.NBAMyNBARosterChanged();if(typeof renderAll==="function")renderAll();return true;}catch(error){saveError="Reprise impossible : "+error.message;return false;}
+ try{players=data.players;seasonYear=Number(data.seasonYear)||2025;phase=data.phase||"regular";seasonCalendar=data.seasonCalendar||null;seasonResults=data.seasonResults||[];if(typeof retired!=="undefined")retired=data.retired||[];customTeams=[];nextCustomTeamId=1;nextPlayerId=Math.max(1000,...players.map(p=>(Number(p.id)||0)+1));career=data.career;draftPlayer=data.draftPlayer||career.draftPlayer||null;career.player=findPlayer(career.playerId)||career.player||null;window.NBASimActualPlayerStats=data.actualPlayerStats||{};window.NBASimActualBoxScores=data.actualBoxScores||{};if(!findPlayer(career.playerId)&&career.player&&!career.retired)players.push(career.player);if(typeof window.NBAMyNBARosterChanged==="function")window.NBAMyNBARosterChanged();if(typeof renderAll==="function")renderAll();return true;}catch(error){saveError="Reprise impossible : "+error.message;return false;}
 }
 function showPicker(){
  hideGM();render('<div style="padding-top:clamp(25px,8vh,90px)"><div class="mc-kicker">NBA SIM LAB · CHOISIS TON EXPÉRIENCE</div><h1 class="mc-title">Quelle carrière<br>vas-tu écrire ?</h1><p class="mc-muted">Choisis ton mode de jeu. MyGM conserve la gestion de franchise. MyCareer te place dans la peau d’un seul joueur NBA.</p><div class="mc-mode-grid"><button class="mc-mode" id="mcChooseCareer"><div class="mc-kicker">MODE JOUEUR</div><h2>MyCareer</h2><p>Crée ton joueur, passe par la Draft et construis ta légende jusqu’à la retraite.</p></button><button class="mc-mode" id="mcChooseGM"><div class="mc-kicker">MODE FRANCHISE</div><h2>MyGM</h2><p>Contrôle une franchise, gère ton effectif, les transferts, la saison et les playoffs.</p></button></div></div>');
@@ -48,7 +48,7 @@ function showPicker(){
 function openCareerHome(){
  activeMode="career";hideGM();const saved=loadStored();
  render(header("MYCAREER","Ta carrière NBA, de la Draft à la retraite.")+'<div class="mc-card"><h2>Une carrière à ton image</h2><p class="mc-muted">Crée un joueur de 19 ans, choisis sa spécialité, impressionne les recruteurs et gagne ta place dans la ligue. Toutes les autres franchises restent contrôlées par l’IA.</p><div class="mc-actions">'+(saved&&saved.career?'<button class="mc-btn primary" id="mcContinue">Continuer ma carrière</button>':'')+'<button class="mc-btn primary" id="mcNewCareer">Nouvelle carrière</button><button class="mc-btn secondary" id="mcModeSelect">Changer de mode</button></div><p class="mc-status">'+saveError+'</p></div>');
- attachReturn();if($("mcContinue"))$("mcContinue").onclick=()=>{if(restoreStored(loadStored()))renderDashboard();else{saveError="La sauvegarde MyCareer est invalide.";openCareerHome();}};$("mcNewCareer").onclick=beginNewCareer;$("mcModeSelect").onclick=showPicker;
+ attachReturn();if($("mcContinue"))$("mcContinue").onclick=()=>{if(restoreStored(loadStored())){if(career.playerId)renderDashboard();else showDraftStory();}else{saveError="La sauvegarde MyCareer est invalide.";openCareerHome();}};$("mcNewCareer").onclick=beginNewCareer;$("mcModeSelect").onclick=showPicker;
 }
 function beginNewCareer(){
  if(loadStored()&&!confirm("Remplacer la sauvegarde MyCareer actuelle par une nouvelle carrière ?"))return;
@@ -103,7 +103,7 @@ const draftScenes=[
 function confirmBuild(){
  if(pointsUsed()>buildBudget)return;
  career={version:1,playerId:null,player:null,teamCode:null,teamName:null,seasonNumber:1,draftScore:0,draftScene:0,emotions:70,chemistry:60,popularity:35,lossStreak:0,rivalId:null,rivalName:"",generatedRival:false,lastRoundPlayed:0,gamesPlayed:0,wins:0,losses:0,seasonStats:{pts:0,reb:0,ast:0,stl:0,blk:0,tov:0,minutes:0,gp:0},seasonHistory:[],storyHistory:[],lastGame:null,retired:false,pendingStory:true};
- showDraftStory();
+ career.draftPlayer=draftPlayer;saveCareer();showDraftStory();
 }
 function showDraftStory(){
  const scene=draftScenes[career.draftScene];if(!scene)return revealDraft();
@@ -111,7 +111,7 @@ function showDraftStory(){
  attachReturn();root.querySelectorAll("[data-draft-choice]").forEach(b=>b.onclick=()=>{
   const x=scene.choices[Number(b.dataset.draftChoice)];career.draftScore+=x.grade;career.emotions=clamp(career.emotions+(x.emotion||0),0,100);career.chemistry=clamp(career.chemistry+(x.chemistry||0),0,100);career.popularity=clamp(career.popularity+(x.popularity||0),0,100);
   if(x.attribute)draftPlayer.attributes[x.attribute]=clamp((Number(draftPlayer.attributes[x.attribute])||40)+(x.gain||0),20,99);
-  career.storyHistory.push({stage:"Draft",event:scene.title,choice:x.label});career.draftScene++;if(career.draftScene>=draftScenes.length)revealDraft();else showDraftStory();
+  career.storyHistory.push({stage:"Draft",event:scene.title,choice:x.label});career.draftScene++;career.draftPlayer=draftPlayer;saveCareer();if(career.draftScene>=draftScenes.length)revealDraft();else showDraftStory();
  });
 }
 function randomAttributes(pos){
