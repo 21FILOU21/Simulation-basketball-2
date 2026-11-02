@@ -8,7 +8,7 @@ const window = { addEventListener() {}, postMessage() {} };
 const document = { addEventListener() {}, getElementById() { return null; } };
 vm.runInNewContext(source, { window, document, location: { hostname: "localhost" }, URL, setTimeout, clearTimeout, Promise, DOMParser: class {} });
 
-const options = ["ATL","BOS","BKN","CHA","CHI","CLE","DAL","DEN","DET","GSW","HOU","IND","LAC","LAL","MEM","MIA","MIL","MIN","NOP","NYK","OKC","ORL","PHI","PHX","POR","SAC","SAS","TOR","UTA","WAS"].map(value => ({ value, textContent: value }));
+const options = ["ATL","BOS","BKN","CHA","CHI","CLE","DAL","DEN","DET","GSW","HOU","IND","LAC","LAL","MEM","MIA","MIL","MIN","NOP","NYK","OKC","ORL","PHI","PHX","POR","SAC","SAS","TOR","UTA","WAS","FA"].map(value => ({ value, textContent: value }));
 assert.equal(window.NBASimExtractRatingsTeamName("Player Team: Los Angeles Clippers Jersey: #2 Position: SF"), "Los Angeles Clippers");
 assert.equal(window.NBASimExtractRatingsTeamName("Team: [LA Clippers](https://www.2kratings.com/teams/la-clippers) Jersey: #2"), "LA Clippers");
 assert.equal(window.NBASimResolveRatingsTeamCode("Los Angeles Clippers", options), "LAC");
