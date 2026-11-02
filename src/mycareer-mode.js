@@ -375,7 +375,7 @@ function installMenuReturn(){
 function install(){
  installCareerOverall();mygmSnapshot=loadGMStored();if(typeof window.NBASimCaptureMyGMState==="function"){try{launcherSnapshot=window.NBASimCaptureMyGMState();}catch(_){launcherSnapshot=null;}}const gm=$("myGMStart");if(gm)gm.hidden=true;showPicker();installMenuReturn();
  const observer=new MutationObserver(()=>installMenuReturn());observer.observe(document.body,{childList:true,subtree:true});
- window.NBASimMyCareerSave=saveCareer;window.NBASimMyCareerState=()=>career;
+ window.NBASimMyCareerSave=saveCareer;window.NBASimMyCareerState=()=>career;window.NBASimReturnToModePicker=function(){activeMode="launcher";root.hidden=true;showPicker();};
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
 })();
