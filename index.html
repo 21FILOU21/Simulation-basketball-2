@@ -2508,10 +2508,9 @@
             const positions = (data.positions || []).filter(pos => ['PG','SG','SF','PF','C'].includes(pos));
             if (positions.length) { $('editPos').value = positions[0]; $('editSecondaryPos').value = positions[1] || ''; }
             if (data.team) {
-                const resolvedTeamCode = typeof window.NBASimResolveRatingsTeamCode === 'function'
-                    ? window.NBASimResolveRatingsTeamCode(data.team, $('editTeam').options)
-                    : '';
-                if (resolvedTeamCode) $('editTeam').value = resolvedTeamCode;
+                const resolvedTeamCode = data.teamCode || (typeof window.NBASimResolveRatingsTeamCode === 'function' ? window.NBASimResolveRatingsTeamCode(data.team, $('editTeam').options) : '');
+                if (resolvedTeamCode && [...$('editTeam').options].some(option => String(option.value).toUpperCase() === String(resolvedTeamCode).toUpperCase())) $('editTeam').value = resolvedTeamCode;
+                else if (data.team) $('editorStatus').textContent = 'Équipe 2KRatings non reconnue : ' + data.team + '. Choisis l’équipe manuellement.';
             }
             if (data.heightCm) $('editHeight').value = data.heightCm;
             if (data.jerseyNumber !== undefined) $('editJersey').value = data.jerseyNumber;
@@ -2558,6 +2557,7 @@
     <script src="src/mynba-ai-trades.js"></script>
     <script src="src/mynba-injuries-media.js"></script>
     <script src="src/ratings-sync.js"></script>
+    <script src="src/mycareer-mode.js"></script>
 </body>
 
 </html>
