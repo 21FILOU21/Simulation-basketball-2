@@ -334,7 +334,9 @@ function finishSeason(){
  if(!allPlayers().some(x=>String(x.id)===String(p.id))){career.retired=true;career.retirementReason="Carrière terminée à la suite d’une blessure.";saveCareer();renderRetirement();return;}
  if(typeof phase!=="undefined")phase="regular";
  const s=career.seasonStats||{},gp=Math.max(1,Number(s.gp)||0),label=seasonName(seasonYear);
- const entry={season:label,team:career.teamCode,height:p.height,overall:careerOverall(p),gp:Number(s.gp)||0,pts:(Number(s.pts)||0)/gp,reb:(Number(s.reb)||0)/gp,ast:(Number(s.ast)||0)/gp,stl:(Number(s.stl)||0)/gp,blk:(Number(s.blk)||0)/gp,playoffs:career.postseason,postseasonStats:career.postseasonStats};
+ const completedPostseasonStats=Object.assign({gp:0,pts:0,reb:0,ast:0,stl:0,blk:0,minutes:0},career.postseasonStats||{});
+ career.lastPostseasonStats=completedPostseasonStats;career.lastPostseason=career.postseason||null;
+ const entry={season:label,team:career.teamCode,height:p.height,overall:careerOverall(p),gp:Number(s.gp)||0,pts:(Number(s.pts)||0)/gp,reb:(Number(s.reb)||0)/gp,ast:(Number(s.ast)||0)/gp,stl:(Number(s.stl)||0)/gp,blk:(Number(s.blk)||0)/gp,playoffs:career.postseason,postseasonStats:completedPostseasonStats};
  p.history=p.history||[];p.history.push(entry);career.seasonHistory.push(entry);p.age=Number(p.age||19)+1;
  if(typeof window.progress==="function"&&p.age<40)window.progress(p);
  p.rookie=false;p.season=seasonName(Number(seasonYear)+1);career.seasonCompleted=false;
@@ -346,8 +348,8 @@ function finishSeason(){
  saveCareer();
  const postseasonText=career.postseason&&career.postseason.qualified?"Qualifié en playoffs":"Non qualifié pour les playoffs";
  const championText=career.postseason&&career.postseason.champion?career.postseason.champion:"aucun champion déterminé";
- const playoffGames=career.postseasonStats&&career.postseasonStats.gp||0;
- const playoffPoints=career.postseasonStats&&career.postseasonStats.pts||0;
+ const playoffGames=career.lastPostseasonStats&&career.lastPostseasonStats.gp||0;
+ const playoffPoints=career.lastPostseasonStats&&career.lastPostseasonStats.pts||0;
  render(header("FIN DE SAISON","Saison "+label+" terminée")+
   '<div class="mc-card"><div class="mc-kicker">BILAN DE TA SAISON</div><h2>'+label+'</h2>'+
   '<div class="mc-grid three"><div class="mc-metric"><strong>'+entry.overall+'</strong><span>GÉN final</span></div><div class="mc-metric"><strong>'+entry.pts.toFixed(1)+'</strong><span>PTS / match</span></div><div class="mc-metric"><strong>'+entry.gp+'</strong><span>Matchs joués</span></div></div>'+
