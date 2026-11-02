@@ -56,7 +56,7 @@ function openCareerHome(){
 function beginNewCareer(){
  if(loadStored()&&!confirm("Remplacer la sauvegarde MyCareer actuelle par une nouvelle carrière ?"))return;
  localStorage.removeItem(KEY);career=null;draftPlayer=null;
- players=allPlayers().filter(p=>!p.myCareer&&p.source!=="MyCareer · Rival généré");
+ players=allPlayers().filter(p=>!p.myCareer&&p.source!=="MyCareer · Rival généré"&&((typeof nbaTeams!=="undefined"&&nbaTeams.some(team=>team[0]===p.team))||String(p.team).toUpperCase()==="FA"||String(p.team).toUpperCase()==="FREE_AGENT"));
  customTeams=[];nextCustomTeamId=1;if(typeof resetLeague==="function")resetLeague();seasonCalendar=null;if(typeof window.NBASimPrepareMyCareerMode==="function")window.NBASimPrepareMyCareerMode();
  if(!players.length&&$("demo")){$("demo").click();showCreation();}else showCreation();
 }
