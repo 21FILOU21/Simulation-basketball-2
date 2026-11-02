@@ -38,6 +38,8 @@ function resolveTeamCode(teamName, optionList) {
     if (!normalized) return '';
     const mapped = Object.entries(TEAM_CODES).find(([name]) => normalizeTeamName(name) === normalized)?.[1];
     const options = Array.from(optionList || $('editTeam')?.options || []);
+    const directCode = options.find(option => String(option.value).toUpperCase() === String(teamName || '').trim().toUpperCase());
+    if (directCode) return directCode.value;
     if (mapped && options.some(option => String(option.value).toUpperCase() === mapped)) return mapped;
     const exact = options.find(option => normalizeTeamName(option.textContent) === normalized);
     if (exact) return exact.value;
