@@ -2532,7 +2532,7 @@
                 basketballIQ:['passIQ','passVision','shotIQ']
             };
             Object.entries(map).forEach(([key, sources]) => {
-                const vals = sources.map(source => Number(data.attributes[source])).filter(Number.isFinite);
+                const vals = sources.map(source => data.attributes[source]).filter(value => value !== null && value !== undefined && value !== '' && Number.isFinite(Number(value))).map(Number);
                 if (vals.length) $('attr-' + key).value = Math.round(vals.reduce((a,b) => a+b,0) / vals.length);
             });
             if (data.potentialGrade) {
