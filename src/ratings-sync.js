@@ -144,7 +144,7 @@ async function importSource(source, playerName) {
         threePoint:rating(text,'Three-Point Shot'),midRange:rating(text,'Mid-Range Shot'),closeShot:rating(text,'Close Shot'),
         freeThrow:rating(text,'Free Throw'),offensiveConsistency:rating(text,'Offensive Consistency'),shotIQ:rating(text,'Shot IQ'),
         speed:rating(text,'Speed'),strength:rating(text,'Strength'),agility:rating(text,'Agility'),vertical:rating(text,'Vertical'),
-        hustle:rating(text,'Hustle'),stamina:rating(text,'Stamina'),overallDurability:rating(text,'Overall Durability'),
+        hustle:rating(text,'Hustle'),stamina:rating(text,'Stamina'),overallDurability:rating(text,'Overall Durability'),intangibles:rating(text,'Intangibles'),
         layup:rating(text,'Layup'),drivingDunk:rating(text,'Driving Dunk'),standingDunk:rating(text,'Standing Dunk'),
         postHook:rating(text,'Post Hook'),postFade:rating(text,'Post Fade'),postControl:rating(text,'Post Control'),
         drawFoul:rating(text,'Draw Foul'),hands:rating(text,'Hands'),ballHandle:rating(text,'Ball Handle'),
@@ -154,6 +154,13 @@ async function importSource(source, playerName) {
         defensiveConsistency:rating(text,'Defensive Consistency'),helpDefenseIQ:rating(text,'Help Defense IQ'),
         defensiveRebound:rating(text,'Defensive Rebound'),offensiveRebound:rating(text,'Offensive Rebound')
     };
+    const categoryRatings={
+        outsideScoring:rating(text,'Outside Scoring'),athleticism:rating(text,'Athleticism'),
+        insideScoring:rating(text,'Inside Scoring'),playmaking:rating(text,'Playmaking'),
+        defense:rating(text,'Defense'),rebounding:rating(text,'Rebounding')
+    };
+    const totalAttributes=metric(text,/Total Attributes\\s*(\\d[\\d,]*)/i);
+    const potentialValue=(text.match(/Potential\\s*(?:svg\\s*)?([A-F][+-]?|\\d{1,3})/i)||[])[1]||'';
     const count=Object.values(attrs).filter(Number.isFinite).length;
     if(count<12) throw new Error('La page est ouverte, mais seulement '+count+' attributs ont été lus. Vérifie que la page du joueur est complètement chargée.');
     status('Joueur trouvé : '+count+' attributs. Récupération de la photo…');
@@ -161,7 +168,7 @@ async function importSource(source, playerName) {
     try { imageData=await resizedImage(imageUrl(doc),playerName); }
     catch(error) { status(error.message+' Import des notes en cours…'); }
     const data={
-        name,team,positions,attributes:attrs,imageData,
+        name,team,positions,attributes:attrs,twoKRatings:{attributes:attrs,categoryRatings,totalAttributes,potential:potentialValue},imageData,
         jerseyNumber:(text.match(/Jersey:\s*#?(\d+)/i)||[])[1]||'',
         nationality:(text.match(/Nationality:\s*([A-Za-z][A-Za-z -]*?)(?:\s+Image:|\s+Team:)/i)||[])[1]||'',
         priorToNBA:(text.match(/Prior to NBA:\s*(.+?)(?:\s+canvas|\s+Compare|\s+Badges|\s+\d{2}\s+OVERALL)/i)||[])[1]||'',
