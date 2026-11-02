@@ -45,7 +45,7 @@
       if (String(p.team).toUpperCase() === "FA" || String(p.team).toUpperCase() === "FREE_AGENT") return false;
       if (typeof window.NBAMyNBAIsRostered === "function" && !window.NBAMyNBAIsRostered(p)) return false;
       if (typeof window.NBASimInjuryCanPlay === "function" && !window.NBASimInjuryCanPlay(p)) return false;
-      const minutes = typeof window.NBAMyNBAMinutes === "function" ? Number(window.NBAMyNBAMinutes(p)) : Number(p.mpg);
+      const minutes = typeof window.NBAMyNBAMinutes === "function" ? Number(window.NBAMyNBAMinutes(p)) : 20;
       return Number.isFinite(minutes) && minutes > 0;
     };
     const rows = all.filter(eligible);
