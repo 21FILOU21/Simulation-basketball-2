@@ -18,6 +18,7 @@ style.textContent="#nbaMyCareerRoot{position:fixed;inset:0;z-index:300000;overfl
 document.head.appendChild(style);
 const root=document.createElement("div");root.id="nbaMyCareerRoot";root.hidden=true;document.body.appendChild(root);
 let career=null,draftPlayer=null,activeStory=null,buildBudget=760,saveError="";
+let activeMode="launcher",mygmSnapshot=null,launcherSnapshot=null;
 const labelFor=key=>{for(const list of Object.values(groups))for(const pair of list)if(pair[0]===key)return pair[1];return key;};
 function allPlayers(){return typeof players!=="undefined"&&Array.isArray(players)?players:[];}
 function findPlayer(id){return allPlayers().find(p=>String(p.id)===String(id))||null;}
@@ -42,10 +43,10 @@ function restoreStored(data){
 function showPicker(){
  hideGM();render('<div style="padding-top:clamp(25px,8vh,90px)"><div class="mc-kicker">NBA SIM LAB · CHOISIS TON EXPÉRIENCE</div><h1 class="mc-title">Quelle carrière<br>vas-tu écrire ?</h1><p class="mc-muted">Choisis ton mode de jeu. MyGM conserve la gestion de franchise. MyCareer te place dans la peau d’un seul joueur NBA.</p><div class="mc-mode-grid"><button class="mc-mode" id="mcChooseCareer"><div class="mc-kicker">MODE JOUEUR</div><h2>MyCareer</h2><p>Crée ton joueur, passe par la Draft et construis ta légende jusqu’à la retraite.</p></button><button class="mc-mode" id="mcChooseGM"><div class="mc-kicker">MODE FRANCHISE</div><h2>MyGM</h2><p>Contrôle une franchise, gère ton effectif, les transferts, la saison et les playoffs.</p></button></div></div>');
  $("mcChooseCareer").onclick=openCareerHome;
- $("mcChooseGM").onclick=()=>{root.hidden=true;const gm=$("myGMStart");if(gm)gm.hidden=false;document.body.classList.add("gm-startup");document.body.style.overflow="hidden";};
+ $("mcChooseGM").onclick=()=>{const hasFranchise=!!mygmSnapshot;if(mygmSnapshot&&typeof window.NBASimRestoreMyGMState==="function"){if(!window.NBASimRestoreMyGMState(mygmSnapshot))saveError="La reprise MyGM a échoué. Tu peux charger une sauvegarde JSON.";}else if(launcherSnapshot&&typeof window.NBASimRestoreMyGMState==="function"){window.NBASimRestoreMyGMState(launcherSnapshot);}activeMode="gm";root.hidden=true;const gm=$("myGMStart");if(gm)gm.hidden=hasFranchise;document.body.classList.toggle("gm-startup",!hasFranchise);document.body.style.overflow=hasFranchise?"":"hidden";if(!hasFranchise&&typeof window.renderAll==="function")window.renderAll();};
 }
 function openCareerHome(){
- hideGM();const saved=loadStored();
+ activeMode="career";hideGM();const saved=loadStored();
  render(header("MYCAREER","Ta carrière NBA, de la Draft à la retraite.")+'<div class="mc-card"><h2>Une carrière à ton image</h2><p class="mc-muted">Crée un joueur de 19 ans, choisis sa spécialité, impressionne les recruteurs et gagne ta place dans la ligue. Toutes les autres franchises restent contrôlées par l’IA.</p><div class="mc-actions">'+(saved&&saved.career?'<button class="mc-btn primary" id="mcContinue">Continuer ma carrière</button>':'')+'<button class="mc-btn primary" id="mcNewCareer">Nouvelle carrière</button><button class="mc-btn secondary" id="mcModeSelect">Changer de mode</button></div><p class="mc-status">'+saveError+'</p></div>');
  attachReturn();if($("mcContinue"))$("mcContinue").onclick=()=>{if(restoreStored(loadStored()))renderDashboard();else{saveError="La sauvegarde MyCareer est invalide.";openCareerHome();}};$("mcNewCareer").onclick=beginNewCareer;$("mcModeSelect").onclick=showPicker;
 }
@@ -223,14 +224,14 @@ function renderRetirement(){
  render(header("FIN DE CARRIÈRE","Ton histoire NBA restera dans les archives.")+'<div class="mc-retirement"><div style="font-size:70px">🏆</div><div class="mc-kicker">MYCAREER · HALL OF FAME</div><h2 class="mc-title" style="font-size:clamp(28px,4vw,46px)">'+escHtml(p.name||"Ta carrière")+'</h2><p class="mc-muted">'+(career.retirementReason||"Fin de carrière")+'</p><p class="mc-muted">Saisons terminées : '+(career.seasonHistory||[]).length+' · Dernière équipe : '+(career.teamCode||"—")+'</p><div class="mc-actions" style="justify-content:center"><button class="mc-btn primary" id="mcCareerHome">Retour à MyCareer</button><button class="mc-btn secondary" id="mcTitle">Écran de départ</button></div></div>');
  attachReturn();$("mcCareerHome").onclick=openCareerHome;$("mcTitle").onclick=showPicker;
 }
-function returnToStart(){if(career)saveCareer();root.hidden=true;showPicker();}
+function returnToStart(){if(activeMode==="gm"&&typeof window.NBASimCaptureMyGMState==="function"){try{mygmSnapshot=window.NBASimCaptureMyGMState();}catch(error){saveError="Sauvegarde de la session MyGM impossible : "+error.message;}}if(activeMode==="career"&&career)saveCareer();activeMode="launcher";root.hidden=true;showPicker();}
 function installMenuReturn(){
  const shell=document.querySelector(".mynba-menu-shell");if(!shell||$("mcMenuReturn"))return;
  const button=document.createElement("button");button.type="button";button.id="mcMenuReturn";button.className="mc-btn secondary";button.textContent="↩ Retour à l’écran de départ";button.style.margin="12px 0";button.onclick=returnToStart;
  const footer=shell.querySelector(".mynba-menu-footer");if(footer)footer.appendChild(button);else shell.appendChild(button);
 }
 function install(){
- installCareerOverall();const gm=$("myGMStart");if(gm)gm.hidden=true;showPicker();installMenuReturn();
+ installCareerOverall();if(typeof window.NBASimCaptureMyGMState==="function"){try{launcherSnapshot=window.NBASimCaptureMyGMState();}catch(_){launcherSnapshot=null;}}const gm=$("myGMStart");if(gm)gm.hidden=true;showPicker();installMenuReturn();
  const observer=new MutationObserver(()=>installMenuReturn());observer.observe(document.body,{childList:true,subtree:true});
  window.NBASimMyCareerSave=saveCareer;window.NBASimMyCareerState=()=>career;
 }
