@@ -2,7 +2,7 @@
 (() => {
 "use strict";
 function escHtml(value){return String(value==null?"":value).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(String.fromCharCode(39),"&#39;");}
-const KEY="nba-sim-lab-mycareer-v1",$=id=>document.getElementById(id),clamp=(n,a,b)=>Math.max(a,Math.min(b,Number(n)||0)),rand=()=>Math.random();
+const KEY="nba-sim-lab-mycareer-v1",GM_KEY="nba-sim-lab-mygm-mode-v1",$=id=>document.getElementById(id),clamp=(n,a,b)=>Math.max(a,Math.min(b,Number(n)||0)),rand=()=>Math.random();
 const fallback=[["finishing","Finition"],["layup","Layup"],["dunk","Dunk"],["closeShot","Tir rapproché"],["midRange","Mi-distance"],["threePoint","Tir à 3 pts"],["freeThrow","Lancers francs"],["shotIQ","QI de tir"],["ballHandle","Contrôle du ballon"],["passing","Passes"],["playmaking","Création"],["offensiveIQ","QI offensif"],["perimeterDefense","Défense extérieure"],["interiorDefense","Défense intérieure"],["steal","Interception"],["block","Contre"],["defensiveIQ","QI défensif"],["defensiveRebound","Rebond défensif"],["offensiveRebound","Rebond offensif"],["speed","Vitesse"],["acceleration","Accélération"],["agility","Agilité"],["strength","Force"],["vertical","Détente"],["stamina","Endurance"],["durability","Durabilité"],["consistency","Régularité"],["clutch","Clutch"],["potential","Potentiel"],["workEthic","Éthique de travail"],["basketballIQ","QI basket"],["intangibles","Intangibles"]];
 const attrs=typeof attributeNames!=="undefined"?attributeNames:fallback,groups=typeof attributeGroups!=="undefined"?attributeGroups:{Attributs:fallback};
 const profiles={
@@ -29,6 +29,8 @@ function header(title,subtitle){return '<div class="mc-top"><div><div class="mc-
 function attachReturn(){const b=$("mcReturn");if(b)b.onclick=returnToStart;}
 function hideGM(){const gm=$("myGMStart");if(gm)gm.hidden=true;document.body.classList.remove("gm-startup");document.body.style.overflow="";}
 function loadStored(){try{const raw=localStorage.getItem(KEY);return raw?JSON.parse(raw):null;}catch(_){return null;}}
+function loadGMStored(){try{const raw=localStorage.getItem(GM_KEY),value=raw?JSON.parse(raw):null;return value&&value.format==="nba-sim-lab-save"?value:null;}catch(_){return null;}}
+function saveGMStored(snapshot){try{if(snapshot)localStorage.setItem(GM_KEY,JSON.stringify(snapshot));return true;}catch(error){saveError="La sauvegarde MyGM locale est trop volumineuse ou inaccessible : "+error.message;return false;}}
 function saveCareer(){
  if(!career)return;
  try{
@@ -363,14 +365,14 @@ function renderRetirement(){
  render(header("FIN DE CARRIÈRE","Ton histoire NBA restera dans les archives.")+'<div class="mc-retirement"><div style="font-size:70px">🏆</div><div class="mc-kicker">MYCAREER · HALL OF FAME</div><h2 class="mc-title" style="font-size:clamp(28px,4vw,46px)">'+escHtml(p.name||"Ta carrière")+'</h2><p class="mc-muted">'+(career.retirementReason||"Fin de carrière")+'</p><p class="mc-muted">Saisons terminées : '+(career.seasonHistory||[]).length+' · Dernière équipe : '+(career.teamCode||"—")+'</p><div class="mc-actions" style="justify-content:center"><button class="mc-btn primary" id="mcCareerHome">Retour à MyCareer</button><button class="mc-btn secondary" id="mcTitle">Écran de départ</button></div></div>');
  attachReturn();$("mcCareerHome").onclick=openCareerHome;$("mcTitle").onclick=showPicker;
 }
-function returnToStart(){if(activeMode==="gm"&&typeof window.NBASimCaptureMyGMState==="function"){try{mygmSnapshot=window.NBASimCaptureMyGMState();}catch(error){saveError="Sauvegarde de la session MyGM impossible : "+error.message;}}if(activeMode==="career"&&career)saveCareer();activeMode="launcher";root.hidden=true;showPicker();}
+function returnToStart(){if(activeMode==="gm"&&typeof window.NBASimCaptureMyGMState==="function"){try{mygmSnapshot=window.NBASimCaptureMyGMState();saveGMStored(mygmSnapshot);}catch(error){saveError="Sauvegarde de la session MyGM impossible : "+error.message;}}if(activeMode==="career"&&career)saveCareer();activeMode="launcher";root.hidden=true;showPicker();}
 function installMenuReturn(){
  const shell=document.querySelector(".mynba-menu-shell");if(!shell||$("mcMenuReturn"))return;
  const button=document.createElement("button");button.type="button";button.id="mcMenuReturn";button.className="mc-btn secondary";button.textContent="↩ Retour à l’écran de départ";button.style.margin="12px 0";button.onclick=returnToStart;
  const footer=shell.querySelector(".mynba-menu-footer");if(footer)footer.appendChild(button);else shell.appendChild(button);
 }
 function install(){
- installCareerOverall();if(typeof window.NBASimCaptureMyGMState==="function"){try{launcherSnapshot=window.NBASimCaptureMyGMState();}catch(_){launcherSnapshot=null;}}const gm=$("myGMStart");if(gm)gm.hidden=true;showPicker();installMenuReturn();
+ installCareerOverall();mygmSnapshot=loadGMStored();if(typeof window.NBASimCaptureMyGMState==="function"){try{launcherSnapshot=window.NBASimCaptureMyGMState();}catch(_){launcherSnapshot=null;}}const gm=$("myGMStart");if(gm)gm.hidden=true;showPicker();installMenuReturn();
  const observer=new MutationObserver(()=>installMenuReturn());observer.observe(document.body,{childList:true,subtree:true});
  window.NBASimMyCareerSave=saveCareer;window.NBASimMyCareerState=()=>career;
 }
