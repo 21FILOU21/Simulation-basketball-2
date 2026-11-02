@@ -2110,7 +2110,6 @@
             host.innerHTML=Object.entries(twoKCategoryLabels).map(([key,label])=>`<div class="attribute-group"><h3>${esc(label)} — note de catégorie</h3><div class="attribute-grid"><label class="field">${esc(label)}<input type="number" min="0" max="100" id="rating2k-category-${key}" value="${Number.isFinite(Number(categories[key]))?categories[key]:''}"></label></div></div>`).join('')+
                 `<div class="attribute-group"><h3>Attributs individuels 2K</h3><div class="attribute-grid">${Object.entries(twoKRatingLabels).map(([key,label])=>`<label class="field">${esc(label)}<input type="number" min="0" max="100" step="1" id="rating2k-${key}" value="${Number.isFinite(Number(attrs[key]))?attrs[key]:''}"></label>`).join('')}</div><div class="attribute-grid"><label class="field">Total Attributes<input type="number" min="0" id="rating2k-totalAttributes" value="${Number.isFinite(Number(values.totalAttributes))?values.totalAttributes:''}"></label><label class="field">Potential (grade ou note)<input id="rating2k-potential" value="${esc(values.potential||'')}"></label></div></div>`;
         }
-        }
         function updateEditorOverall() {
             if (!$('attributeEditor').children.length) return;
             const attrs = Object.fromEntries(attributeNames.map(([key]) => [key, Number($(`attr-${key}`).value) || 0]));
