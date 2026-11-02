@@ -145,7 +145,8 @@ function careerOverall(p){
  const injury=p.injury,ratio=!injury?0:injury.stage==="returning"?clamp((Number(injury.recoveryGamesRemaining)||0)/Math.max(1,Number(injury.recoveryGamesTotal)||1),0,1):1;
  const keys=profile.core.concat(["intangibles"]),weights=profile.core.map(()=>1);weights.push(.35);let total=0,weight=0;
  keys.forEach((k,i)=>{const penalty=injury&&injury.attributePenalties?Number(injury.attributePenalties[k])||0:0;total+=(clamp(Number(a[k])||40,0,100)-penalty*ratio)*weights[i];weight+=weights[i];});
- return Math.round(clamp(total/weight,40,99));
+ const moodBonus=career&&String(career.playerId)===String(p.id)?(Number(career.emotions||50)-50)*.025+(Number(career.chemistry||50)-50)*.025+(Number(career.popularity||50)-50)*.01:0;
+ return Math.round(clamp(total/weight+moodBonus,40,99));
 }
 function installCareerOverall(){
  if(typeof window.overallRating!=="function"||window.overallRating.__myCareerWrapped)return;
@@ -188,7 +189,8 @@ function simulateNextMatch(){
  const target=nextPlayerGame();if(!target){finishSeason();return;}
  if(typeof window.simulateScheduledGame!=="function"){saveError="Le moteur de simulation MyGM n’est pas disponible.";renderDashboard();return;}
  const currentRound=Number(target.round)||0,games=seasonCalendar.games.filter(g=>g.status!=="completed"&&Number(g.round)<=currentRound).sort((a,b)=>a.round-b.round);
- for(const game of games){try{window.simulateScheduledGame(game);}catch(error){saveError="Erreur de simulation : "+error.message;break;}}
+ p.myCareerMoodModifiers={consistency:(Number(career.emotions||50)-50)*.09,clutch:(Number(career.emotions||50)-50)*.06,playmaking:(Number(career.chemistry||50)-50)*.08,passing:(Number(career.chemistry||50)-50)*.07,basketballIQ:(Number(career.chemistry||50)-50)*.05,intangibles:(Number(career.popularity||50)-50)*.04};
+ try{for(const game of games){try{window.simulateScheduledGame(game);}catch(error){saveError="Erreur de simulation : "+error.message;break;}}}finally{delete p.myCareerMoodModifiers;}
  career.lastRoundPlayed=currentRound;const home=target.home.code===career.teamCode,teamScore=home?target.homeScore:target.awayScore,oppScore=home?target.awayScore:target.homeScore,won=Number(teamScore)>Number(oppScore);
  career.gamesPlayed++;if(won){career.wins++;career.lossStreak=0;}else{career.losses++;career.lossStreak=(career.lossStreak||0)+1;}
  const box=target.playerBoxScores||{},side=home?box.home:box.away,line=side&&side[String(p.id)]||{};
