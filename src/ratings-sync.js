@@ -49,6 +49,7 @@ function resolveTeamCode(teamName, optionList) {
 window.NBASimExtractRatingsTeamName = extractTeamName;
 window.NBASimReadRatingsValue = rating;
 window.NBASimResolveRatingsTeamCode = resolveTeamCode;
+window.NBASimParseRatingsSummary = function(source){const value=String(source||"");return {totalAttributes:metric(value,/Total Attributes\s*(\d[\d,]*)/i),potential:(value.match(/Potential\s*(?:svg\s*)?([A-F][+-]?|\d{1,3})/i)||[])[1]||""};};
 
 let requestTimeout = null;
 let imageRequestId = 0;
