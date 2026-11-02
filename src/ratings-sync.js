@@ -66,7 +66,7 @@ function rating(text,label) {
     for(const pattern of patterns){const match=source.match(pattern);if(match)return Number(match[1]);}
     return null;
 }
-function metric(text,pattern) { const m=text.match(pattern); return m?Number(m[1]):null; }
+function metric(text,pattern) { const m=String(text||'').match(pattern); return m?Number(String(m[1]).replace(/,/g,'')):null; }
 function imageUrl(doc) {
     const candidates=[];
     const add=(raw,score=0)=>{
@@ -179,8 +179,8 @@ async function importSource(source, playerName) {
         insideScoring:rating(text,'Inside Scoring'),playmaking:rating(text,'Playmaking'),
         defense:rating(text,'Defense'),rebounding:rating(text,'Rebounding')
     };
-    const totalAttributes=metric(text,/Total Attributes\\s*(\\d[\\d,]*)/i);
-    const potentialValue=(text.match(/Potential\\s*(?:svg\\s*)?([A-F][+-]?|\\d{1,3})/i)||[])[1]||'';
+    const totalAttributes=metric(text,/Total Attributes\s*(\d[\d,]*)/i);
+    const potentialValue=(text.match(/Potential\s*(?:svg\s*)?([A-F][+-]?|\d{1,3})/i)||[])[1]||'';
     const count=Object.values(attrs).filter(Number.isFinite).length;
     if(count<12) throw new Error('La page est ouverte, mais seulement '+count+' attributs ont été lus. Vérifie que la page du joueur est complètement chargée.');
     status('Joueur trouvé : '+count+' attributs. Récupération de la photo…');
