@@ -359,24 +359,66 @@ function createNewRival(p){
  const rival={id:typeof nextPlayerId!=="undefined"?nextPlayerId++:Date.now(),name,team:team[0],pos:p.pos,age:20,pts:0,reb:0,ast:0,stl:.8,blk:.4,ts:.56,three:.35,mpg:26,height:p.height,weight:p.weight,wingspan:p.wingspan,attributes:values,history:[],trophies:[],careerGames:[],source:"MyCareer · Rival généré"};
  players.push(rival);secureCareerRoster(rival);career.rivalId=rival.id;career.rivalName=name;career.generatedRival=true;if(typeof window.NBAMyNBARosterChanged==="function")window.NBAMyNBARosterChanged();
 }
-function simulateNextMatch(){
- const p=playerForCareer();if(!p||career.retired)return;
- const target=nextPlayerGame();if(!target){finishSeason();return;}
- if(typeof window.simulateScheduledGame!=="function"){saveError="Le moteur de simulation MyGM n’est pas disponible.";renderDashboard();return;}
- const currentRound=Number(target.round)||0,games=seasonCalendar.games.filter(g=>g.status!=="completed"&&Number(g.round)<=currentRound).sort((a,b)=>a.round-b.round);
- p.myCareerMoodModifiers={consistency:(Number(career.emotions||50)-50)*.09,clutch:(Number(career.emotions||50)-50)*.06,playmaking:(Number(career.chemistry||50)-50)*.08,passing:(Number(career.chemistry||50)-50)*.07,basketballIQ:(Number(career.chemistry||50)-50)*.05,intangibles:(Number(career.popularity||50)-50)*.04};
- try{for(const game of games){try{window.simulateScheduledGame(game);}catch(error){saveError="Erreur de simulation : "+error.message;break;}}}finally{delete p.myCareerMoodModifiers;}
- career.lastRoundPlayed=currentRound;const home=target.home.code===career.teamCode,teamScore=home?target.homeScore:target.awayScore,oppScore=home?target.awayScore:target.homeScore,won=Number(teamScore)>Number(oppScore);
- career.gamesPlayed++;if(won){career.wins++;career.lossStreak=0;}else{career.losses++;career.lossStreak=(career.lossStreak||0)+1;}
+function simulateNextMatch(options){
+ const silent=!!(options&&options.silent),p=playerForCareer();if(!p||career.retired)return {ok:false};
+ if(career.pendingStory&&!silent){renderStory();return {ok:false,storyDue:true};}
+ const target=nextPlayerGame();
+ if(!target){if(career.gamesPlayed>=82){if(!silent)finishSeason();return {ok:false,finished:true};}if(!silent)renderDashboard();return {ok:false};}
+ if(typeof window.simulateScheduledGame!=="function"){saveError="Le moteur de simulation par possessions n'est pas disponible.";if(!silent)renderDashboard();return {ok:false,error:saveError};}
+ const currentRound=Number(target.round)||0,games=seasonCalendar.games.filter(game=>game.status!=="completed"&&Number(game.round)<=currentRound).sort((a,b)=>a.round-b.round);
+ p.myCareerMoodModifiers={consistency:(Number(career.emotions||50)-50)*.025,clutch:(Number(career.emotions||50)-50)*.04,playmaking:(Number(career.chemistry||50)-50)*.035,passing:(Number(career.chemistry||50)-50)*.035,basketballIQ:(Number(career.chemistry||50)-50)*.03,intangibles:(Number(career.popularity||50)-50)*.02};
+ let simulationError=null;
+ window.NBASimMyCareerSimulationInProgress=true;
+ try{
+  for(const game of games){
+   if(game.status==="completed")continue;
+   const result=window.simulateScheduledGame(game);
+   if(result===false&&game.status!=="completed")throw new Error("Le match "+game.id+" n'a pas pu être simulé.");
+  }
+ }catch(error){simulationError=error;}
+ finally{delete p.myCareerMoodModifiers;window.NBASimMyCareerSimulationInProgress=false;}
+ if(simulationError||target.status!=="completed"){
+  saveError="Erreur de simulation : "+(simulationError?simulationError.message:"le match du joueur n'a pas été terminé.");
+  saveCareer();if(!silent)renderDashboard();return {ok:false,error:saveError};
+ }
+ career.lastRoundPlayed=currentRound;
+ const home=target.home.code===career.teamCode,teamScore=home?target.homeScore:target.awayScore,oppScore=home?target.awayScore:target.homeScore,won=Number(teamScore)>Number(oppScore);
+ career.gamesPlayed++;
+ if(won){career.wins++;career.lossStreak=0;}else{career.losses++;career.lossStreak=(career.lossStreak||0)+1;}
  const box=target.playerBoxScores||{},side=home?box.home:box.away,line=side&&side[String(p.id)]||{};
- ["pts","reb","ast","stl","blk","tov","minutes"].forEach(k=>career.seasonStats[k]=(Number(career.seasonStats[k])||0)+(Number(line[k])||0));
+ ["pts","reb","ast","stl","blk","tov","minutes"].forEach(key=>career.seasonStats[key]=(Number(career.seasonStats[key])||0)+(Number(line[key])||0));
  if(Number(line.gp)>0)career.seasonStats.gp=(Number(career.seasonStats.gp)||0)+1;
- career.lastGame={gameId:target.id,teamCode:career.teamCode,opponentCode:home?target.away.code:target.home.code,teamScore:Number(teamScore)||0,opponentScore:Number(oppScore)||0,result:won?"Victoire":"Défaite",line:(Number(line.pts)||0)+" PTS · "+(Number(line.reb)||0)+" REB · "+(Number(line.ast)||0)+" AST · "+(Number(line.minutes)||0)+" MIN"};
- p.careerGames=p.careerGames||[];p.careerGames.push({season:seasonName(seasonYear),gameId:target.id,teamScore:teamScore,opponentScore:oppScore,...line});
- const gp=Math.max(1,Number(career.seasonStats.gp)||0);p.pts=career.seasonStats.pts/gp;p.reb=career.seasonStats.reb/gp;p.ast=career.seasonStats.ast/gp;p.mpg=career.seasonStats.minutes/gp;
+ const xpEarned=awardCareerXP(line,won);
+ const points=Number(line.pts)||0,assists=Number(line.ast)||0;
+ career.emotions=clamp(career.emotions+(won?1:-1)+(points>=30?1:points<=3?-1:0),0,100);
+ career.chemistry=clamp(career.chemistry+(won?1:-1),0,100);
+ career.popularity=clamp(career.popularity+(points>=30?1:points<=3?-1:0),0,100);
+ career.lastGame={gameId:target.id,teamCode:career.teamCode,opponentCode:home?target.away.code:target.home.code,teamScore:Number(teamScore)||0,opponentScore:Number(oppScore)||0,result:won?"Victoire":"Défaite",line:(points)+" PTS · "+(Number(line.reb)||0)+" REB · "+assists+" AST · "+(Number(line.minutes)||0)+" MIN",xpEarned,boxScore:captureCareerBoxScore(target)};
+ p.careerGames=p.careerGames||[];p.careerGames.push({season:seasonName(seasonYear),gameId:target.id,teamScore:teamScore,opponentScore:oppScore,...line,xpEarned});
+ const gp=Math.max(1,Number(career.seasonStats.gp)||0);
+ p.pts=career.seasonStats.pts/gp;p.reb=career.seasonStats.reb/gp;p.ast=career.seasonStats.ast/gp;p.mpg=career.seasonStats.minutes/gp;
  if(career.lossStreak>=4&&!career.generatedRival)createNewRival(p);
- if(!allPlayers().some(x=>String(x.id)===String(p.id))&&typeof retired!=="undefined"&&retired.some(x=>String(x.id)===String(p.id))){career.retired=true;career.retirementReason="Blessure très grave mettant fin à la carrière.";saveCareer();renderRetirement();return;}
- career.pendingStory=true;if(typeof window.renderAll==="function")window.renderAll();saveCareer();renderDashboard();
+ if(!allPlayers().some(player=>String(player.id)===String(p.id))&&typeof retired!=="undefined"&&retired.some(player=>String(player.id)===String(p.id))){
+  career.retired=true;career.retirementReason="Blessure très grave mettant fin à la carrière.";saveCareer();if(!silent)renderRetirement();return {ok:false,retired:true};
+ }
+ career.pendingStory=career.gamesPlayed>0&&career.gamesPlayed%5===0;
+ saveCareer();
+ if(silent)return {ok:true,storyDue:career.pendingStory,xpEarned};
+ renderLastBoxScore();
+ return {ok:true,storyDue:career.pendingStory,xpEarned};
+}
+function simulateCareerSeason(){
+ if(!career||career.retired)return;
+ if(career.pendingStory){renderStory();return;}
+ let guard=0,lastResult=null;
+ while(career.gamesPlayed<82&&!career.pendingStory&&guard++<82){
+  const before=career.gamesPlayed;
+  lastResult=simulateNextMatch({silent:true});
+  if(!lastResult||!lastResult.ok||career.gamesPlayed===before)break;
+ }
+ if(career.gamesPlayed>=82){finishSeason();return;}
+ if(lastResult&&lastResult.ok&&career.lastGame)renderLastBoxScore();
+ else renderDashboard();
 }
 function simulateCareerSeries(teamA,teamB,roundLabel,seriesIndex){
  const homePattern=[0,0,1,1,0,1,0];
