@@ -282,6 +282,7 @@ function renderLastBoxScore(){
  const game=career&&career.lastGame;if(!game||!game.boxScore)return renderDashboard();
  const home=game.boxScore.home,away=game.boxScore.away;
  render(header("BOX SCORE","Match "+career.gamesPlayed+" · "+game.result)+
+  '<p class="mc-story-prompt">+'+(Number(game.xpEarned)||0)+' EXP après ce match · '+(progressionState(playerForCareer()).points||0)+' point(s) d’attribut disponibles.</p>'+
   '<div class="mc-card mc-box-summary"><div><span>'+escHtml(home.code)+'</span><strong>'+home.score+'</strong></div><b>FINAL</b><div><span>'+escHtml(away.code)+'</span><strong>'+away.score+'</strong></div></div>'+
   renderCareerBoxScoreSide(home)+renderCareerBoxScoreSide(away)+
   '<div class="mc-actions"><button class="mc-btn primary" id="mcBoxContinue">'+(career.pendingStory?"Continuer vers ton histoire →":career.gamesPlayed>=82?"Terminer la saison →":"Retour à ma carrière")+'</button><button class="mc-btn secondary" id="mcBoxAttributes">Voir mes attributs</button></div>');
