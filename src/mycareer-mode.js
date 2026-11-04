@@ -213,24 +213,146 @@ function nextPlayerGame(){
  return seasonCalendar.games.filter(g=>g.status!=="completed"&&(g.home.code===career.teamCode||g.away.code===career.teamCode)&&Number(g.round)>Number(career.lastRoundPlayed||0)).sort((a,b)=>a.round-b.round)[0]||null;
 }
 function statLine(){const s=career.seasonStats||{},gp=Math.max(1,Number(s.gp)||0);return (Number(s.gp)||0)+" MJ · "+((Number(s.pts)||0)/gp).toFixed(1)+" PTS · "+((Number(s.reb)||0)/gp).toFixed(1)+" REB · "+((Number(s.ast)||0)/gp).toFixed(1)+" AST";}
+const CAREER_ATTRIBUTE_SECTIONS=[
+ {title:"FINITION",tone:"finish",keys:["finishing","closeShot","layup","dunk"]},
+ {title:"TIR",tone:"shoot",keys:["midRange","threePoint","freeThrow","shotIQ"]},
+ {title:"CRÉATION",tone:"play",keys:["passing","ballHandle","playmaking","offensiveIQ"]},
+ {title:"DÉFENSE",tone:"defense",keys:["interiorDefense","perimeterDefense","steal","block","defensiveIQ","defensiveRebound","offensiveRebound"]},
+ {title:"PHYSIQUE",tone:"physical",keys:["speed","acceleration","agility","strength","vertical","stamina","durability"]},
+ {title:"MENTAL",tone:"mental",keys:["consistency","clutch","potential","workEthic","basketballIQ","intangibles"]}
+];
+let pendingAttributeUpgrades={};
+function xpRequiredForNextPoint(overall){
+ return Math.max(100,Math.round(220*Math.pow(1.045,Number(overall||70)-70)));
+}
+function progressionState(player){
+ if(!career.progression)career.progression={xp:0,totalXp:0,points:0,required:xpRequiredForNextPoint(careerOverall(player)),levelsEarned:0,lastAward:0};
+ const p=career.progression;
+ p.xp=Math.max(0,Number(p.xp)||0);p.totalXp=Math.max(0,Number(p.totalXp)||0);p.points=Math.max(0,Math.floor(Number(p.points)||0));
+ p.required=Math.max(100,Number(p.required)||xpRequiredForNextPoint(careerOverall(player)));
+ return p;
+}
+function careerXPFromStats(line,won){
+ const pts=Math.max(0,Number(line.pts)||0),reb=Math.max(0,Number(line.reb)||0),ast=Math.max(0,Number(line.ast)||0);
+ const stl=Math.max(0,Number(line.stl)||0),blk=Math.max(0,Number(line.blk)||0),minutes=Math.max(0,Number(line.minutes)||0),turnovers=Math.max(0,Number(line.tov)||0);
+ const doubleDouble=[pts,reb,ast,stl,blk].filter(value=>value>=10).length>=2;
+ return Math.max(15,Math.round(22+pts*2.1+reb*1.8+ast*2.2+stl*4+blk*4+minutes*.45-turnovers*.65+(won?15:0)+(doubleDouble?15:0)));
+}
+function awardCareerXP(line,won){
+ const player=playerForCareer();if(!player)return 0;
+ const state=progressionState(player),earned=careerXPFromStats(line||{},won);
+ state.xp+=earned;state.totalXp+=earned;state.lastAward=earned;
+ let loops=0;
+ while(state.xp>=state.required&&loops++<20){
+  state.xp-=state.required;state.points++;state.levelsEarned++;
+  state.required=xpRequiredForNextPoint(careerOverall(player));
+ }
+ return earned;
+}
+function pendingUpgradeCount(){
+ return Object.values(pendingAttributeUpgrades).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
+}
+function attributeUpgradeCap(player,key){
+ const profile=player&&player.myCareerProfile||{};
+ return capFor({core:Array.isArray(profile.core)?profile.core:[],secondary:Array.isArray(profile.secondary)?profile.secondary:[]},key);
+}
+function renderCareerBoxScoreSide(side){
+ if(!side)return "";
+ const rows=Array.isArray(side.players)?side.players:[];
+ const totals={pts:0,reb:0,ast:0,stl:0,blk:0,tov:0,pf:0,minutes:0,fgm:0,fga:0,threeMade:0,threeAttempts:0,ftm:0,fta:0};
+ const body=rows.map(row=>{
+  Object.keys(totals).forEach(key=>totals[key]+=Number(row[key])||0);
+  return '<tr><td><b>'+escHtml(row.name)+'</b><small>'+escHtml(row.pos||"")+'</small></td><td>'+Math.round(Number(row.minutes)||0)+'</td><td><b>'+Number(row.pts||0)+'</b></td><td>'+Number(row.fgm||0)+'/'+Number(row.fga||0)+'</td><td>'+Number(row.threeMade||0)+'/'+Number(row.threeAttempts||0)+'</td><td>'+Number(row.ftm||0)+'/'+Number(row.fta||0)+'</td><td>'+Number(row.reb||0)+'</td><td>'+Number(row.ast||0)+'</td><td>'+Number(row.stl||0)+'</td><td>'+Number(row.blk||0)+'</td><td>'+Number(row.tov||0)+'</td><td>'+Number(row.pf||0)+'</td></tr>';
+ }).join("");
+ return '<section class="mc-box-team"><div class="mc-box-team-head"><div><div class="mc-kicker">'+escHtml(side.code)+'</div><h2>'+escHtml(side.name)+'</h2></div><strong>'+Number(side.score||0)+'</strong></div><div class="mc-table-wrap"><table class="mc-box-table"><thead><tr><th>Joueur</th><th>MIN</th><th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th>PF</th></tr></thead><tbody>'+body+'<tr class="mc-box-total"><td><b>TOTAL ÉQUIPE</b></td><td>'+Math.round(totals.minutes)+'</td><td>'+totals.pts+'</td><td>'+totals.fgm+'/'+totals.fga+'</td><td>'+totals.threeMade+'/'+totals.threeAttempts+'</td><td>'+totals.ftm+'/'+totals.fta+'</td><td>'+totals.reb+'</td><td>'+totals.ast+'</td><td>'+totals.stl+'</td><td>'+totals.blk+'</td><td>'+totals.tov+'</td><td>'+totals.pf+'</td></tr></tbody></table></div></section>';
+}
+function captureCareerBoxScore(game){
+ const makeSide=(sideKey,teamRef,score)=>{
+  const code=String(teamRef.code),raw=game.playerBoxScores&&game.playerBoxScores[sideKey]||{};
+  const roster=allPlayers().filter(player=>String(player.team)===code&&!player.retired&&!player.isRetired);
+  const ids=new Set(roster.map(player=>String(player.id)));
+  Object.keys(raw).forEach(id=>{if(!ids.has(String(id))){const player=findPlayer(id);if(player)roster.push(player);}});
+  const rows=roster.map(player=>{
+   const line=raw[String(player.id)]||{};
+   return {id:player.id,name:String(player.name||"Joueur"),pos:String(player.pos||""),minutes:Number(line.minutes)||0,pts:Number(line.pts)||0,reb:Number(line.reb)||0,ast:Number(line.ast)||0,stl:Number(line.stl)||0,blk:Number(line.blk)||0,tov:Number(line.tov)||0,pf:Number(line.pf)||0,fgm:Number(line.fgm)||0,fga:Number(line.fga)||0,threeMade:Number(line.threeMade)||0,threeAttempts:Number(line.threeAttempts)||0,ftm:Number(line.ftm)||0,fta:Number(line.fta)||0};
+  }).sort((a,b)=>b.minutes-a.minutes||b.pts-a.pts);
+  return {code,name:String(teamRef.name||code),score:Number(score)||0,players:rows};
+ };
+ return {home:makeSide("home",game.home,game.homeScore),away:makeSide("away",game.away,game.awayScore)};
+}
+function renderLastBoxScore(){
+ const game=career&&career.lastGame;if(!game||!game.boxScore)return renderDashboard();
+ const home=game.boxScore.home,away=game.boxScore.away;
+ render(header("BOX SCORE","Match "+career.gamesPlayed+" · "+game.result)+
+  '<div class="mc-card mc-box-summary"><div><span>'+escHtml(home.code)+'</span><strong>'+home.score+'</strong></div><b>FINAL</b><div><span>'+escHtml(away.code)+'</span><strong>'+away.score+'</strong></div></div>'+
+  renderCareerBoxScoreSide(home)+renderCareerBoxScoreSide(away)+
+  '<div class="mc-actions"><button class="mc-btn primary" id="mcBoxContinue">'+(career.pendingStory?"Continuer vers ton histoire →":"Retour à ma carrière")+'</button><button class="mc-btn secondary" id="mcBoxAttributes">Voir mes attributs</button></div>');
+ attachReturn();
+ $("mcBoxContinue").onclick=()=>{if(career.pendingStory)renderStory();else renderDashboard();};
+ $("mcBoxAttributes").onclick=showCareerAttributes;
+}
 function renderDashboard(){
  const p=playerForCareer();if(!p||career.retired)return renderRetirement();installCareerOverall();
  const rival=career.rivalId!=null?findPlayer(career.rivalId):null,next=nextPlayerGame(),game=career.lastGame,injury=p.injury;
+ const xp=progressionState(p),storyDue=career.pendingStory===true,seasonComplete=career.gamesPlayed>=82||!next;
  const injuryText=injury?(injury.label||injury.severity)+" · "+(Number(injury.restGamesRemaining)||0)+" matchs avant retour":"En santé";
  render(header("SAISON "+career.seasonNumber,p.name+" · "+p.team+" · "+p.age+" ans")+
  '<div class="mc-grid three"><div class="mc-metric"><strong>'+careerOverall(p)+'</strong><span>GÉN</span></div><div class="mc-metric"><strong>'+career.wins+'-'+career.losses+'</strong><span>Bilan équipe</span></div><div class="mc-metric"><strong>'+career.gamesPlayed+'/82</strong><span>Matchs joués</span></div></div>'+
  '<div class="mc-grid three"><div class="mc-metric"><strong>'+career.emotions+'</strong><span>Émotions</span></div><div class="mc-metric"><strong>'+career.chemistry+'</strong><span>Entente d’équipe</span></div><div class="mc-metric"><strong>'+career.popularity+'</strong><span>Popularité</span></div></div>'+
- '<div class="mc-card"><div class="mc-grid"><div><div class="mc-kicker">STATISTIQUES DE LA SAISON</div><h2>'+statLine()+'</h2><p class="mc-muted">Blessure : '+injuryText+'</p><p class="mc-muted">Prochain match : '+(next?next.home.name+" vs "+next.away.name:"Saison régulière terminée")+'</p></div><div><div class="mc-kicker">TON RIVAL</div><h2>'+(rival?escHtml(rival.name):escHtml(career.rivalName||"Rival à déterminer"))+'</h2><p class="mc-muted">'+(rival?rival.team+" · GÉN "+(typeof overallRating==="function"?overallRating(rival):"—"):"Un nouveau rival sera identifié.")+'</p></div></div><div class="mc-divider"></div><div class="mc-kicker">DERNIER MATCH</div>'+
- (game?'<div class="mc-game-result"><b>'+game.teamCode+'</b><strong>'+game.teamScore+' – '+game.opponentScore+'</strong><b>'+game.opponentCode+'</b></div><p class="mc-muted" style="text-align:center">'+game.result+' · '+game.line+'</p>':'<p class="mc-muted">Tu n’as pas encore disputé ton premier match NBA.</p>')+
- '<div class="mc-actions"><button class="mc-btn primary" id="mcNextMatch" '+(!next?"disabled":"")+'>Simuler le prochain match →</button><button class="mc-btn secondary" id="mcAttributes">Voir mes attributs</button><button class="mc-btn secondary" id="mcSave">Sauvegarder</button></div><p class="mc-status">'+(saveError||"Les autres franchises et les matchs de la journée sont simulés par l’IA.")+'</p></div>');
- attachReturn();$("mcNextMatch").onclick=()=>{if(career.pendingStory)renderStory();else simulateNextMatch();};$("mcAttributes").onclick=showCareerAttributes;$("mcSave").onclick=()=>{saveCareer();renderDashboard();};
+ '<div class="mc-card"><div class="mc-grid"><div><div class="mc-kicker">STATISTIQUES DE LA SAISON</div><h2>'+statLine()+'</h2><p class="mc-muted">Blessure : '+injuryText+'</p><p class="mc-muted">Prochain match : '+(next?escHtml(next.home.name)+" vs "+escHtml(next.away.name):"Saison régulière terminée")+'</p></div><div><div class="mc-kicker">TON RIVAL</div><h2>'+(rival?escHtml(rival.name):escHtml(career.rivalName||"Rival à déterminer"))+'</h2><p class="mc-muted">'+(rival?escHtml(rival.team)+" · GÉN "+(typeof overallRating==="function"?overallRating(rival):"—"):"Un nouveau rival sera identifié.")+'</p></div></div><div class="mc-divider"></div><div class="mc-kicker">DERNIER MATCH</div>'+
+ (game?'<div class="mc-game-result"><b>'+escHtml(game.teamCode)+'</b><strong>'+game.teamScore+' – '+game.opponentScore+'</strong><b>'+escHtml(game.opponentCode)+'</b></div><p class="mc-muted" style="text-align:center">'+escHtml(game.result)+' · '+escHtml(game.line)+'</p>':'<p class="mc-muted">Tu n’as pas encore disputé ton premier match NBA.</p>')+
+ '<div class="mc-actions"><button class="mc-btn primary" id="mcNextMatch" '+(!next||storyDue?"disabled":"")+'>Simuler le prochain match →</button><button class="mc-btn primary" id="mcSimSeason" '+(seasonComplete||storyDue?"disabled":"")+'>Simuler la saison →</button><button class="mc-btn secondary" id="mcAttributes">Voir mes attributs'+(xp.points>0?" · "+xp.points+" point(s)":"")+'</button>'+(game&&game.boxScore?'<button class="mc-btn secondary" id="mcViewBox">Voir le box score</button>':'')+'<button class="mc-btn secondary" id="mcSave">Sauvegarder</button></div>'+
+ (storyDue?'<p class="mc-story-prompt">Une histoire t’attend après '+career.gamesPlayed+' matchs.</p><div class="mc-actions"><button class="mc-btn primary" id="mcOpenStory">Faire mon choix d’histoire →</button></div>':'')+
+ '<p class="mc-status">'+escHtml(saveError||"La simulation MyCareer est isolée de MyGM.")+'</p></div>');
+ attachReturn();
+ $("mcNextMatch").onclick=()=>simulateNextMatch();
+ $("mcSimSeason").onclick=simulateCareerSeason;
+ $("mcAttributes").onclick=()=>{pendingAttributeUpgrades={};showCareerAttributes();};
+ if($("mcViewBox"))$("mcViewBox").onclick=renderLastBoxScore;
+ if($("mcOpenStory"))$("mcOpenStory").onclick=renderStory;
+ $("mcSave").onclick=()=>{saveCareer();renderDashboard();};
  if(!next&&career.gamesPlayed>=82)finishSeason();
 }
 function showCareerAttributes(){
  const p=playerForCareer();if(!p)return renderDashboard();
- const blocks=Object.entries(groups).map(([g,list])=>'<div class="mc-card"><h3>'+g+'</h3><div class="mc-bars">'+list.map(x=>'<div class="mc-attribute"><label>'+x[1]+'</label><b>'+(Number(p.attributes[x[0]])||0)+'</b></div>').join("")+'</div></div>').join("");
- render(header("MES ATTRIBUTS","Spécialité · "+(p.myCareerProfile.specialty||"MyCareer"))+'<div class="mc-card"><div class="mc-metric"><strong>'+careerOverall(p)+'</strong><span>GÉN actuel</span></div><p class="mc-muted">Les décisions narratives, les blessures et la progression annuelle influencent ton joueur.</p></div>'+blocks+'<div class="mc-actions"><button class="mc-btn primary" id="mcBackDashboard">Retour à ma carrière</button></div>');
- attachReturn();$("mcBackDashboard").onclick=renderDashboard;
+ const progress=progressionState(p),pending=pendingUpgradeCount(),sections=CAREER_ATTRIBUTE_SECTIONS.map(section=>{
+  const items=section.keys.map(key=>{
+   const existing=attrs.find(pair=>pair[0]===key);if(!existing)return "";
+   const current=clamp(Number(p.attributes[key])||0,0,99),cap=attributeUpgradeCap(p,key),planned=clamp(Number(pendingAttributeUpgrades[key])||0,0,cap-current),preview=current+planned;
+   const fill=(current/99*100).toFixed(3),capAt=(cap/99*100).toFixed(3),previewWidth=(planned/99*100).toFixed(3);
+   const canAdd=progress.points>pending&&preview<cap,canRemove=planned>0;
+   return '<article class="mc-attribute-row"><div class="mc-attribute-heading"><span class="mc-attribute-name">'+escHtml(existing[1])+'</span><span class="mc-attribute-current">'+preview+'</span><span class="mc-attribute-max">'+cap+' MAX</span></div><div class="mc-attribute-track"><span class="mc-attribute-fill" style="width:'+fill+'%"></span><span class="mc-attribute-preview" style="left:'+fill+'%;width:'+previewWidth+'%"></span><span class="mc-attribute-locked" style="left:'+capAt+'%"></span><span class="mc-attribute-cap-marker" style="left:'+capAt+'%"></span></div><div class="mc-attribute-controls"><span>'+current+' / 99</span><div><button type="button" class="mc-attribute-arrow" data-remove-upgrade="'+key+'" '+(!canRemove?"disabled":"")+' aria-label="Retirer le point de '+escHtml(existing[1])+'">←</button><button type="button" class="mc-attribute-arrow" data-add-upgrade="'+key+'" '+(!canAdd?"disabled":"")+' aria-label="Améliorer '+escHtml(existing[1])+'">→</button></div></div></article>';
+  }).join("");
+  return '<section class="mc-attribute-panel mc-panel-'+section.tone+'"><header><span class="mc-attribute-panel-dot"></span><h3>'+section.title+'</h3></header><div class="mc-attribute-list">'+items+'</div></section>';
+ }).join("");
+ const ratio=Math.min(100,(progress.xp/progress.required)*100),remaining=Math.max(0,progress.required-progress.xp);
+ render(header("MES ATTRIBUTS","Spécialité · "+(p.myCareerProfile.specialty||"MyCareer"))+
+  '<div class="mc-card mc-xp-card"><div class="mc-xp-heading"><div><div class="mc-kicker">PROGRESSION DU JOUEUR</div><h2>'+progress.xp+' / '+progress.required+' EXP</h2></div><div class="mc-xp-points"><strong>'+progress.points+'</strong><span>POINTS DISPONIBLES</span></div></div><div class="mc-xp-track"><span style="width:'+ratio.toFixed(2)+'%"></span></div><p class="mc-muted">Encore '+remaining+' EXP pour gagner un point d’attribut · '+progress.totalXp+' EXP gagnée(s) au total.</p><p class="mc-status">'+(progress.lastAward?'Dernier match : +'+progress.lastAward+' EXP.':'Tes performances en match déterminent ton EXP.')+'</p></div>'+
+  '<div class="mc-card mc-overall-card"><div class="mc-metric"><strong>'+careerOverall(p)+'</strong><span>GÉN actuel</span></div><p class="mc-muted">Les barres jaunes montrent ton niveau. Les zones gris foncé sont au-delà de ton plafond de spécialité. Les flèches préparent les améliorations avant achat.</p></div>'+
+  '<div class="mc-attribute-panels">'+sections+'</div>'+
+  '<div class="mc-attribute-purchase"><div><strong>'+pending+' / '+progress.points+'</strong><span>Points sélectionnés</span></div><button class="mc-btn primary" id="mcBuyAttributes" '+(pending===0||pending>progress.points?"disabled":"")+'>Acheter les améliorations</button><button class="mc-btn secondary" id="mcClearAttributes" '+(pending===0?"disabled":"")+'>Annuler</button></div>'+
+  '<div class="mc-actions"><button class="mc-btn secondary" id="mcBackDashboard">Retour à ma carrière</button></div>');
+ attachReturn();
+ root.querySelectorAll("[data-add-upgrade]").forEach(button=>button.onclick=()=>{
+  const key=button.dataset.addUpgrade,cap=attributeUpgradeCap(p,key),current=Number(p.attributes[key])||0,planned=Number(pendingAttributeUpgrades[key])||0;
+  if(progress.points>pendingUpgradeCount()&&current+planned<cap){pendingAttributeUpgrades[key]=planned+1;showCareerAttributes();}
+ });
+ root.querySelectorAll("[data-remove-upgrade]").forEach(button=>button.onclick=()=>{
+  const key=button.dataset.removeUpgrade,planned=Number(pendingAttributeUpgrades[key])||0;
+  if(planned>0){if(planned===1)delete pendingAttributeUpgrades[key];else pendingAttributeUpgrades[key]=planned-1;showCareerAttributes();}
+ });
+ $("mcBuyAttributes").onclick=()=>{
+  const count=pendingUpgradeCount();if(!count||count>progress.points)return;
+  Object.entries(pendingAttributeUpgrades).forEach(([key,value])=>{
+   const cap=attributeUpgradeCap(p,key);
+   p.attributes[key]=clamp((Number(p.attributes[key])||0)+Math.max(0,Number(value)||0),0,cap);
+  });
+  progress.points-=count;progress.required=xpRequiredForNextPoint(careerOverall(p));pendingAttributeUpgrades={};
+  if(typeof window.NBAMyNBARosterChanged==="function")window.NBAMyNBARosterChanged();
+  saveCareer();showCareerAttributes();
+ };
+ $("mcClearAttributes").onclick=()=>{pendingAttributeUpgrades={};showCareerAttributes();};
+ $("mcBackDashboard").onclick=()=>{pendingAttributeUpgrades={};renderDashboard();};
 }
 function createNewRival(p){
  const candidates=(typeof nbaTeams!=="undefined"?nbaTeams:[]).filter(t=>t[0]!==career.teamCode),team=candidates[Math.floor(rand()*candidates.length)];
