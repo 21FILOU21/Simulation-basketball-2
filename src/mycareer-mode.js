@@ -234,7 +234,7 @@ function careerXPFromStats(line,won){
  const pts=Math.max(0,Number(line.pts)||0),reb=Math.max(0,Number(line.reb)||0),ast=Math.max(0,Number(line.ast)||0);
  const stl=Math.max(0,Number(line.stl)||0),blk=Math.max(0,Number(line.blk)||0),minutes=Math.max(0,Number(line.minutes)||0),turnovers=Math.max(0,Number(line.tov)||0);
  const doubleDouble=[pts,reb,ast,stl,blk].filter(value=>value>=10).length>=2;
- return Math.max(15,Math.round(22+pts*2.1+reb*1.8+ast*2.2+stl*4+blk*4+minutes*.45-turnovers*.65+(won?15:0)+(doubleDouble?15:0)));
+ return Math.max(15,Math.round(22+pts*1.7+reb*1.4+ast*1.7+stl*3+blk*3+minutes*.4-turnovers*.5+(won?12:0)+(doubleDouble?10:0)));
 }
 function awardCareerXP(line,won){
  const player=playerForCareer();if(!player)return 0;
@@ -555,7 +555,7 @@ function installMyCareerIsolation(){
 function install(){
  installMyCareerIsolation();installCareerOverall();mygmSnapshot=loadGMStored();if(typeof window.NBASimCaptureMyGMState==="function"){try{launcherSnapshot=window.NBASimCaptureMyGMState();}catch(_){launcherSnapshot=null;}}const gm=$("myGMStart");if(gm)gm.hidden=true;showPicker();installMenuReturn();
  const observer=new MutationObserver(()=>installMenuReturn());observer.observe(document.body,{childList:true,subtree:true});
- window.NBASimMyCareerSave=saveCareer;window.NBASimMyCareerState=()=>career;window.NBASimReturnToModePicker=function(){activeMode="launcher";root.hidden=true;showPicker();};
+ window.NBASimMyCareerSave=saveCareer;window.NBASimMyCareerState=()=>career;window.NBASimMyCareerXPRequired=xpRequiredForNextPoint;window.NBASimMyCareerXPFromStats=careerXPFromStats;window.NBASimReturnToModePicker=function(){activeMode="launcher";root.hidden=true;showPicker();};
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
 })();
