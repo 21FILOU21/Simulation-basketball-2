@@ -16,6 +16,7 @@ const style=document.createElement("style");
 style.textContent="#nbaMyCareerRoot{position:fixed;inset:0;z-index:300000;overflow:auto;background:radial-gradient(ellipse at top,#1b3457 0,#070c16 72%);color:#f4f7ff;font-family:inherit;padding:clamp(14px,3vw,36px);box-sizing:border-box}"+
 "#nbaMyCareerRoot[hidden]{display:none!important}#nbaMyCareerRoot *{box-sizing:border-box}.mc-shell{width:min(1250px,100%);margin:0 auto}.mc-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}.mc-kicker{font-size:11px;font-weight:900;letter-spacing:.2em;color:#f2d76c;text-transform:uppercase}.mc-title{font-size:clamp(32px,5vw,62px);line-height:1.03;margin:8px 0 12px;font-weight:1000}.mc-muted{color:#aebdd5;line-height:1.55}.mc-card{padding:clamp(16px,2.5vw,28px);border:1px solid #334c70;border-radius:16px;background:linear-gradient(145deg,#14243b,#0c1525);box-shadow:0 14px 40px #0005;margin:12px 0}.mc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.mc-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.mc-field{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:800;color:#cbd8eb}.mc-field input,.mc-field select{width:100%;padding:11px;border:1px solid #405879;border-radius:8px;background:#081426;color:#fff;font:inherit;font-size:14px}.mc-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.mc-btn{border:1px solid #587399;border-radius:9px;padding:12px 17px;background:#1b3454;color:#fff;font:inherit;font-weight:900;cursor:pointer}.mc-btn.primary{background:#dfbf45;color:#171b24;border-color:#f4d86b}.mc-btn.secondary{background:#111f33}.mc-btn:disabled{opacity:.45;cursor:not-allowed}.mc-mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:24px}.mc-mode{min-height:220px;padding:clamp(18px,3vw,30px);display:flex;flex-direction:column;justify-content:flex-end;text-align:left;background:linear-gradient(155deg,#203c61,#0e192b);border:1px solid #49658d;border-radius:16px;color:#fff;cursor:pointer}.mc-mode h2{font-size:clamp(24px,3vw,36px);margin:0 0 8px}.mc-mode p{color:#c4d2e8;margin:0}.mc-metric{padding:14px;border:1px solid #354c6b;border-radius:10px;background:#0b1729}.mc-metric strong{display:block;font-size:26px;color:#f5d76b}.mc-metric span{font-size:10px;letter-spacing:.1em;color:#aebdd5;text-transform:uppercase}.mc-bars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mc-attribute{display:grid;grid-template-columns:minmax(95px,1fr) 45px;gap:6px 10px;align-items:center;padding:9px 10px;border:1px solid #293e5b;border-radius:8px;background:#0b1627}.mc-attribute label{font-size:12px;font-weight:800}.mc-attribute b{text-align:right;color:#f2d76c}.mc-attribute input{grid-column:1/-1;width:100%;accent-color:#e0c24d}.mc-meter{height:9px;border-radius:30px;background:#243b5b;overflow:hidden;margin-top:8px}.mc-meter>span{display:block;height:100%;background:linear-gradient(90deg,#40c98c,#f2d76c);width:0}.mc-choice{display:block;width:100%;text-align:left;padding:15px;margin:9px 0;border:1px solid #405b7f;border-radius:10px;background:#10213a;color:#f4f7ff;cursor:pointer}.mc-choice:hover{border-color:#f2d76c;background:#1a304d}.mc-choice b{display:block;margin-bottom:4px}.mc-result{padding:18px;border:1px solid #b89935;border-radius:12px;background:#292713}.mc-game-result{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;text-align:center}.mc-game-result strong{font-size:clamp(24px,4vw,42px)}.mc-status{min-height:22px;color:#f3d879;font-size:12px}.mc-divider{height:1px;background:#314866;margin:18px 0}.mc-retirement{border:1px solid #d2a64d;background:linear-gradient(135deg,#332719,#111a29);padding:25px;border-radius:15px;text-align:center}.mc-scroll{max-height:65vh;overflow:auto;padding-right:3px}@media(max-width:720px){.mc-mode-grid,.mc-grid,.mc-grid.three,.mc-bars{grid-template-columns:1fr}.mc-mode{min-height:160px}.mc-actions .mc-btn{flex:1 1 100%}.mc-top .mc-btn{width:100%}}";
 document.head.appendChild(style);
+style.textContent += "\n.mc-xp-card{border-color:#8f7936;background:linear-gradient(145deg,#292719,#111b2b)}\n.mc-xp-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.mc-xp-heading h2{margin:5px 0;font-size:clamp(19px,2.5vw,27px)}\n.mc-xp-points{text-align:right}.mc-xp-points strong{display:block;color:#f4d257;font-size:30px}.mc-xp-points span{font-size:10px;color:#b8c1d2;letter-spacing:.08em}\n.mc-xp-track{height:14px;margin:13px 0 8px;border-radius:20px;background:#202632;overflow:hidden;border:1px solid #4c5159}.mc-xp-track span{display:block;height:100%;background:repeating-linear-gradient(135deg,#f1d04f 0,#f1d04f 7px,#d8b33a 7px,#d8b33a 11px);border-radius:20px;transition:width .2s}\n.mc-attribute-panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;padding-bottom:105px}\n.mc-attribute-panel{padding:16px;border:1px solid #334154;border-radius:14px;min-width:0;background:#142033}\n.mc-attribute-panel header{display:flex;align-items:center;gap:9px;margin-bottom:14px}.mc-attribute-panel header h3{font-size:14px;letter-spacing:.09em;margin:0}\n.mc-attribute-panel-dot{height:9px;width:9px;border-radius:50%;background:#e6c54e}\n.mc-panel-finish{background:linear-gradient(145deg,#192538,#111a28);border-color:#354e71}.mc-panel-shoot{background:linear-gradient(145deg,#142b25,#0e1e1b);border-color:#2f6550}.mc-panel-shoot .mc-attribute-panel-dot{background:#43d28d}\n.mc-panel-play{background:linear-gradient(145deg,#30291a,#211d16);border-color:#6b5934}.mc-panel-play .mc-attribute-panel-dot{background:#e3b84a}\n.mc-panel-defense{background:linear-gradient(145deg,#301e24,#20151a);border-color:#6b3844}.mc-panel-defense .mc-attribute-panel-dot{background:#e56a77}\n.mc-panel-physical{background:linear-gradient(145deg,#242338,#171625);border-color:#4f486d}.mc-panel-physical .mc-attribute-panel-dot{background:#a99be8}\n.mc-panel-mental{background:linear-gradient(145deg,#192b35,#101d25);border-color:#355b68}.mc-panel-mental .mc-attribute-panel-dot{background:#6bc4d8}\n.mc-attribute-list{display:flex;flex-direction:column;gap:15px}.mc-attribute-row{padding:7px 0 9px;border-bottom:1px solid #ffffff12;min-width:0}.mc-attribute-row:last-child{border-bottom:0}\n.mc-attribute-heading{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;align-items:baseline;gap:9px;margin-bottom:7px}\n.mc-attribute-name{font-size:12px;color:#d2d9e4;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mc-attribute-current{color:#f5d04f;font-weight:900;font-size:15px;font-variant-numeric:tabular-nums}.mc-attribute-preview-level{color:#aeb5c0;font-size:11px;font-weight:800}.mc-attribute-max{font-size:10px;color:#9299a4;font-weight:800;white-space:nowrap}\n.mc-attribute-track{height:17px;background:#333a43;border:1px solid #4a515b;border-radius:4px;overflow:hidden;position:relative}\n.mc-attribute-fill{position:absolute;inset:0 auto 0 0;background:repeating-linear-gradient(135deg,#f2d04d 0,#f2d04d 6px,#d9b63d 6px,#d9b63d 10px);z-index:1}\n.mc-attribute-preview{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg,#b8bdc7 0,#b8bdc7 5px,#858d99 5px,#858d99 9px);z-index:2;opacity:.95}\n.mc-attribute-locked{position:absolute;top:0;bottom:0;right:0;background:#171b22;z-index:3}.mc-attribute-cap-marker{position:absolute;top:-2px;bottom:-2px;width:2px;background:#8d929c;z-index:4;transform:translateX(-1px)}\n.mc-attribute-controls{display:flex;justify-content:space-between;align-items:center;margin-top:5px;color:#929baa;font-size:10px}.mc-attribute-controls>div{display:flex;gap:5px}\n.mc-attribute-arrow{min-width:27px;height:24px;border:1px solid #5f6570;border-radius:5px;background:#333943;color:#f3d25a;font-weight:900;cursor:pointer}.mc-attribute-arrow:disabled{opacity:.22;cursor:not-allowed}\n.mc-attribute-purchase{position:sticky;bottom:8px;z-index:5;display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px 14px;margin-top:-88px;background:#0b1424ed;border:1px solid #52617a;border-radius:12px;box-shadow:0 12px 32px #0008;backdrop-filter:blur(10px)}\n.mc-attribute-purchase>div{margin-right:auto}.mc-attribute-purchase strong{display:block;color:#f4d257;font-size:20px}.mc-attribute-purchase span{font-size:10px;color:#aebbd0}\n.mc-story-prompt{margin:15px 0 0;color:#f3d45c;font-weight:800}\n.mc-box-summary{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;text-align:center}.mc-box-summary>div{display:flex;flex-direction:column;gap:5px}.mc-box-summary span{font-size:12px;color:#b4c4dd;letter-spacing:.12em}.mc-box-summary strong{font-size:clamp(32px,6vw,58px);color:#f5d45d}.mc-box-summary>b{font-size:12px;color:#a8b5c9}\n.mc-box-team{margin:15px 0;padding:16px;border:1px solid #344c6c;border-radius:13px;background:#0e1a2b}.mc-box-team-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.mc-box-team-head h2{margin:4px 0 0}.mc-box-team-head>strong{font-size:32px;color:#f3d45c}\n.mc-table-wrap{width:100%;overflow-x:auto}.mc-box-table{width:100%;border-collapse:collapse;font-size:11px;white-space:nowrap;font-variant-numeric:tabular-nums}\n.mc-box-table th,.mc-box-table td{padding:8px 9px;text-align:right;border-bottom:1px solid #ffffff14}.mc-box-table th:first-child,.mc-box-table td:first-child{text-align:left;min-width:145px}\n.mc-box-table th{font-size:10px;color:#aebbd0;letter-spacing:.07em}.mc-box-table td:first-child small{display:block;color:#8696ae;font-size:9px}.mc-box-total{font-weight:900;color:#f5d45d;background:#202c3b}\n@media(max-width:820px){.mc-attribute-panels{grid-template-columns:1fr}.mc-attribute-purchase{flex-wrap:wrap}.mc-attribute-purchase .mc-btn{flex:1}.mc-box-table{font-size:10px}.mc-box-table th,.mc-box-table td{padding:7px 6px}}\n@media(max-width:480px){.mc-attribute-heading{gap:6px}.mc-attribute-name{font-size:11px}.mc-xp-heading{align-items:flex-start}.mc-box-team{padding:9px}.mc-attribute-purchase{bottom:4px;padding:8px}.mc-attribute-purchase .mc-btn{font-size:12px;padding:10px}}\n";
 const root=document.createElement("div");root.id="nbaMyCareerRoot";root.hidden=true;document.body.appendChild(root);
 let career=null,draftPlayer=null,activeStory=null,buildBudget=760,saveError="";
 let activeMode="launcher",mygmSnapshot=null,launcherSnapshot=null;
@@ -41,7 +42,7 @@ function saveCareer(){
 }
 function restoreStored(data){
  if(!data||!data.career||!Array.isArray(data.players))return false;
- try{players=data.players;seasonYear=Number(data.seasonYear)||2025;phase=data.phase||"regular";seasonCalendar=data.seasonCalendar||null;seasonResults=data.seasonResults||[];if(typeof retired!=="undefined")retired=data.retired||[];customTeams=[];nextCustomTeamId=1;nextPlayerId=Math.max(1000,...players.map(p=>(Number(p.id)||0)+1));career=data.career;draftPlayer=data.draftPlayer||career.draftPlayer||null;career.player=findPlayer(career.playerId)||career.player||null;window.NBASimActualPlayerStats=data.actualPlayerStats||{};window.NBASimActualBoxScores=data.actualBoxScores||{};if(!findPlayer(career.playerId)&&career.player&&!career.retired)players.push(career.player);if(typeof window.NBASimPrepareMyCareerMode==="function")window.NBASimPrepareMyCareerMode();if(typeof window.NBAMyNBARosterChanged==="function")window.NBAMyNBARosterChanged();if(typeof renderAll==="function")renderAll();return true;}catch(error){saveError="Reprise impossible : "+error.message;return false;}
+ try{players=data.players;seasonYear=Number(data.seasonYear)||2025;phase=data.phase||"regular";seasonCalendar=data.seasonCalendar||null;seasonResults=data.seasonResults||[];if(typeof retired!=="undefined")retired=data.retired||[];customTeams=[];nextCustomTeamId=1;nextPlayerId=Math.max(1000,...players.map(p=>(Number(p.id)||0)+1));career=data.career;draftPlayer=data.draftPlayer||career.draftPlayer||null;career.player=findPlayer(career.playerId)||career.player||null;if(!career.progression)career.progression={xp:0,totalXp:0,points:0,required:xpRequiredForNextPoint(careerOverall(career.player||{})),levelsEarned:0,lastAward:0};if(career.storyIndex==null)career.storyIndex=0;if(!career.storyInterval){career.storyInterval=5;career.pendingStory=Number(career.gamesPlayed||0)>0&&Number(career.gamesPlayed||0)%5===0;}window.NBASimActualPlayerStats=data.actualPlayerStats||{};window.NBASimActualBoxScores=data.actualBoxScores||{};if(!findPlayer(career.playerId)&&career.player&&!career.retired)players.push(career.player);if(typeof window.NBASimPrepareMyCareerMode==="function")window.NBASimPrepareMyCareerMode();if(typeof window.NBAMyNBARosterChanged==="function")window.NBAMyNBARosterChanged();if(typeof renderAll==="function")renderAll();return true;}catch(error){saveError="Reprise impossible : "+error.message;return false;}
 }
 function showPicker(){
  hideGM();render('<div style="padding-top:clamp(25px,8vh,90px)"><div class="mc-kicker">NBA SIM LAB · CHOISIS TON EXPÉRIENCE</div><h1 class="mc-title">Quelle carrière<br>vas-tu écrire ?</h1><p class="mc-muted">Choisis ton mode de jeu. MyGM conserve la gestion de franchise. MyCareer te place dans la peau d’un seul joueur NBA.</p><div class="mc-mode-grid"><button class="mc-mode" id="mcChooseCareer"><div class="mc-kicker">MODE JOUEUR</div><h2>MyCareer</h2><p>Crée ton joueur, passe par la Draft et construis ta légende jusqu’à la retraite.</p></button><button class="mc-mode" id="mcChooseGM"><div class="mc-kicker">MODE FRANCHISE</div><h2>MyGM</h2><p>Contrôle une franchise, gère ton effectif, les transferts, la saison et les playoffs.</p></button></div></div>');
@@ -112,7 +113,7 @@ function showDraftStory(){
  const scene=draftScenes[career.draftScene];if(!scene)return revealDraft();
  render(header("AVANT LA DRAFT","Décision narrative "+(career.draftScene+1)+" / 3")+'<div class="mc-card"><div class="mc-kicker">SCOUTING REPORT</div><h2>'+scene.title+'</h2><p class="mc-muted">'+scene.body+'</p>'+scene.choices.map((x,i)=>'<button class="mc-choice" data-draft-choice="'+i+'"><b>'+x.label+'</b><span class="mc-muted">'+x.detail+'</span></button>').join("")+'</div>');
  attachReturn();root.querySelectorAll("[data-draft-choice]").forEach(b=>b.onclick=()=>{
-  const x=scene.choices[Number(b.dataset.draftChoice)];career.draftScore+=x.grade;career.emotions=clamp(career.emotions+(x.emotion||0),0,100);career.chemistry=clamp(career.chemistry+(x.chemistry||0),0,100);career.popularity=clamp(career.popularity+(x.popularity||0),0,100);
+  const x=scene.choices[Number(b.dataset.draftChoice)];career.draftScore+=x.grade;career.emotions=clamp(career.emotions+Math.sign(x.emotion||0),0,100);career.chemistry=clamp(career.chemistry+Math.sign(x.chemistry||0),0,100);career.popularity=clamp(career.popularity+Math.sign(x.popularity||0),0,100);
   if(x.attribute)draftPlayer.attributes[x.attribute]=clamp((Number(draftPlayer.attributes[x.attribute])||40)+(x.gain||0),20,99);
   career.storyHistory.push({stage:"Draft",event:scene.title,choice:x.label});career.draftScene++;career.draftPlayer=draftPlayer;saveCareer();if(career.draftScene>=draftScenes.length)revealDraft();else showDraftStory();
  });
@@ -174,25 +175,22 @@ function revealDraft(){
  draftPlayer.attributes.potential=99;career.draftGrade=grade;career.draftPick=pick;career.teamCode=chosen[0];career.teamName=chosen[1];career.playerId=draftPlayer.id;career.player=draftPlayer;
  const rival=allPlayers().filter(p=>p&&nbaTeams.some(team=>team[0]===p.team)&&p.team!==chosen[0]&&p.retired!==true&&p.isRetired!==true&&!p.myCareer).sort((a,b)=>Math.abs((typeof overallRating==="function"?overallRating(a):70)-grade)-Math.abs((typeof overallRating==="function"?overallRating(b):70)-grade))[0];
  career.rivalId=rival?rival.id:null;career.rivalName=rival?rival.name:"Rival à déterminer";players.push(draftPlayer);ensureCareerLeague();secureCareerRoster(draftPlayer);
- if(typeof initializeSeasonCalendar==="function")initializeSeasonCalendar();if(typeof phase!=="undefined")phase="regular";career.lastRoundPlayed=0;career.gamesPlayed=0;career.wins=0;career.losses=0;saveCareer();
+ career.pendingStory=false;career.storyIndex=0;career.storyInterval=5;career.progression={xp:0,totalXp:0,points:0,required:xpRequiredForNextPoint(careerOverall(draftPlayer)),levelsEarned:0,lastAward:0};career.gamesPlayed=0;career.wins=0;career.losses=0;
+ if(typeof initializeSeasonCalendar==="function")initializeSeasonCalendar();if(typeof phase!=="undefined")phase="regular";career.lastRoundPlayed=0;saveCareer();
  render(header("LA DRAFT NBA","Pick #"+pick+" · "+grade+" de scouting")+'<div class="mc-result"><div class="mc-kicker">ON T’A CHOISI</div><h2 style="font-size:clamp(28px,5vw,48px);margin:10px 0">'+chosen[1]+'</h2><p class="mc-muted">'+chosen[0]+' sélectionne '+escHtml(draftPlayer.name)+' au choix #'+pick+'.</p><div class="mc-grid three"><div class="mc-metric"><strong>'+pick+'</strong><span>Choix de Draft</span></div><div class="mc-metric"><strong>'+grade+'</strong><span>Scouting</span></div><div class="mc-metric"><strong>19</strong><span>Âge de départ</span></div></div></div><div class="mc-card"><h3>Ta rivalité commence</h3><p class="mc-muted">'+(rival?"Les recruteurs te comparent déjà à "+escHtml(rival.name)+".":"La ligue va bientôt te trouver un rival.")+'</p><button class="mc-btn primary" id="mcStartSeason">Commencer ma saison rookie →</button></div>');
- attachReturn();$("mcStartSeason").onclick=()=>{career.pendingStory=true;saveCareer();renderStory();};
+ attachReturn();$("mcStartSeason").onclick=()=>{career.pendingStory=false;career.gamesPlayed=0;career.lastRoundPlayed=0;saveCareer();renderDashboard();};
 }
-const stories=[
-{title:"La pression médiatique",body:"Un journaliste affirme que tu n’es pas encore prêt pour la NBA.",choices:[{label:"Répondre avec confiance",detail:"Tu assumes la pression.",e:{emotions:7,popularity:4,clutch:1}},{label:"Rester humble et travailler",detail:"Le vestiaire apprécie ton attitude.",e:{chemistry:6,emotions:3,workEthic:1}},{label:"Éviter les médias",detail:"Tu protèges ta concentration.",e:{emotions:2,popularity:-2,consistency:1}}]},
-{title:"Un vétéran veut te conseiller",body:"Un coéquipier expérimenté te propose une séance vidéo.",choices:[{label:"Accepter son aide",detail:"Tu renforces tes liens avec l’équipe.",e:{chemistry:8,basketballIQ:1,emotions:3}},{label:"Travailler seul",detail:"Tu privilégies ton rythme personnel.",e:{emotions:2,ballHandle:1}},{label:"Lui demander un défi",detail:"Une compétition amicale s’installe.",e:{chemistry:2,popularity:2,clutch:1}}]},
-{title:"Le coach te convoque",body:"Le coach veut savoir comment tu comptes gagner ta place dans la rotation.",choices:[{label:"Promettre une défense intense",detail:"Tu gagnes du crédit auprès du staff.",e:{chemistry:5,perimeterDefense:1,defensiveIQ:1}},{label:"Demander plus de responsabilités offensives",detail:"Tu montres ton ambition.",e:{emotions:5,popularity:2,offensiveIQ:1}},{label:"Accepter n’importe quel rôle",detail:"Tu privilégies le collectif.",e:{chemistry:8,intangibles:1}}]},
-{title:"Une publication devient virale",body:"Une vidéo de ton dernier entraînement circule sur les réseaux.",choices:[{label:"Remercier les supporters",detail:"Ta popularité augmente.",e:{popularity:8,emotions:3}},{label:"Défier ton rival",detail:"La rivalité attire l’attention.",e:{popularity:6,emotions:2,clutch:1}},{label:"Ne pas répondre",detail:"Tu restes concentré sur le basket.",e:{consistency:1,emotions:2}}]},
-{title:"Dîner avec les coéquipiers",body:"Le groupe organise une sortie après l’entraînement.",choices:[{label:"Participer et apprendre à les connaître",detail:"La cohésion progresse.",e:{chemistry:9,emotions:4}},{label:"Inviter ton rival à discuter",detail:"Un respect mutuel se construit.",e:{popularity:3,chemistry:4,intangibles:1}},{label:"Rentrer pour récupérer",detail:"Tu protèges ton énergie.",e:{durability:1,stamina:1,emotions:1}}]}
-];
+const stories=[{"title":"Ton rival te provoque","body":"Ton rival affirme que tu n'es pas encore à son niveau.","choices":[{"label":"Accepter le défi","detail":"Tu transformes la rivalité en motivation.","e":{"emotions":1,"popularity":1,"clutch":1}},{"label":"Répondre avec respect","detail":"Tu évites la polémique.","e":{"chemistry":1,"consistency":1}},{"label":"L'ignorer et travailler","detail":"Tu protèges ta concentration.","e":{"emotions":1,"workEthic":1,"popularity":-1}}]},{"title":"Le coach revoit ton rôle","body":"Le coach te propose de changer ton rôle dans la rotation.","choices":[{"label":"Accepter plus de responsabilités","detail":"Tu gagnes sa confiance.","e":{"chemistry":1,"emotions":-1,"offensiveIQ":1}},{"label":"Demander un rôle défensif","detail":"Tu privilégies les besoins de l'équipe.","e":{"chemistry":1,"defensiveIQ":1}},{"label":"Garder ton rôle actuel","detail":"Tu préfères tes repères.","e":{"consistency":1,"emotions":1}}]},{"title":"Un vétéran te reprend","body":"Un vétéran estime que tu prends de mauvaises habitudes à l'entraînement.","choices":[{"label":"Écouter ses conseils","detail":"Tu gagnes du respect.","e":{"chemistry":1,"basketballIQ":1}},{"label":"Lui demander une séance privée","detail":"Tu transformes la critique en travail.","e":{"workEthic":1,"ballHandle":1}},{"label":"Défendre ta méthode","detail":"Tu affirmes ton indépendance.","e":{"emotions":1,"popularity":1,"chemistry":-1}}]},{"title":"Les médias parlent de ton tir","body":"Une émission sportive analyse ton pourcentage au tir.","choices":[{"label":"Promettre de travailler ton tir","detail":"Tu assumes le défi.","e":{"workEthic":1,"midRange":1}},{"label":"Mettre en avant le collectif","detail":"Tu rappelles la priorité.","e":{"chemistry":1,"passing":1}},{"label":"Répondre avec humour","detail":"Tu détends l'atmosphère.","e":{"emotions":1,"popularity":1}}]},{"title":"Une marque veut collaborer","body":"Un équipementier te propose une campagne locale.","choices":[{"label":"Rencontrer les fans","detail":"Ta visibilité progresse.","e":{"popularity":1,"emotions":1}},{"label":"Refuser pour rester concentré","detail":"Tu gardes ta routine.","e":{"consistency":1,"workEthic":1}},{"label":"Proposer une action communautaire","detail":"Tu associes ton image à une bonne cause.","e":{"popularity":1,"chemistry":1}}]},{"title":"Les supporters réclament plus de minutes","body":"Les fans veulent te voir davantage sur le terrain.","choices":[{"label":"Dire que tu es prêt","detail":"Tu affiches ta confiance.","e":{"emotions":1,"popularity":1,"clutch":1}},{"label":"Rappeler que le coach décide","detail":"Tu respectes la hiérarchie.","e":{"chemistry":1,"intangibles":1}},{"label":"Promettre de mériter chaque minute","detail":"Tu mets l'accent sur le travail.","e":{"workEthic":1,"consistency":1}}]},{"title":"Choix d'entraînement","body":"Le staff te laisse choisir le thème d'une séance individuelle.","choices":[{"label":"Travail de finition","detail":"Tu répètes les gestes près du panier.","e":{"finishing":1,"layup":1}},{"label":"Séance de tir extérieur","detail":"Tu enchaînes les tirs.","e":{"threePoint":1,"midRange":1}},{"label":"Lecture du jeu","detail":"Tu étudies les prises à deux.","e":{"basketballIQ":1,"passing":1}}]},{"title":"La fatigue du voyage","body":"Après plusieurs déplacements, la récupération devient importante.","choices":[{"label":"Faire une séance de récupération","detail":"Tu protèges ton énergie.","e":{"stamina":1,"durability":1,"emotions":1}},{"label":"Continuer l'entraînement","detail":"Tu gardes ton rythme.","e":{"workEthic":1,"consistency":1,"emotions":-1}},{"label":"Demander un jour léger","detail":"Tu privilégies la fraîcheur.","e":{"durability":1,"chemistry":-1}}]},{"title":"Une tension dans le vestiaire","body":"Deux coéquipiers se disputent après une défaite.","choices":[{"label":"Rassembler le groupe","detail":"Tu essaies d'apaiser la situation.","e":{"chemistry":1,"intangibles":1}},{"label":"Parler séparément à chacun","detail":"Tu écoutes les deux côtés.","e":{"basketballIQ":1,"chemistry":1}},{"label":"Ne pas intervenir","detail":"Tu évites le conflit.","e":{"consistency":1,"chemistry":-1}}]},{"title":"Une vidéo de ton match circule","body":"Une séquence de ton dernier match devient populaire.","choices":[{"label":"Remercier les supporters","detail":"Tu reconnais leur soutien.","e":{"popularity":1,"emotions":1}},{"label":"Partager le crédit avec l'équipe","detail":"Tu mets tes coéquipiers en avant.","e":{"chemistry":1,"popularity":1}},{"label":"Ne rien publier","detail":"Tu gardes tes habitudes.","e":{"consistency":1}}]},{"title":"Le préparateur physique te conseille","body":"Le staff remarque que ton profil physique pourrait être mieux exploité.","choices":[{"label":"Travailler la vitesse","detail":"Tu travailles les premiers pas.","e":{"speed":1,"acceleration":1}},{"label":"Développer la force","detail":"Tu travailles le contact.","e":{"strength":1,"durability":1}},{"label":"Améliorer l'endurance","detail":"Tu veux garder ton intensité.","e":{"stamina":1,"workEthic":1}}]},{"title":"Un classement des rookies","body":"Un classement te place derrière plusieurs joueurs de ta Draft.","choices":[{"label":"Prendre cela comme motivation","detail":"Tu veux prouver ta valeur.","e":{"emotions":1,"clutch":1}},{"label":"Dire que les victoires comptent davantage","detail":"Tu privilégies les résultats collectifs.","e":{"chemistry":1,"intangibles":1}},{"label":"Ne pas commenter","detail":"Tu évites les distractions.","e":{"consistency":1,"popularity":-1}}]},{"title":"Le coach veut revoir la défense","body":"Le staff prépare une séance vidéo sur les rotations.","choices":[{"label":"Étudier les aides défensives","detail":"Tu travailles les lectures.","e":{"defensiveIQ":1,"interiorDefense":1}},{"label":"Travailler les duels extérieurs","detail":"Tu te concentres sur le un contre un.","e":{"perimeterDefense":1,"agility":1}},{"label":"Étudier les interceptions","detail":"Tu lis mieux les lignes de passe.","e":{"steal":1,"basketballIQ":1}}]},{"title":"Une association locale te sollicite","body":"Une association organise une activité avec les jeunes.","choices":[{"label":"Participer à la journée","detail":"Tu rencontres la communauté.","e":{"popularity":1,"chemistry":1}},{"label":"Offrir une séance de basket","detail":"Tu partages ton expérience.","e":{"popularity":1,"passing":1}},{"label":"Envoyer un message de soutien","detail":"Tu aides sans bouleverser ton programme.","e":{"emotions":1,"intangibles":1}}]},{"title":"Ton agent parle de ton avenir","body":"Ton agent veut connaître tes priorités pour les prochaines saisons.","choices":[{"label":"Devenir important dans l'équipe","detail":"Tu montres ton attachement au collectif.","e":{"chemistry":1,"intangibles":1}},{"label":"Construire une image de superstar","detail":"Tu assumes tes ambitions.","e":{"popularity":1,"emotions":1}},{"label":"Te concentrer sur ton développement","detail":"Tu veux progresser avant tout.","e":{"workEthic":1,"consistency":1}}]},{"title":"Une séance de visionnement","body":"Un assistant-coach te propose d'analyser tes dernières possessions.","choices":[{"label":"Étudier les passes disponibles","detail":"Tu travailles la création.","e":{"passing":1,"playmaking":1}},{"label":"Étudier les tirs refusés","detail":"Tu veux mieux choisir tes tirs.","e":{"shotIQ":1,"offensiveIQ":1}},{"label":"Analyser tes replis défensifs","detail":"Tu veux être plus fiable.","e":{"defensiveIQ":1,"consistency":1}}]},{"title":"Une petite série de défaites","body":"L'équipe traverse une période difficile.","choices":[{"label":"Organiser une discussion","detail":"Tu remets le groupe ensemble.","e":{"chemistry":1,"emotions":1}},{"label":"Proposer un entraînement supplémentaire","detail":"Tu veux retrouver le rythme.","e":{"workEthic":1,"stamina":1}},{"label":"Rassurer les jeunes","detail":"Tu évites la panique.","e":{"intangibles":1,"chemistry":1}}]},{"title":"Une série de victoires","body":"Les résultats augmentent les attentes autour de l'équipe.","choices":[{"label":"Garder la même routine","detail":"Tu veux rester constant.","e":{"consistency":1,"chemistry":1}},{"label":"Fixer un objectif collectif","detail":"Tu encourages le groupe.","e":{"chemistry":1,"emotions":1}},{"label":"Accepter plus de responsabilités","detail":"Tu assumes la confiance.","e":{"clutch":1,"popularity":1}}]},{"title":"Le capitaine te demande ton avis","body":"Le capitaine veut améliorer la communication sur le terrain.","choices":[{"label":"Parler davantage en défense","detail":"Tu aides les rotations.","e":{"defensiveIQ":1,"chemistry":1}},{"label":"Communiquer sur les écrans","detail":"Tu rends les actions plus fluides.","e":{"playmaking":1,"passing":1}},{"label":"Donner l'exemple par l'effort","detail":"Tu privilégies l'intensité.","e":{"workEthic":1,"intangibles":1}}]},{"title":"Une mauvaise soirée au tir","body":"Tu viens de traverser un match difficile offensivement.","choices":[{"label":"Reprendre les bases au gymnase","detail":"Tu travailles les gestes simples.","e":{"midRange":1,"consistency":1}},{"label":"Étudier tes choix de tirs","detail":"Tu améliores tes décisions.","e":{"shotIQ":1,"offensiveIQ":1}},{"label":"Faire confiance aux coéquipiers","detail":"Tu privilégies les bonnes lectures.","e":{"passing":1,"chemistry":1}}]},{"title":"Un jeune joueur te demande conseil","body":"Un jeune joueur te demande de l'aider à s'adapter à la NBA.","choices":[{"label":"L'aider à lire les défenses","detail":"Tu partages tes connaissances.","e":{"basketballIQ":1,"chemistry":1}},{"label":"Faire une séance de tir avec lui","detail":"Tu aides par l'exemple.","e":{"threePoint":1,"intangibles":1}},{"label":"L'encourager à trouver sa routine","detail":"Tu lui laisses construire sa méthode.","e":{"emotions":1,"workEthic":1}}]},{"title":"Une invitation à un événement","body":"La ville organise une soirée pour les joueurs.","choices":[{"label":"Y participer","detail":"Tu rencontres les supporters.","e":{"popularity":1,"emotions":1}},{"label":"Inviter des coéquipiers","detail":"Tu renforces les liens.","e":{"chemistry":1,"popularity":1}},{"label":"Rester chez toi pour récupérer","detail":"Tu privilégies le repos.","e":{"durability":1,"consistency":1}}]},{"title":"Un défi physique","body":"Tu peux consacrer ta séance à un test athlétique précis.","choices":[{"label":"Travailler la détente","detail":"Tu répètes les sauts.","e":{"vertical":1,"stamina":1}},{"label":"Travailler les changements de direction","detail":"Tu cherches plus d'agilité.","e":{"agility":1,"speed":1}},{"label":"Travailler le contact","detail":"Tu renforces ta stabilité.","e":{"strength":1,"finishing":1}}]},{"title":"La pression d'un match important","body":"Le prochain match attire l'attention des médias et des supporters.","choices":[{"label":"Accepter la responsabilité","detail":"Tu veux prendre tes responsabilités.","e":{"clutch":1,"emotions":1}},{"label":"Rappeler que le collectif passe avant tout","detail":"Tu gardes l'équipe au centre.","e":{"chemistry":1,"intangibles":1}},{"label":"Préparer une routine calme","detail":"Tu gères mieux la pression.","e":{"consistency":1,"stamina":1}}]},{"title":"Un ancien joueur te contacte","body":"Un ancien joueur professionnel te propose un conseil.","choices":[{"label":"Parler de ton développement","detail":"Tu veux mieux gérer ta progression.","e":{"basketballIQ":1,"potential":1}},{"label":"Demander un exercice technique","detail":"Tu recherches un conseil concret.","e":{"ballHandle":1,"workEthic":1}},{"label":"Parler de pression","detail":"Tu veux rester stable émotionnellement.","e":{"clutch":1,"consistency":1}}]},{"title":"Le vestiaire veut une activité d'équipe","body":"Les joueurs souhaitent renforcer la cohésion.","choices":[{"label":"Proposer un dîner","detail":"Tout le monde peut échanger.","e":{"chemistry":1,"emotions":1}},{"label":"Organiser un défi sportif","detail":"Tu encourages une compétition amicale.","e":{"chemistry":1,"stamina":1}},{"label":"Laisser le capitaine décider","detail":"Tu respectes le leadership.","e":{"intangibles":1,"consistency":1}}]}];
+
+
 function renderStory(){
- const scene=stories[(career.gamesPlayed+career.seasonNumber-1)%stories.length];activeStory=scene;
- render(header("UNE DÉCISION À PRENDRE","Entre deux matchs · Saison "+career.seasonNumber)+'<div class="mc-card"><div class="mc-kicker">MYCAREER STORYLINE</div><h2>'+scene.title+'</h2><p class="mc-muted">'+scene.body+'</p>'+scene.choices.map((x,i)=>'<button class="mc-choice" data-story-choice="'+i+'"><b>'+x.label+'</b><span class="mc-muted">'+x.detail+'</span></button>').join("")+'<p class="mc-status">Tes choix modifient les attributs, les émotions, l’entente d’équipe et ta popularité.</p></div>');
- attachReturn();root.querySelectorAll("[data-story-choice]").forEach(b=>b.onclick=()=>{
-  const choice=scene.choices[Number(b.dataset.storyChoice)],p=playerForCareer(),e=choice.e||{};
-  career.emotions=clamp(career.emotions+(e.emotions||0),0,100);career.chemistry=clamp(career.chemistry+(e.chemistry||0),0,100);career.popularity=clamp(career.popularity+(e.popularity||0),0,100);
-  if(p&&p.attributes)Object.keys(e).forEach(k=>{if(!["emotions","chemistry","popularity"].includes(k))p.attributes[k]=clamp((Number(p.attributes[k])||40)+e[k],20,99);});
-  career.storyHistory.push({season:seasonName(seasonYear),event:scene.title,choice:choice.label});career.pendingStory=false;saveCareer();renderDashboard();
+ const index=Math.max(0,Number(career.storyIndex)||0)%stories.length,scene=stories[index];activeStory=scene;
+ render(header("UNE DÉCISION À PRENDRE","Après "+career.gamesPlayed+" matchs · Saison "+career.seasonNumber)+'<div class="mc-card"><div class="mc-kicker">MYCAREER STORYLINE · '+(index+1)+' / '+stories.length+'</div><h2>'+escHtml(scene.title)+'</h2><p class="mc-muted">'+escHtml(scene.body)+'</p>'+scene.choices.map((choice,i)=>'<button class="mc-choice" data-story-choice="'+i+'"><b>'+escHtml(choice.label)+'</b><span class="mc-muted">'+escHtml(choice.detail)+'</span></button>').join("")+'<p class="mc-status">Tes décisions ont des effets progressifs sur tes attributs, les émotions, l’entente d’équipe et la popularité.</p></div>');
+ attachReturn();root.querySelectorAll("[data-story-choice]").forEach(button=>button.onclick=()=>{
+  const choice=scene.choices[Number(button.dataset.storyChoice)],player=playerForCareer(),effects=choice.e||{};
+  career.emotions=clamp(career.emotions+(effects.emotions||0),0,100);career.chemistry=clamp(career.chemistry+(effects.chemistry||0),0,100);career.popularity=clamp(career.popularity+(effects.popularity||0),0,100);
+  if(player&&player.attributes)Object.keys(effects).forEach(key=>{if(["emotions","chemistry","popularity"].includes(key))return;player.attributes[key]=clamp((Number(player.attributes[key])||40)+effects[key],20,attributeUpgradeCap(player,key));});
+  career.storyHistory.push({season:seasonName(seasonYear),event:scene.title,choice:choice.label,storyIndex:index});career.storyIndex=(index+1)%stories.length;career.pendingStory=false;saveCareer();renderDashboard();
  });
 }
 function careerOverall(p){
@@ -213,24 +211,148 @@ function nextPlayerGame(){
  return seasonCalendar.games.filter(g=>g.status!=="completed"&&(g.home.code===career.teamCode||g.away.code===career.teamCode)&&Number(g.round)>Number(career.lastRoundPlayed||0)).sort((a,b)=>a.round-b.round)[0]||null;
 }
 function statLine(){const s=career.seasonStats||{},gp=Math.max(1,Number(s.gp)||0);return (Number(s.gp)||0)+" MJ · "+((Number(s.pts)||0)/gp).toFixed(1)+" PTS · "+((Number(s.reb)||0)/gp).toFixed(1)+" REB · "+((Number(s.ast)||0)/gp).toFixed(1)+" AST";}
+const CAREER_ATTRIBUTE_SECTIONS=[
+ {title:"FINITION",tone:"finish",keys:["finishing","closeShot","layup","dunk"]},
+ {title:"TIR",tone:"shoot",keys:["midRange","threePoint","freeThrow","shotIQ"]},
+ {title:"CRÉATION",tone:"play",keys:["passing","ballHandle","playmaking","offensiveIQ"]},
+ {title:"DÉFENSE",tone:"defense",keys:["interiorDefense","perimeterDefense","steal","block","defensiveIQ","defensiveRebound","offensiveRebound"]},
+ {title:"PHYSIQUE",tone:"physical",keys:["speed","acceleration","agility","strength","vertical","stamina","durability"]},
+ {title:"MENTAL",tone:"mental",keys:["consistency","clutch","potential","workEthic","basketballIQ","intangibles"]}
+];
+let pendingAttributeUpgrades={};
+function xpRequiredForNextPoint(overall){
+ return Math.max(100,Math.round(220*Math.pow(1.045,Number(overall||70)-70)));
+}
+function progressionState(player){
+ if(!career.progression)career.progression={xp:0,totalXp:0,points:0,required:xpRequiredForNextPoint(careerOverall(player)),levelsEarned:0,lastAward:0};
+ const p=career.progression;
+ p.xp=Math.max(0,Number(p.xp)||0);p.totalXp=Math.max(0,Number(p.totalXp)||0);p.points=Math.max(0,Math.floor(Number(p.points)||0));
+ p.required=Math.max(100,Number(p.required)||xpRequiredForNextPoint(careerOverall(player)));
+ return p;
+}
+function careerXPFromStats(line,won){
+ const pts=Math.max(0,Number(line.pts)||0),reb=Math.max(0,Number(line.reb)||0),ast=Math.max(0,Number(line.ast)||0);
+ const stl=Math.max(0,Number(line.stl)||0),blk=Math.max(0,Number(line.blk)||0),minutes=Math.max(0,Number(line.minutes)||0),turnovers=Math.max(0,Number(line.tov)||0);
+ const doubleDouble=[pts,reb,ast,stl,blk].filter(value=>value>=10).length>=2;
+ return Math.max(15,Math.round(22+pts*1.7+reb*1.4+ast*1.7+stl*3+blk*3+minutes*.4-turnovers*.5+(won?12:0)+(doubleDouble?10:0)));
+}
+function awardCareerXP(line,won){
+ const player=playerForCareer();if(!player)return 0;
+ const state=progressionState(player),earned=careerXPFromStats(line||{},won);
+ state.xp+=earned;state.totalXp+=earned;state.lastAward=earned;
+ let loops=0;
+ while(state.xp>=state.required&&loops++<20){
+  state.xp-=state.required;state.points++;state.levelsEarned++;
+  state.required=xpRequiredForNextPoint(careerOverall(player));
+ }
+ return earned;
+}
+function pendingUpgradeCount(){
+ return Object.values(pendingAttributeUpgrades).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
+}
+function attributeUpgradeCap(player,key){
+ const profile=player&&player.myCareerProfile||{};
+ return capFor({core:Array.isArray(profile.core)?profile.core:[],secondary:Array.isArray(profile.secondary)?profile.secondary:[]},key);
+}
+function renderCareerBoxScoreSide(side){
+ if(!side)return "";
+ const rows=Array.isArray(side.players)?side.players:[];
+ const totals={pts:0,reb:0,ast:0,stl:0,blk:0,tov:0,pf:0,minutes:0,fgm:0,fga:0,threeMade:0,threeAttempts:0,ftm:0,fta:0};
+ const body=rows.map(row=>{
+  Object.keys(totals).forEach(key=>totals[key]+=Number(row[key])||0);
+  return '<tr><td><b>'+escHtml(row.name)+'</b><small>'+escHtml(row.pos||"")+'</small></td><td>'+Math.round(Number(row.minutes)||0)+'</td><td><b>'+Number(row.pts||0)+'</b></td><td>'+Number(row.fgm||0)+'/'+Number(row.fga||0)+'</td><td>'+Number(row.threeMade||0)+'/'+Number(row.threeAttempts||0)+'</td><td>'+Number(row.ftm||0)+'/'+Number(row.fta||0)+'</td><td>'+Number(row.reb||0)+'</td><td>'+Number(row.ast||0)+'</td><td>'+Number(row.stl||0)+'</td><td>'+Number(row.blk||0)+'</td><td>'+Number(row.tov||0)+'</td><td>'+Number(row.pf||0)+'</td></tr>';
+ }).join("");
+ return '<section class="mc-box-team"><div class="mc-box-team-head"><div><div class="mc-kicker">'+escHtml(side.code)+'</div><h2>'+escHtml(side.name)+'</h2></div><strong>'+Number(side.score||0)+'</strong></div><div class="mc-table-wrap"><table class="mc-box-table"><thead><tr><th>Joueur</th><th>MIN</th><th>PTS</th><th>FG</th><th>3PT</th><th>FT</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th>PF</th></tr></thead><tbody>'+body+'<tr class="mc-box-total"><td><b>TOTAL ÉQUIPE</b></td><td>'+Math.round(totals.minutes)+'</td><td>'+totals.pts+'</td><td>'+totals.fgm+'/'+totals.fga+'</td><td>'+totals.threeMade+'/'+totals.threeAttempts+'</td><td>'+totals.ftm+'/'+totals.fta+'</td><td>'+totals.reb+'</td><td>'+totals.ast+'</td><td>'+totals.stl+'</td><td>'+totals.blk+'</td><td>'+totals.tov+'</td><td>'+totals.pf+'</td></tr></tbody></table></div></section>';
+}
+function captureCareerBoxScore(game){
+ const makeSide=(sideKey,teamRef,score)=>{
+  const code=String(teamRef.code),raw=game.playerBoxScores&&game.playerBoxScores[sideKey]||{};
+  const roster=allPlayers().filter(player=>String(player.team)===code&&!player.retired&&!player.isRetired);
+  const ids=new Set(roster.map(player=>String(player.id)));
+  Object.keys(raw).forEach(id=>{if(!ids.has(String(id))){const player=findPlayer(id)||(career.player&&String(career.player.id)===String(id)?career.player:null);if(player)roster.push(player);}});
+  const rows=roster.map(player=>{
+   const line=raw[String(player.id)]||{};
+   return {id:player.id,name:String(player.name||"Joueur"),pos:String(player.pos||""),minutes:Number(line.minutes)||0,pts:Number(line.pts)||0,reb:Number(line.reb)||0,ast:Number(line.ast)||0,stl:Number(line.stl)||0,blk:Number(line.blk)||0,tov:Number(line.tov)||0,pf:Number(line.pf)||0,fgm:Number(line.fgm)||0,fga:Number(line.fga)||0,threeMade:Number(line.threeMade)||0,threeAttempts:Number(line.threeAttempts)||0,ftm:Number(line.ftm)||0,fta:Number(line.fta)||0};
+  }).sort((a,b)=>b.minutes-a.minutes||b.pts-a.pts);
+  return {code,name:String(teamRef.name||code),score:Number(score)||0,players:rows};
+ };
+ return {home:makeSide("home",game.home,game.homeScore),away:makeSide("away",game.away,game.awayScore)};
+}
+function renderLastBoxScore(){
+ const game=career&&career.lastGame;if(!game||!game.boxScore)return renderDashboard();
+ const home=game.boxScore.home,away=game.boxScore.away;
+ render(header("BOX SCORE","Match "+career.gamesPlayed+" · "+game.result)+
+  '<p class="mc-story-prompt">+'+(Number(game.xpEarned)||0)+' EXP après ce match · '+(progressionState(playerForCareer()).points||0)+' point(s) d’attribut disponibles.</p>'+
+  '<div class="mc-card mc-box-summary"><div><span>'+escHtml(home.code)+'</span><strong>'+home.score+'</strong></div><b>FINAL</b><div><span>'+escHtml(away.code)+'</span><strong>'+away.score+'</strong></div></div>'+
+  renderCareerBoxScoreSide(home)+renderCareerBoxScoreSide(away)+
+  '<div class="mc-actions"><button class="mc-btn primary" id="mcBoxContinue">'+(career.pendingStory?"Continuer vers ton histoire →":career.gamesPlayed>=82?"Terminer la saison →":"Retour à ma carrière")+'</button><button class="mc-btn secondary" id="mcBoxAttributes">Voir mes attributs</button></div>');
+ attachReturn();
+ $("mcBoxContinue").onclick=()=>{if(career.pendingStory)renderStory();else if(career.gamesPlayed>=82)finishSeason();else renderDashboard();};
+ $("mcBoxAttributes").onclick=showCareerAttributes;
+}
 function renderDashboard(){
  const p=playerForCareer();if(!p||career.retired)return renderRetirement();installCareerOverall();
  const rival=career.rivalId!=null?findPlayer(career.rivalId):null,next=nextPlayerGame(),game=career.lastGame,injury=p.injury;
+ const xp=progressionState(p),storyDue=career.pendingStory===true,seasonComplete=career.gamesPlayed>=82||!next;
  const injuryText=injury?(injury.label||injury.severity)+" · "+(Number(injury.restGamesRemaining)||0)+" matchs avant retour":"En santé";
  render(header("SAISON "+career.seasonNumber,p.name+" · "+p.team+" · "+p.age+" ans")+
  '<div class="mc-grid three"><div class="mc-metric"><strong>'+careerOverall(p)+'</strong><span>GÉN</span></div><div class="mc-metric"><strong>'+career.wins+'-'+career.losses+'</strong><span>Bilan équipe</span></div><div class="mc-metric"><strong>'+career.gamesPlayed+'/82</strong><span>Matchs joués</span></div></div>'+
  '<div class="mc-grid three"><div class="mc-metric"><strong>'+career.emotions+'</strong><span>Émotions</span></div><div class="mc-metric"><strong>'+career.chemistry+'</strong><span>Entente d’équipe</span></div><div class="mc-metric"><strong>'+career.popularity+'</strong><span>Popularité</span></div></div>'+
- '<div class="mc-card"><div class="mc-grid"><div><div class="mc-kicker">STATISTIQUES DE LA SAISON</div><h2>'+statLine()+'</h2><p class="mc-muted">Blessure : '+injuryText+'</p><p class="mc-muted">Prochain match : '+(next?next.home.name+" vs "+next.away.name:"Saison régulière terminée")+'</p></div><div><div class="mc-kicker">TON RIVAL</div><h2>'+(rival?escHtml(rival.name):escHtml(career.rivalName||"Rival à déterminer"))+'</h2><p class="mc-muted">'+(rival?rival.team+" · GÉN "+(typeof overallRating==="function"?overallRating(rival):"—"):"Un nouveau rival sera identifié.")+'</p></div></div><div class="mc-divider"></div><div class="mc-kicker">DERNIER MATCH</div>'+
- (game?'<div class="mc-game-result"><b>'+game.teamCode+'</b><strong>'+game.teamScore+' – '+game.opponentScore+'</strong><b>'+game.opponentCode+'</b></div><p class="mc-muted" style="text-align:center">'+game.result+' · '+game.line+'</p>':'<p class="mc-muted">Tu n’as pas encore disputé ton premier match NBA.</p>')+
- '<div class="mc-actions"><button class="mc-btn primary" id="mcNextMatch" '+(!next?"disabled":"")+'>Simuler le prochain match →</button><button class="mc-btn secondary" id="mcAttributes">Voir mes attributs</button><button class="mc-btn secondary" id="mcSave">Sauvegarder</button></div><p class="mc-status">'+(saveError||"Les autres franchises et les matchs de la journée sont simulés par l’IA.")+'</p></div>');
- attachReturn();$("mcNextMatch").onclick=()=>{if(career.pendingStory)renderStory();else simulateNextMatch();};$("mcAttributes").onclick=showCareerAttributes;$("mcSave").onclick=()=>{saveCareer();renderDashboard();};
+ '<div class="mc-card"><div class="mc-grid"><div><div class="mc-kicker">STATISTIQUES DE LA SAISON</div><h2>'+statLine()+'</h2><p class="mc-muted">Blessure : '+injuryText+'</p><p class="mc-muted">Prochain match : '+(next?escHtml(next.home.name)+" vs "+escHtml(next.away.name):"Saison régulière terminée")+'</p></div><div><div class="mc-kicker">TON RIVAL</div><h2>'+(rival?escHtml(rival.name):escHtml(career.rivalName||"Rival à déterminer"))+'</h2><p class="mc-muted">'+(rival?escHtml(rival.team)+" · GÉN "+(typeof overallRating==="function"?overallRating(rival):"—"):"Un nouveau rival sera identifié.")+'</p></div></div><div class="mc-divider"></div><div class="mc-kicker">DERNIER MATCH</div>'+
+ (game?'<div class="mc-game-result"><b>'+escHtml(game.teamCode)+'</b><strong>'+game.teamScore+' – '+game.opponentScore+'</strong><b>'+escHtml(game.opponentCode)+'</b></div><p class="mc-muted" style="text-align:center">'+escHtml(game.result)+' · '+escHtml(game.line)+'</p>':'<p class="mc-muted">Tu n’as pas encore disputé ton premier match NBA.</p>')+
+ '<div class="mc-actions"><button class="mc-btn primary" id="mcNextMatch" '+(!next||storyDue?"disabled":"")+'>Simuler le prochain match →</button><button class="mc-btn primary" id="mcSimSeason" '+(seasonComplete||storyDue?"disabled":"")+'>Simuler la saison →</button><button class="mc-btn secondary" id="mcAttributes">Voir mes attributs'+(xp.points>0?" · "+xp.points+" point(s)":"")+'</button>'+(game&&game.boxScore?'<button class="mc-btn secondary" id="mcViewBox">Voir le box score</button>':'')+'<button class="mc-btn secondary" id="mcSave">Sauvegarder</button></div>'+
+ (storyDue?'<p class="mc-story-prompt">Une histoire t’attend après '+career.gamesPlayed+' matchs.</p><div class="mc-actions"><button class="mc-btn primary" id="mcOpenStory">Faire mon choix d’histoire →</button></div>':'')+
+ '<p class="mc-status">'+escHtml(saveError||"La simulation MyCareer est isolée de MyGM.")+'</p></div>');
+ attachReturn();
+ $("mcNextMatch").onclick=()=>simulateNextMatch();
+ $("mcSimSeason").onclick=simulateCareerSeason;
+ $("mcAttributes").onclick=()=>{pendingAttributeUpgrades={};showCareerAttributes();};
+ if($("mcViewBox"))$("mcViewBox").onclick=renderLastBoxScore;
+ if($("mcOpenStory"))$("mcOpenStory").onclick=renderStory;
+ $("mcSave").onclick=()=>{saveCareer();renderDashboard();};
  if(!next&&career.gamesPlayed>=82)finishSeason();
 }
 function showCareerAttributes(){
  const p=playerForCareer();if(!p)return renderDashboard();
- const blocks=Object.entries(groups).map(([g,list])=>'<div class="mc-card"><h3>'+g+'</h3><div class="mc-bars">'+list.map(x=>'<div class="mc-attribute"><label>'+x[1]+'</label><b>'+(Number(p.attributes[x[0]])||0)+'</b></div>').join("")+'</div></div>').join("");
- render(header("MES ATTRIBUTS","Spécialité · "+(p.myCareerProfile.specialty||"MyCareer"))+'<div class="mc-card"><div class="mc-metric"><strong>'+careerOverall(p)+'</strong><span>GÉN actuel</span></div><p class="mc-muted">Les décisions narratives, les blessures et la progression annuelle influencent ton joueur.</p></div>'+blocks+'<div class="mc-actions"><button class="mc-btn primary" id="mcBackDashboard">Retour à ma carrière</button></div>');
- attachReturn();$("mcBackDashboard").onclick=renderDashboard;
+ const progress=progressionState(p),pending=pendingUpgradeCount(),sections=CAREER_ATTRIBUTE_SECTIONS.map(section=>{
+  const items=section.keys.map(key=>{
+   const existing=attrs.find(pair=>pair[0]===key);if(!existing)return "";
+   const current=clamp(Number(p.attributes[key])||0,0,99),cap=attributeUpgradeCap(p,key),planned=clamp(Number(pendingAttributeUpgrades[key])||0,0,cap-current),preview=current+planned;
+   const fill=(current/99*100).toFixed(3),capAt=(cap/99*100).toFixed(3),previewWidth=(planned/99*100).toFixed(3);
+   const canAdd=progress.points>pending&&preview<cap,canRemove=planned>0;
+   const arrowControls=progress.points>0?'<div><button type="button" class="mc-attribute-arrow" data-remove-upgrade="'+key+'" '+(!canRemove?"disabled":"")+' aria-label="Retirer le point de '+escHtml(existing[1])+'">←</button><button type="button" class="mc-attribute-arrow" data-add-upgrade="'+key+'" '+(!canAdd?"disabled":"")+' aria-label="Améliorer '+escHtml(existing[1])+'">→</button></div>':"";
+   return '<article class="mc-attribute-row"><div class="mc-attribute-heading"><span class="mc-attribute-name">'+escHtml(existing[1])+'</span><span class="mc-attribute-current">'+current+'</span><span class="mc-attribute-preview-level">'+(planned>0?"→ "+preview:"")+'</span><span class="mc-attribute-max">'+cap+' MAX</span></div><div class="mc-attribute-track"><span class="mc-attribute-fill" style="width:'+fill+'%"></span><span class="mc-attribute-preview" style="left:'+fill+'%;width:'+previewWidth+'%"></span><span class="mc-attribute-locked" style="left:'+capAt+'%"></span><span class="mc-attribute-cap-marker" style="left:'+capAt+'%"></span></div><div class="mc-attribute-controls"><span>'+current+' / 99</span>'+arrowControls+'</div></article>';
+  }).join("");
+  return '<section class="mc-attribute-panel mc-panel-'+section.tone+'"><header><span class="mc-attribute-panel-dot"></span><h3>'+section.title+'</h3></header><div class="mc-attribute-list">'+items+'</div></section>';
+ }).join("");
+ const ratio=Math.min(100,(progress.xp/progress.required)*100),remaining=Math.max(0,progress.required-progress.xp);
+ render(header("MES ATTRIBUTS","Spécialité · "+(p.myCareerProfile.specialty||"MyCareer"))+
+  '<div class="mc-card mc-xp-card"><div class="mc-xp-heading"><div><div class="mc-kicker">PROGRESSION DU JOUEUR</div><h2>'+progress.xp+' / '+progress.required+' EXP</h2></div><div class="mc-xp-points"><strong>'+progress.points+'</strong><span>POINTS DISPONIBLES</span></div></div><div class="mc-xp-track"><span style="width:'+ratio.toFixed(2)+'%"></span></div><p class="mc-muted">Encore '+remaining+' EXP pour gagner un point d’attribut · '+progress.totalXp+' EXP gagnée(s) au total.</p><p class="mc-status">'+(progress.lastAward?'Dernier match : +'+progress.lastAward+' EXP.':'Tes performances en match déterminent ton EXP.')+'</p></div>'+
+  '<div class="mc-card mc-overall-card"><div class="mc-metric"><strong>'+careerOverall(p)+'</strong><span>GÉN actuel</span></div><p class="mc-muted">Les barres jaunes montrent ton niveau. Les zones gris foncé sont au-delà de ton plafond de spécialité. Les flèches préparent les améliorations avant achat.</p></div>'+
+  '<div class="mc-attribute-panels">'+sections+'</div>'+
+  '<div class="mc-attribute-purchase"><div><strong>'+pending+' / '+progress.points+'</strong><span>Points sélectionnés</span></div><button class="mc-btn primary" id="mcBuyAttributes" '+(pending===0||pending>progress.points?"disabled":"")+'>Acheter les améliorations</button><button class="mc-btn secondary" id="mcClearAttributes" '+(pending===0?"disabled":"")+'>Annuler</button></div>'+
+  '<div class="mc-actions"><button class="mc-btn secondary" id="mcBackDashboard">Retour à ma carrière</button></div>');
+ attachReturn();
+ root.querySelectorAll("[data-add-upgrade]").forEach(button=>button.onclick=()=>{
+  const key=button.dataset.addUpgrade,cap=attributeUpgradeCap(p,key),current=Number(p.attributes[key])||0,planned=Number(pendingAttributeUpgrades[key])||0;
+  if(progress.points>pendingUpgradeCount()&&current+planned<cap){pendingAttributeUpgrades[key]=planned+1;showCareerAttributes();}
+ });
+ root.querySelectorAll("[data-remove-upgrade]").forEach(button=>button.onclick=()=>{
+  const key=button.dataset.removeUpgrade,planned=Number(pendingAttributeUpgrades[key])||0;
+  if(planned>0){if(planned===1)delete pendingAttributeUpgrades[key];else pendingAttributeUpgrades[key]=planned-1;showCareerAttributes();}
+ });
+ $("mcBuyAttributes").onclick=()=>{
+  const count=pendingUpgradeCount();if(!count||count>progress.points)return;
+  Object.entries(pendingAttributeUpgrades).forEach(([key,value])=>{
+   const cap=attributeUpgradeCap(p,key);
+   p.attributes[key]=clamp((Number(p.attributes[key])||0)+Math.max(0,Number(value)||0),0,cap);
+  });
+  progress.points-=count;progress.required=xpRequiredForNextPoint(careerOverall(p));pendingAttributeUpgrades={};
+  if(typeof window.NBAMyNBARosterChanged==="function")window.NBAMyNBARosterChanged();
+  saveCareer();showCareerAttributes();
+ };
+ $("mcClearAttributes").onclick=()=>{pendingAttributeUpgrades={};showCareerAttributes();};
+ $("mcBackDashboard").onclick=()=>{pendingAttributeUpgrades={};renderDashboard();};
 }
 function createNewRival(p){
  const candidates=(typeof nbaTeams!=="undefined"?nbaTeams:[]).filter(t=>t[0]!==career.teamCode),team=candidates[Math.floor(rand()*candidates.length)];
@@ -239,47 +361,89 @@ function createNewRival(p){
  const rival={id:typeof nextPlayerId!=="undefined"?nextPlayerId++:Date.now(),name,team:team[0],pos:p.pos,age:20,pts:0,reb:0,ast:0,stl:.8,blk:.4,ts:.56,three:.35,mpg:26,height:p.height,weight:p.weight,wingspan:p.wingspan,attributes:values,history:[],trophies:[],careerGames:[],source:"MyCareer · Rival généré"};
  players.push(rival);secureCareerRoster(rival);career.rivalId=rival.id;career.rivalName=name;career.generatedRival=true;if(typeof window.NBAMyNBARosterChanged==="function")window.NBAMyNBARosterChanged();
 }
-function simulateNextMatch(){
- const p=playerForCareer();if(!p||career.retired)return;
- const target=nextPlayerGame();if(!target){finishSeason();return;}
- if(typeof window.simulateScheduledGame!=="function"){saveError="Le moteur de simulation MyGM n’est pas disponible.";renderDashboard();return;}
- const currentRound=Number(target.round)||0,games=seasonCalendar.games.filter(g=>g.status!=="completed"&&Number(g.round)<=currentRound).sort((a,b)=>a.round-b.round);
- p.myCareerMoodModifiers={consistency:(Number(career.emotions||50)-50)*.09,clutch:(Number(career.emotions||50)-50)*.06,playmaking:(Number(career.chemistry||50)-50)*.08,passing:(Number(career.chemistry||50)-50)*.07,basketballIQ:(Number(career.chemistry||50)-50)*.05,intangibles:(Number(career.popularity||50)-50)*.04};
- try{for(const game of games){try{window.simulateScheduledGame(game);}catch(error){saveError="Erreur de simulation : "+error.message;break;}}}finally{delete p.myCareerMoodModifiers;}
- career.lastRoundPlayed=currentRound;const home=target.home.code===career.teamCode,teamScore=home?target.homeScore:target.awayScore,oppScore=home?target.awayScore:target.homeScore,won=Number(teamScore)>Number(oppScore);
- career.gamesPlayed++;if(won){career.wins++;career.lossStreak=0;}else{career.losses++;career.lossStreak=(career.lossStreak||0)+1;}
+function simulateNextMatch(options){
+ const silent=!!(options&&options.silent),p=playerForCareer();if(!p||career.retired)return {ok:false};
+ if(career.pendingStory&&!silent){renderStory();return {ok:false,storyDue:true};}
+ const target=nextPlayerGame();
+ if(!target){if(career.gamesPlayed>=82){if(!silent)finishSeason();return {ok:false,finished:true};}if(!silent)renderDashboard();return {ok:false};}
+ if(typeof window.simulateScheduledGame!=="function"){saveError="Le moteur de simulation par possessions n'est pas disponible.";if(!silent)renderDashboard();return {ok:false,error:saveError};}
+ const currentRound=Number(target.round)||0,games=seasonCalendar.games.filter(game=>game.status!=="completed"&&Number(game.round)<=currentRound).sort((a,b)=>a.round-b.round);
+ p.myCareerMoodModifiers={consistency:(Number(career.emotions||50)-50)*.025,clutch:(Number(career.emotions||50)-50)*.04,playmaking:(Number(career.chemistry||50)-50)*.035,passing:(Number(career.chemistry||50)-50)*.035,basketballIQ:(Number(career.chemistry||50)-50)*.03,intangibles:(Number(career.popularity||50)-50)*.02};
+ let simulationError=null;
+ window.NBASimMyCareerSimulationInProgress=true;
+ try{
+  for(const game of games){
+   if(game.status==="completed")continue;
+   const result=window.simulateScheduledGame(game);
+   if(result===false&&game.status!=="completed")throw new Error("Le match "+game.id+" n'a pas pu être simulé.");
+  }
+ }catch(error){simulationError=error;}
+ finally{delete p.myCareerMoodModifiers;window.NBASimMyCareerSimulationInProgress=false;}
+ if(simulationError||target.status!=="completed"){
+  saveError="Erreur de simulation : "+(simulationError?simulationError.message:"le match du joueur n'a pas été terminé.");
+  saveCareer();if(!silent)renderDashboard();return {ok:false,error:saveError};
+ }
+ career.lastRoundPlayed=currentRound;
+ const home=target.home.code===career.teamCode,teamScore=home?target.homeScore:target.awayScore,oppScore=home?target.awayScore:target.homeScore,won=Number(teamScore)>Number(oppScore);
+ career.gamesPlayed++;
+ if(won){career.wins++;career.lossStreak=0;}else{career.losses++;career.lossStreak=(career.lossStreak||0)+1;}
  const box=target.playerBoxScores||{},side=home?box.home:box.away,line=side&&side[String(p.id)]||{};
- ["pts","reb","ast","stl","blk","tov","minutes"].forEach(k=>career.seasonStats[k]=(Number(career.seasonStats[k])||0)+(Number(line[k])||0));
+ ["pts","reb","ast","stl","blk","tov","minutes"].forEach(key=>career.seasonStats[key]=(Number(career.seasonStats[key])||0)+(Number(line[key])||0));
  if(Number(line.gp)>0)career.seasonStats.gp=(Number(career.seasonStats.gp)||0)+1;
- career.lastGame={gameId:target.id,teamCode:career.teamCode,opponentCode:home?target.away.code:target.home.code,teamScore:Number(teamScore)||0,opponentScore:Number(oppScore)||0,result:won?"Victoire":"Défaite",line:(Number(line.pts)||0)+" PTS · "+(Number(line.reb)||0)+" REB · "+(Number(line.ast)||0)+" AST · "+(Number(line.minutes)||0)+" MIN"};
- p.careerGames=p.careerGames||[];p.careerGames.push({season:seasonName(seasonYear),gameId:target.id,teamScore:teamScore,opponentScore:oppScore,...line});
- const gp=Math.max(1,Number(career.seasonStats.gp)||0);p.pts=career.seasonStats.pts/gp;p.reb=career.seasonStats.reb/gp;p.ast=career.seasonStats.ast/gp;p.mpg=career.seasonStats.minutes/gp;
+ const xpEarned=awardCareerXP(line,won);
+ const points=Number(line.pts)||0,assists=Number(line.ast)||0;
+ // Les relations évoluent surtout lors des décisions narratives, jamais automatiquement à chaque match.
+ career.lastGame={gameId:target.id,teamCode:career.teamCode,opponentCode:home?target.away.code:target.home.code,teamScore:Number(teamScore)||0,opponentScore:Number(oppScore)||0,result:won?"Victoire":"Défaite",line:(points)+" PTS · "+(Number(line.reb)||0)+" REB · "+assists+" AST · "+(Number(line.minutes)||0)+" MIN",xpEarned,boxScore:captureCareerBoxScore(target)};
+ p.careerGames=p.careerGames||[];p.careerGames.push({season:seasonName(seasonYear),gameId:target.id,teamScore:teamScore,opponentScore:oppScore,...line,xpEarned});
+ const gp=Math.max(1,Number(career.seasonStats.gp)||0);
+ p.pts=career.seasonStats.pts/gp;p.reb=career.seasonStats.reb/gp;p.ast=career.seasonStats.ast/gp;p.mpg=career.seasonStats.minutes/gp;
  if(career.lossStreak>=4&&!career.generatedRival)createNewRival(p);
- if(!allPlayers().some(x=>String(x.id)===String(p.id))&&typeof retired!=="undefined"&&retired.some(x=>String(x.id)===String(p.id))){career.retired=true;career.retirementReason="Blessure très grave mettant fin à la carrière.";saveCareer();renderRetirement();return;}
- career.pendingStory=true;if(typeof window.renderAll==="function")window.renderAll();saveCareer();renderDashboard();
+ if(!allPlayers().some(player=>String(player.id)===String(p.id))&&typeof retired!=="undefined"&&retired.some(player=>String(player.id)===String(p.id))){
+  career.retired=true;career.retirementReason="Blessure très grave mettant fin à la carrière.";saveCareer();if(!silent)renderRetirement();return {ok:false,retired:true};
+ }
+ const storyInterval=Math.max(1,Number(career.storyInterval)||5);career.pendingStory=career.gamesPlayed>0&&career.gamesPlayed%storyInterval===0;
+ saveCareer();
+ if(silent)return {ok:true,storyDue:career.pendingStory,xpEarned};
+ renderLastBoxScore();
+ return {ok:true,storyDue:career.pendingStory,xpEarned};
+}
+function simulateCareerSeason(){
+ if(!career||career.retired)return;
+ if(career.pendingStory){renderStory();return;}
+ let guard=0,lastResult=null;
+ while(career.gamesPlayed<82&&!career.pendingStory&&guard++<82){
+  const before=career.gamesPlayed;
+  lastResult=simulateNextMatch({silent:true});
+  if(!lastResult||!lastResult.ok||career.gamesPlayed===before)break;
+ }
+ if(career.gamesPlayed>=82){renderLastBoxScore();return;}
+ if(lastResult&&lastResult.ok&&career.lastGame)renderLastBoxScore();
+ else renderDashboard();
 }
 function simulateCareerSeries(teamA,teamB,roundLabel,seriesIndex){
- const homePattern=[0,0,1,1,0,1,0];
- let winsA=0,winsB=0;
+ const homePattern=[0,0,1,1,0,1,0];let winsA=0,winsB=0;
  for(let n=0;n<7&&winsA<4&&winsB<4;n++){
   const homeIsA=homePattern[n]===0,homeTeam=homeIsA?teamA:teamB,awayTeam=homeIsA?teamB:teamA;
   const game={id:"MC-PO-"+career.seasonNumber+"-"+roundLabel+"-"+seriesIndex+"-"+(n+1),round:n+1,home:{code:homeTeam.code,name:homeTeam.name},away:{code:awayTeam.code,name:awayTeam.name},status:"scheduled"};
-  if(typeof window.simulateScheduledGame!=="function"||window.simulateScheduledGame(game)===false)break;
+  let simulationResult=false;window.NBASimMyCareerSimulationInProgress=true;
+  try{simulationResult=typeof window.simulateScheduledGame==="function"?window.simulateScheduledGame(game):false;}
+  finally{window.NBASimMyCareerSimulationInProgress=false;}
+  if(simulationResult===false||game.status!=="completed")break;
   const winnerCode=Number(game.homeScore)>Number(game.awayScore)?game.home.code:game.away.code;
   if(winnerCode===teamA.code)winsA++;else winsB++;
-  const p=playerForCareer();
-  if(p&&(game.home.code===career.teamCode||game.away.code===career.teamCode)){
-   const home=game.home.code===career.teamCode;
-   const side=home?game.playerBoxScores&&game.playerBoxScores.home:game.playerBoxScores&&game.playerBoxScores.away;
-   const line=side&&side[String(p.id)]||null;
+  const player=playerForCareer();
+  if(player&&(game.home.code===career.teamCode||game.away.code===career.teamCode)){
+   const home=game.home.code===career.teamCode,side=home?game.playerBoxScores&&game.playerBoxScores.home:game.playerBoxScores&&game.playerBoxScores.away;
+   const line=side&&side[String(player.id)]||null;
    if(line){
     career.postseasonStats=career.postseasonStats||{gp:0,pts:0,reb:0,ast:0,stl:0,blk:0,minutes:0};
-    ["pts","reb","ast","stl","blk","minutes"].forEach(k=>career.postseasonStats[k]=(Number(career.postseasonStats[k])||0)+(Number(line[k])||0));
+    ["pts","reb","ast","stl","blk","minutes"].forEach(key=>career.postseasonStats[key]=(Number(career.postseasonStats[key])||0)+(Number(line[key])||0));
     if(Number(line.gp)>0)career.postseasonStats.gp++;
+    const xpEarned=awardCareerXP(line,winnerCode===career.teamCode);
     career.postseasonGames=career.postseasonGames||[];
-    career.postseasonGames.push({id:game.id,round:roundLabel,teamScore:home?game.homeScore:game.awayScore,opponentScore:home?game.awayScore:game.homeScore,pts:line.pts,reb:line.reb,ast:line.ast,stl:line.stl,blk:line.blk,minutes:line.minutes});
+    career.postseasonGames.push({id:game.id,round:roundLabel,teamScore:home?game.homeScore:game.awayScore,opponentScore:home?game.awayScore:game.homeScore,pts:line.pts,reb:line.reb,ast:line.ast,stl:line.stl,blk:line.blk,minutes:line.minutes,xpEarned});
    }
-   if(!allPlayers().some(x=>String(x.id)===String(p.id))&&typeof retired!=="undefined"&&retired.some(x=>String(x.id)===String(p.id))){
+   if(!allPlayers().some(x=>String(x.id)===String(player.id))&&typeof retired!=="undefined"&&retired.some(x=>String(x.id)===String(player.id))){
     career.retired=true;career.retirementReason="Blessure très grave mettant fin à la carrière pendant les playoffs.";
     return {winner:null,loser:null,winsA,winsB,retired:true};
    }
@@ -342,10 +506,11 @@ function finishSeason(){
  const entry={season:label,team:career.teamCode,height:p.height,overall:careerOverall(p),gp:Number(s.gp)||0,pts:(Number(s.pts)||0)/gp,reb:(Number(s.reb)||0)/gp,ast:(Number(s.ast)||0)/gp,stl:(Number(s.stl)||0)/gp,blk:(Number(s.blk)||0)/gp,playoffs:career.postseason,postseasonStats:completedPostseasonStats};
  p.history=p.history||[];p.history.push(entry);career.seasonHistory.push(entry);p.age=Number(p.age||19)+1;
  if(typeof window.progress==="function"&&p.age<40)window.progress(p);
+ if(career.progression)career.progression.required=xpRequiredForNextPoint(careerOverall(p));
  p.rookie=false;p.season=seasonName(Number(seasonYear)+1);career.seasonCompleted=false;
  if(p.age>=40){career.retired=true;career.retirementReason="Retraite à 40 ans.";career.retiredAt=label;saveCareer();renderRetirement();return;}
  seasonYear=Number(seasonYear)+1;career.seasonNumber++;career.gamesPlayed=0;career.wins=0;career.losses=0;career.lossStreak=0;career.lastRoundPlayed=0;
- career.seasonStats={pts:0,reb:0,ast:0,stl:0,blk:0,tov:0,minutes:0,gp:0};career.postseasonStats={pts:0,reb:0,ast:0,stl:0,blk:0,minutes:0,gp:0};career.lastGame=null;career.pendingStory=true;
+ career.seasonStats={pts:0,reb:0,ast:0,stl:0,blk:0,tov:0,minutes:0,gp:0};career.postseasonStats={pts:0,reb:0,ast:0,stl:0,blk:0,minutes:0,gp:0};career.lastGame=null;career.storyInterval=5;career.pendingStory=false;
  if(typeof initializeSeasonCalendar==="function")initializeSeasonCalendar();
  if(typeof phase!=="undefined")phase="regular";
  saveCareer();
@@ -372,10 +537,28 @@ function installMenuReturn(){
  const button=document.createElement("button");button.type="button";button.id="mcMenuReturn";button.className="mc-btn secondary";button.textContent="↩ Retour à l’écran de départ";button.style.margin="12px 0";button.onclick=returnToStart;
  const footer=shell.querySelector(".mynba-menu-footer");if(footer)footer.appendChild(button);else shell.appendChild(button);
 }
+function installMyCareerIsolation(){
+ if(typeof window.simulateScheduledGame==="function"&&!window.simulateScheduledGame.__myCareerModeGuard){
+  const original=window.simulateScheduledGame;
+  const guarded=function(game){
+   if(activeMode!=="gm"&&window.NBASimMyCareerSimulationInProgress!==true)return false;
+   return original.apply(this,arguments);
+  };
+  guarded.__myCareerModeGuard=true;window.simulateScheduledGame=guarded;
+ }
+ if(!document.documentElement.dataset.myCareerClickGuard){
+  document.documentElement.dataset.myCareerClickGuard="1";
+  document.addEventListener("click",event=>{
+   if(activeMode!=="career"||root.contains(event.target))return;
+   event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+  },true);
+ }
+ window.NBASimIsMyCareerActive=()=>activeMode==="career";
+}
 function install(){
- installCareerOverall();mygmSnapshot=loadGMStored();if(typeof window.NBASimCaptureMyGMState==="function"){try{launcherSnapshot=window.NBASimCaptureMyGMState();}catch(_){launcherSnapshot=null;}}const gm=$("myGMStart");if(gm)gm.hidden=true;showPicker();installMenuReturn();
+ installMyCareerIsolation();installCareerOverall();mygmSnapshot=loadGMStored();if(typeof window.NBASimCaptureMyGMState==="function"){try{launcherSnapshot=window.NBASimCaptureMyGMState();}catch(_){launcherSnapshot=null;}}const gm=$("myGMStart");if(gm)gm.hidden=true;showPicker();installMenuReturn();
  const observer=new MutationObserver(()=>installMenuReturn());observer.observe(document.body,{childList:true,subtree:true});
- window.NBASimMyCareerSave=saveCareer;window.NBASimMyCareerState=()=>career;window.NBASimReturnToModePicker=function(){activeMode="launcher";root.hidden=true;showPicker();};
+ window.NBASimMyCareerSave=saveCareer;window.NBASimMyCareerState=()=>career;window.NBASimMyCareerXPRequired=xpRequiredForNextPoint;window.NBASimMyCareerXPFromStats=careerXPFromStats;window.NBASimReturnToModePicker=function(){activeMode="launcher";root.hidden=true;showPicker();};
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
 })();
