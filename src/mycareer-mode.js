@@ -42,7 +42,7 @@ function saveCareer(){
 }
 function restoreStored(data){
  if(!data||!data.career||!Array.isArray(data.players))return false;
- try{players=data.players;seasonYear=Number(data.seasonYear)||2025;phase=data.phase||"regular";seasonCalendar=data.seasonCalendar||null;seasonResults=data.seasonResults||[];if(typeof retired!=="undefined")retired=data.retired||[];customTeams=[];nextCustomTeamId=1;nextPlayerId=Math.max(1000,...players.map(p=>(Number(p.id)||0)+1));career=data.career;draftPlayer=data.draftPlayer||career.draftPlayer||null;career.player=findPlayer(career.playerId)||career.player||null;window.NBASimActualPlayerStats=data.actualPlayerStats||{};window.NBASimActualBoxScores=data.actualBoxScores||{};if(!findPlayer(career.playerId)&&career.player&&!career.retired)players.push(career.player);if(typeof window.NBASimPrepareMyCareerMode==="function")window.NBASimPrepareMyCareerMode();if(typeof window.NBAMyNBARosterChanged==="function")window.NBAMyNBARosterChanged();if(typeof renderAll==="function")renderAll();return true;}catch(error){saveError="Reprise impossible : "+error.message;return false;}
+ try{players=data.players;seasonYear=Number(data.seasonYear)||2025;phase=data.phase||"regular";seasonCalendar=data.seasonCalendar||null;seasonResults=data.seasonResults||[];if(typeof retired!=="undefined")retired=data.retired||[];customTeams=[];nextCustomTeamId=1;nextPlayerId=Math.max(1000,...players.map(p=>(Number(p.id)||0)+1));career=data.career;draftPlayer=data.draftPlayer||career.draftPlayer||null;career.player=findPlayer(career.playerId)||career.player||null;if(!career.progression)career.progression={xp:0,totalXp:0,points:0,required:xpRequiredForNextPoint(careerOverall(career.player||{})),levelsEarned:0,lastAward:0};if(!career.storyIndex)career.storyIndex=0;if(!career.storyInterval){career.storyInterval=5;career.pendingStory=Number(career.gamesPlayed||0)>0&&Number(career.gamesPlayed||0)%5===0;}window.NBASimActualPlayerStats=data.actualPlayerStats||{};window.NBASimActualBoxScores=data.actualBoxScores||{};if(!findPlayer(career.playerId)&&career.player&&!career.retired)players.push(career.player);if(typeof window.NBASimPrepareMyCareerMode==="function")window.NBASimPrepareMyCareerMode();if(typeof window.NBAMyNBARosterChanged==="function")window.NBAMyNBARosterChanged();if(typeof renderAll==="function")renderAll();return true;}catch(error){saveError="Reprise impossible : "+error.message;return false;}
 }
 function showPicker(){
  hideGM();render('<div style="padding-top:clamp(25px,8vh,90px)"><div class="mc-kicker">NBA SIM LAB · CHOISIS TON EXPÉRIENCE</div><h1 class="mc-title">Quelle carrière<br>vas-tu écrire ?</h1><p class="mc-muted">Choisis ton mode de jeu. MyGM conserve la gestion de franchise. MyCareer te place dans la peau d’un seul joueur NBA.</p><div class="mc-mode-grid"><button class="mc-mode" id="mcChooseCareer"><div class="mc-kicker">MODE JOUEUR</div><h2>MyCareer</h2><p>Crée ton joueur, passe par la Draft et construis ta légende jusqu’à la retraite.</p></button><button class="mc-mode" id="mcChooseGM"><div class="mc-kicker">MODE FRANCHISE</div><h2>MyGM</h2><p>Contrôle une franchise, gère ton effectif, les transferts, la saison et les playoffs.</p></button></div></div>');
@@ -269,7 +269,7 @@ function captureCareerBoxScore(game){
   const code=String(teamRef.code),raw=game.playerBoxScores&&game.playerBoxScores[sideKey]||{};
   const roster=allPlayers().filter(player=>String(player.team)===code&&!player.retired&&!player.isRetired);
   const ids=new Set(roster.map(player=>String(player.id)));
-  Object.keys(raw).forEach(id=>{if(!ids.has(String(id))){const player=findPlayer(id);if(player)roster.push(player);}});
+  Object.keys(raw).forEach(id=>{if(!ids.has(String(id))){const player=findPlayer(id)||(career.player&&String(career.player.id)===String(id)?career.player:null);if(player)roster.push(player);}});
   const rows=roster.map(player=>{
    const line=raw[String(player.id)]||{};
    return {id:player.id,name:String(player.name||"Joueur"),pos:String(player.pos||""),minutes:Number(line.minutes)||0,pts:Number(line.pts)||0,reb:Number(line.reb)||0,ast:Number(line.ast)||0,stl:Number(line.stl)||0,blk:Number(line.blk)||0,tov:Number(line.tov)||0,pf:Number(line.pf)||0,fgm:Number(line.fgm)||0,fga:Number(line.fga)||0,threeMade:Number(line.threeMade)||0,threeAttempts:Number(line.threeAttempts)||0,ftm:Number(line.ftm)||0,fta:Number(line.fta)||0};
@@ -421,27 +421,29 @@ function simulateCareerSeason(){
  else renderDashboard();
 }
 function simulateCareerSeries(teamA,teamB,roundLabel,seriesIndex){
- const homePattern=[0,0,1,1,0,1,0];
- let winsA=0,winsB=0;
+ const homePattern=[0,0,1,1,0,1,0];let winsA=0,winsB=0;
  for(let n=0;n<7&&winsA<4&&winsB<4;n++){
   const homeIsA=homePattern[n]===0,homeTeam=homeIsA?teamA:teamB,awayTeam=homeIsA?teamB:teamA;
   const game={id:"MC-PO-"+career.seasonNumber+"-"+roundLabel+"-"+seriesIndex+"-"+(n+1),round:n+1,home:{code:homeTeam.code,name:homeTeam.name},away:{code:awayTeam.code,name:awayTeam.name},status:"scheduled"};
-  if(typeof window.simulateScheduledGame!=="function"||window.simulateScheduledGame(game)===false)break;
+  let simulationResult=false;window.NBASimMyCareerSimulationInProgress=true;
+  try{simulationResult=typeof window.simulateScheduledGame==="function"?window.simulateScheduledGame(game):false;}
+  finally{window.NBASimMyCareerSimulationInProgress=false;}
+  if(simulationResult===false||game.status!=="completed")break;
   const winnerCode=Number(game.homeScore)>Number(game.awayScore)?game.home.code:game.away.code;
   if(winnerCode===teamA.code)winsA++;else winsB++;
-  const p=playerForCareer();
-  if(p&&(game.home.code===career.teamCode||game.away.code===career.teamCode)){
-   const home=game.home.code===career.teamCode;
-   const side=home?game.playerBoxScores&&game.playerBoxScores.home:game.playerBoxScores&&game.playerBoxScores.away;
-   const line=side&&side[String(p.id)]||null;
+  const player=playerForCareer();
+  if(player&&(game.home.code===career.teamCode||game.away.code===career.teamCode)){
+   const home=game.home.code===career.teamCode,side=home?game.playerBoxScores&&game.playerBoxScores.home:game.playerBoxScores&&game.playerBoxScores.away;
+   const line=side&&side[String(player.id)]||null;
    if(line){
     career.postseasonStats=career.postseasonStats||{gp:0,pts:0,reb:0,ast:0,stl:0,blk:0,minutes:0};
-    ["pts","reb","ast","stl","blk","minutes"].forEach(k=>career.postseasonStats[k]=(Number(career.postseasonStats[k])||0)+(Number(line[k])||0));
+    ["pts","reb","ast","stl","blk","minutes"].forEach(key=>career.postseasonStats[key]=(Number(career.postseasonStats[key])||0)+(Number(line[key])||0));
     if(Number(line.gp)>0)career.postseasonStats.gp++;
+    const xpEarned=awardCareerXP(line,winnerCode===career.teamCode);
     career.postseasonGames=career.postseasonGames||[];
-    career.postseasonGames.push({id:game.id,round:roundLabel,teamScore:home?game.homeScore:game.awayScore,opponentScore:home?game.awayScore:game.homeScore,pts:line.pts,reb:line.reb,ast:line.ast,stl:line.stl,blk:line.blk,minutes:line.minutes});
+    career.postseasonGames.push({id:game.id,round:roundLabel,teamScore:home?game.homeScore:game.awayScore,opponentScore:home?game.awayScore:game.homeScore,pts:line.pts,reb:line.reb,ast:line.ast,stl:line.stl,blk:line.blk,minutes:line.minutes,xpEarned});
    }
-   if(!allPlayers().some(x=>String(x.id)===String(p.id))&&typeof retired!=="undefined"&&retired.some(x=>String(x.id)===String(p.id))){
+   if(!allPlayers().some(x=>String(x.id)===String(player.id))&&typeof retired!=="undefined"&&retired.some(x=>String(x.id)===String(player.id))){
     career.retired=true;career.retirementReason="Blessure très grave mettant fin à la carrière pendant les playoffs.";
     return {winner:null,loser:null,winsA,winsB,retired:true};
    }
@@ -507,7 +509,7 @@ function finishSeason(){
  p.rookie=false;p.season=seasonName(Number(seasonYear)+1);career.seasonCompleted=false;
  if(p.age>=40){career.retired=true;career.retirementReason="Retraite à 40 ans.";career.retiredAt=label;saveCareer();renderRetirement();return;}
  seasonYear=Number(seasonYear)+1;career.seasonNumber++;career.gamesPlayed=0;career.wins=0;career.losses=0;career.lossStreak=0;career.lastRoundPlayed=0;
- career.seasonStats={pts:0,reb:0,ast:0,stl:0,blk:0,tov:0,minutes:0,gp:0};career.postseasonStats={pts:0,reb:0,ast:0,stl:0,blk:0,minutes:0,gp:0};career.lastGame=null;career.pendingStory=true;
+ career.seasonStats={pts:0,reb:0,ast:0,stl:0,blk:0,tov:0,minutes:0,gp:0};career.postseasonStats={pts:0,reb:0,ast:0,stl:0,blk:0,minutes:0,gp:0};career.lastGame=null;career.storyInterval=5;career.pendingStory=false;
  if(typeof initializeSeasonCalendar==="function")initializeSeasonCalendar();
  if(typeof phase!=="undefined")phase="regular";
  saveCareer();
@@ -534,8 +536,26 @@ function installMenuReturn(){
  const button=document.createElement("button");button.type="button";button.id="mcMenuReturn";button.className="mc-btn secondary";button.textContent="↩ Retour à l’écran de départ";button.style.margin="12px 0";button.onclick=returnToStart;
  const footer=shell.querySelector(".mynba-menu-footer");if(footer)footer.appendChild(button);else shell.appendChild(button);
 }
+function installMyCareerIsolation(){
+ if(typeof window.simulateScheduledGame==="function"&&!window.simulateScheduledGame.__myCareerModeGuard){
+  const original=window.simulateScheduledGame;
+  const guarded=function(game){
+   if(activeMode!=="gm"&&window.NBASimMyCareerSimulationInProgress!==true)return false;
+   return original.apply(this,arguments);
+  };
+  guarded.__myCareerModeGuard=true;window.simulateScheduledGame=guarded;
+ }
+ if(!document.documentElement.dataset.myCareerClickGuard){
+  document.documentElement.dataset.myCareerClickGuard="1";
+  document.addEventListener("click",event=>{
+   if(activeMode!=="career"||root.contains(event.target))return;
+   event.preventDefault();event.stopPropagation();event.stopImmediatePropagation();
+  },true);
+ }
+ window.NBASimIsMyCareerActive=()=>activeMode==="career";
+}
 function install(){
- installCareerOverall();mygmSnapshot=loadGMStored();if(typeof window.NBASimCaptureMyGMState==="function"){try{launcherSnapshot=window.NBASimCaptureMyGMState();}catch(_){launcherSnapshot=null;}}const gm=$("myGMStart");if(gm)gm.hidden=true;showPicker();installMenuReturn();
+ installMyCareerIsolation();installCareerOverall();mygmSnapshot=loadGMStored();if(typeof window.NBASimCaptureMyGMState==="function"){try{launcherSnapshot=window.NBASimCaptureMyGMState();}catch(_){launcherSnapshot=null;}}const gm=$("myGMStart");if(gm)gm.hidden=true;showPicker();installMenuReturn();
  const observer=new MutationObserver(()=>installMenuReturn());observer.observe(document.body,{childList:true,subtree:true});
  window.NBASimMyCareerSave=saveCareer;window.NBASimMyCareerState=()=>career;window.NBASimReturnToModePicker=function(){activeMode="launcher";root.hidden=true;showPicker();};
 }
