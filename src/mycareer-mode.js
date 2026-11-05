@@ -19,6 +19,30 @@ style.textContent += "\n.mc-panel-rebound{background:linear-gradient(145deg,#302
 document.head.appendChild(style);
 style.textContent += ".mc-attribute-arrow{touch-action:none;user-select:none;-webkit-user-select:none}";
 style.textContent += ".mc-fatigue-card{padding:12px 16px}.mc-fatigue-heading{display:flex;justify-content:space-between;align-items:center}.mc-fatigue-heading strong{color:#fb923c}.mc-fatigue-track{height:9px;background:#26364b;border-radius:20px;overflow:hidden;margin:8px 0}.mc-fatigue-track span{height:100%;display:block;background:linear-gradient(90deg,#36bd7c,#f59e0b,#ef4444);border-radius:20px}.mc-season-awards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.mc-season-award{display:flex;align-items:flex-start;gap:10px;padding:11px;border:1px solid #4b5b74;border-radius:10px;background:#101c2e}.mc-season-award>span{font-size:25px}.mc-season-award div{display:flex;flex-direction:column;gap:4px;min-width:0}.mc-season-award b{color:#f5d76b}.mc-season-award strong{font-size:14px}.mc-season-award small{color:#aebdd5;font-size:11px}@media(max-width:700px){.mc-season-awards{grid-template-columns:1fr}}";
+style.textContent += `
+.mc-story-overview{margin:20px 0 8px;padding:15px;border:1px solid #405777;border-radius:13px;background:#091626}
+.mc-story-overview-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.mc-story-overview-heading h3{margin:5px 0 0;font-size:19px}
+.mc-story-fatigue-label{color:#fb923c;font-size:11px;font-weight:900}
+.mc-story-social-grid{margin-bottom:13px}
+.mc-story-social-metric strong{font-size:23px}
+.mc-story-social-track{height:6px;border-radius:20px;background:#27364a;overflow:hidden;margin-top:8px}
+.mc-story-social-track i{display:block;height:100%;border-radius:20px;background:linear-gradient(90deg,#39c78b,#f2d76c)}
+.mc-story-attribute-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.mc-story-attribute-panel{min-width:0;padding:12px;border:1px solid #344b68;border-radius:10px;background:#101e30}
+.mc-story-attribute-panel h4{font-size:10px;letter-spacing:.13em;color:#f2d76c;margin:0 0 9px}
+.mc-story-attribute-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px}
+.mc-story-attribute-row{min-width:0}
+.mc-story-attribute-row>div:first-child{display:flex;align-items:baseline;justify-content:space-between;gap:5px}
+.mc-story-attribute-row span{font-size:10px;color:#c9d5e6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mc-story-attribute-row strong{font-size:11px;color:#f5d76b;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mc-story-attribute-row strong small{font-size:9px;color:#8d9bb0}
+.mc-story-attribute-track{position:relative;height:5px;margin-top:4px;background:#28384d;border-radius:20px;overflow:visible}
+.mc-story-attribute-track span{display:block;height:100%;background:#5dbb92;border-radius:20px}
+.mc-story-attribute-track i{position:absolute;top:-2px;height:9px;width:2px;background:#f5d76b;transform:translateX(-1px)}
+.mc-story-choices-heading{margin:20px 0 8px;color:#f2d76c;font-size:11px;letter-spacing:.15em}
+@media(max-width:760px){.mc-story-attribute-grid{grid-template-columns:1fr}.mc-story-attribute-list{grid-template-columns:repeat(2,minmax(0,1fr))}.mc-story-overview{padding:10px}}
+`;
 style.textContent += ".mc-story-outcome{display:flex;gap:6px 10px;flex-wrap:wrap;margin-top:10px;padding-top:9px;border-top:1px solid #ffffff1c;font-size:11px}.mc-story-gain{color:#86efac}.mc-story-loss{color:#fca5a5}.mc-story-cap{color:#fcd34d}.mc-story-fatigue{color:#fb923c}.mc-story-recovery{color:#67e8f9}.mc-story-outcome small{opacity:.78}";
 style.textContent += "\n.mc-sim-progress-card{max-width:760px;margin:clamp(28px,8vh,90px) auto;text-align:center}.mc-sim-progress-card h2{font-size:clamp(22px,4vw,34px);margin:14px 0}.mc-sim-progress-card .mc-meter{height:12px;margin:24px 0 10px}.mc-sim-progress-card .mc-meter span{transition:width .12s ease}\n";
 style.textContent += "\n.mc-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}.mc-calendar-month{margin:18px 0}.mc-calendar-month h3{color:#f5d76b}.mc-calendar-game{display:flex;flex-direction:column;gap:3px;padding:8px 5px;border-radius:7px;text-align:center;min-width:0;width:100%;min-height:82px;color:#f4f7ff;font:inherit;background:#1b293d;border:1px solid #43536b;cursor:pointer}.mc-calendar-game:hover,.mc-calendar-game:focus-visible{outline:2px solid #f5d76b;outline-offset:2px;filter:brightness(1.2)}.mc-calendar-game small{font-size:8px;color:#aab8ce}.mc-calendar-game b{font-size:13px}.mc-calendar-game span{font-size:11px}.mc-calendar-game em{font-size:9px;color:#bac6d8;font-style:normal;margin-top:auto}.mc-calendar-game.is-win{border-color:#258c56;background:#173425}.mc-calendar-game.is-loss{border-color:#b33942;background:#3a1e25}.mc-calendar-game.is-pending{opacity:.9}@media(max-width:700px){.mc-calendar-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}";
@@ -272,10 +296,35 @@ function storyOutcomeMarkup(outcome){
  const fatigue=outcome.fatigue>0?'<span class="mc-story-fatigue">Fatigue +'+outcome.fatigue+'</span>':outcome.fatigue<0?'<span class="mc-story-recovery">Récupération '+Math.abs(outcome.fatigue)+'</span>':"";
  return '<div class="mc-story-outcome">'+(gains.join("")||'<span class="mc-muted">Aucun gain d’attribut direct</span>')+losses.join("")+caps.join("")+fatigue+'</div>';
 }
+function renderCareerStoryOverview(player){
+ if(!player)return "";
+ const usedKeys=new Set(),sections=CAREER_ATTRIBUTE_SECTIONS.map(section=>{
+  const rows=section.keys.map(key=>{
+   const meta=attrs.find(pair=>pair[0]===key);if(!meta)return "";
+   usedKeys.add(key);
+   const value=clamp(Number(player.attributes&&player.attributes[key])||0,0,99),cap=attributeUpgradeCap(player,key);
+   return '<div class="mc-story-attribute-row"><div><span>'+escHtml(meta[1])+'</span><strong>'+value+' <small>/ '+cap+'</small></strong></div><div class="mc-story-attribute-track"><span style="width:'+value+'%"></span><i style="left:'+cap+'%"></i></div></div>';
+  }).filter(Boolean).join("");
+  return rows?'<section class="mc-story-attribute-panel mc-panel-'+escHtml(section.tone)+'"><h4>'+escHtml(section.title)+'</h4><div class="mc-story-attribute-list">'+rows+'</div></section>':"";
+ }).join("");
+ const extras=attrs.filter(pair=>!usedKeys.has(pair[0]));
+ const extraMarkup=extras.length?'<section class="mc-story-attribute-panel"><h4>AUTRES ATTRIBUTS</h4><div class="mc-story-attribute-list">'+extras.map(([key,label])=>{
+  const value=clamp(Number(player.attributes&&player.attributes[key])||0,0,99),cap=attributeUpgradeCap(player,key);
+  return '<div class="mc-story-attribute-row"><div><span>'+escHtml(label)+'</span><strong>'+value+' <small>/ '+cap+'</small></strong></div><div class="mc-story-attribute-track"><span style="width:'+value+'%"></span><i style="left:'+cap+'%"></i></div></div>';
+ }).join("")+'</div></section>':"";
+ const social=[
+  ["emotions","ÉMOTIONS"],["chemistry","ENTENTE D’ÉQUIPE"],["popularity","POPULARITÉ"]
+ ].map(([key,label])=>{
+  const value=clamp(Number(career[key])||0,0,100);
+  return '<div class="mc-metric mc-story-social-metric"><strong>'+value+'/100</strong><span>'+label+'</span><div class="mc-story-social-track"><i style="width:'+value+'%"></i></div></div>';
+ }).join("");
+ return '<section class="mc-story-overview"><div class="mc-story-overview-heading"><div><div class="mc-kicker">ÉTAT ACTUEL DE TON JOUEUR</div><h3>'+escHtml(player.name||"Mon joueur")+' · GÉN '+careerOverall(player)+'</h3></div><span class="mc-story-fatigue-label">Fatigue '+Math.round(Number(career.fatigue)||0)+'/100</span></div><div class="mc-grid three mc-story-social-grid">'+social+'</div><div class="mc-story-attribute-grid">'+sections+extraMarkup+'</div></section>';
+}
 function renderStory(){
  const index=Math.max(0,Number(career.storyIndex)||0)%stories.length,scene=stories[index],month=career.pendingStoryMonth||career.lastPlayedMonth||"Fin de mois";activeStory=scene;
+ const player=playerForCareer();
  const options=scene.choices.map((choice,i)=>{const outcome=storyChoiceOutcome(index,i,choice);return '<button class="mc-choice" data-story-choice="'+i+'"><b>'+escHtml(choice.label)+'</b><span class="mc-muted">'+escHtml(choice.detail)+'</span>'+storyOutcomeMarkup(outcome)+'</button>';}).join("");
- render(header("UNE DÉCISION À PRENDRE",escHtml(month)+" · Saison "+career.seasonNumber)+'<div class="mc-card"><div class="mc-kicker">MYCAREER STORYLINE · '+(index+1)+' / '+stories.length+'</div><h2>'+escHtml(scene.title)+'</h2><p class="mc-muted">'+escHtml(scene.body)+'</p><p class="mc-muted">Certains entraînements offrent de gros gains, mais peuvent faire baisser d’autres attributs, augmenter ta fatigue ou relever le plafond d’un attribut.</p>'+options+'<p class="mc-status">Fatigue actuelle : '+Math.round(Number(career.fatigue)||0)+' / 100</p></div>');
+ render(header("UNE DÉCISION À PRENDRE",escHtml(month)+" · Saison "+career.seasonNumber)+'<div class="mc-card"><div class="mc-kicker">MYCAREER STORYLINE · '+(index+1)+' / '+stories.length+'</div><h2>'+escHtml(scene.title)+'</h2><p class="mc-muted">'+escHtml(scene.body)+'</p><p class="mc-muted">Certains entraînements offrent de gros gains, mais peuvent faire baisser d’autres attributs, augmenter ta fatigue ou relever le plafond d’un attribut.</p>'+renderCareerStoryOverview(player)+'<h3 class="mc-story-choices-heading">CHOISIS TON ACTION</h3>'+options+'</div>');
  attachReturn();root.querySelectorAll("[data-story-choice]").forEach(button=>button.onclick=()=>{
   const choiceIndex=Number(button.dataset.storyChoice),choice=scene.choices[choiceIndex],outcome=storyChoiceOutcome(index,choiceIndex,choice),player=playerForCareer();
   Object.entries(outcome.social).forEach(([key,value])=>career[key]=clamp((Number(career[key])||0)+value,0,100));
@@ -692,14 +741,14 @@ function simulateCareerSeason(options){
   career.autoSeasonSimulation=true;career.autoBatchBoxScores=[];career.autoBatchBoxIndex=0;
   career.autoSimulationTargetGameId=requestedId||null;
  }else career.autoSeasonSimulation=true;
- if(career.pendingStory){saveCareer();renderLastBoxScore();return;}
+ if(career.pendingStory){saveCareer();renderStory();return;}
  const targetId=career.autoSimulationTargetGameId==null?"":String(career.autoSimulationTargetGameId);
  const targetGame=targetId&&seasonCalendar&&seasonCalendar.games.find(game=>String(game.id)===targetId);
  if(targetId&&!targetGame){career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();renderDashboard();return;}
  renderCareerSimulationProgress(targetId);
  const step=()=>{
   if(!career||career.retired){career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;return;}
-  if(career.pendingStory){saveCareer();renderLastBoxScore();return;}
+  if(career.pendingStory){saveCareer();renderStory();return;}
   const requestedGame=targetId&&seasonCalendar&&seasonCalendar.games.find(game=>String(game.id)===targetId);
   if(requestedGame&&requestedGame.status==="completed"){
    career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();renderLastBoxScore();return;
@@ -718,7 +767,7 @@ function simulateCareerSeason(options){
    return;
   }
   updateCareerSimulationProgress(nextGame,targetId);
-  if(career.pendingStory){saveCareer();renderLastBoxScore();return;}
+  if(career.pendingStory){saveCareer();renderStory();return;}
   if(targetId&&String(nextGame.id)===targetId||!targetId&&seasonCalendar.games.every(game=>game.status==="completed")){
    career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();renderLastBoxScore();return;
   }

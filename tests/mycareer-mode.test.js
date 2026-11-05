@@ -170,6 +170,17 @@ assert.match(career, /function careerBiggestTradesForSeason\(/, "Season recap sh
 assert.match(career, /function buildCareerSeasonAwards\(/, "Season recap should display award winners.");
 assert.match(career, /function recordCareerPlayoffLeagueStats\(/, "Playoff games should record league-wide player stats.");
 assert.match(career, /function buildCareerFinalsMvp\(/, "The recap should include Finals MVP.");
+
+assert.match(career, /function renderCareerStoryOverview\(player\)/, "The story menu should show the player's current profile.");
+assert.match(career, /ENTENTE D’ÉQUIPE/, "The story overview should show team chemistry.");
+assert.match(career, /POPULARITÉ/, "The story overview should show popularity.");
+assert.match(career, /ÉMOTIONS/, "The story overview should show emotions.");
+assert.match(career, /CAREER_ATTRIBUTE_SECTIONS\.map/, "The story overview should render grouped attributes.");
+assert.match(career, /mc-story-attribute-row/, "Every story attribute should display its current level and ceiling.");
+const careerSimulationBlock = career.slice(career.indexOf("function simulateCareerSeason(options)"), career.indexOf("function simulateCareerSeries(", career.indexOf("function simulateCareerSeason(options)")));
+assert.equal((careerSimulationBlock.match(/if\(career\.pendingStory\)\{saveCareer\(\);renderStory\(\);return;\}/g)||[]).length, 3, "Every monthly-story pause should show the story menu directly.");
+assert.doesNotMatch(careerSimulationBlock, /if\(career\.pendingStory\)\{saveCareer\(\);renderLastBoxScore\(\);return;\}/, "A monthly-story pause must not show a box score.");
+
 assert.match(career, /window\.NBASimActualPlayerStats/, "League Leaders should use raw season box-score totals.");
 assert.match(career, /threeAttempts\?x\.threeMade\/x\.threeAttempts\*100/, "League Leaders should calculate current-season 3P percentage.");
 assert.match(career, /Statistiques réelles · Saison/, "League Leaders should identify the active season.");
