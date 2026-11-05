@@ -763,7 +763,8 @@
             ['Marshall', 'SAS', 'PG', 14.2, 0.8, 14.5, .180, .220, 14.0],
             ['Yrone Détré', 'GSW', 'PG', 31.3, 6.7, 11.9, .500, .500, 36.0],
             ['Prime lebron', 'CLE', 'SF', 30.0, 8.0, 8.0, .680, .400, 36.0],
-        ].map((x, i) => ({ id: i + 1, name: x[0], team: x[1], pos: x[2], pts: x[3], reb: x[4], ast: x[5], ts: x[6], three: x[7], mpg: x[8], season: '2025-26', source: 'DEMO — valeurs illustratives, non vérifiées' }));\n        window.NBASimGetDemoPlayers = () => JSON.parse(JSON.stringify(demoPlayers));
+        ].map((x, i) => ({ id: i + 1, name: x[0], team: x[1], pos: x[2], pts: x[3], reb: x[4], ast: x[5], ts: x[6], three: x[7], mpg: x[8], season: '2025-26', source: 'DEMO — valeurs illustratives, non vérifiées' }));
+        window.NBASimGetDemoPlayers = () => JSON.parse(JSON.stringify(demoPlayers));
 
         function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])) }
         function parseRate(v) { let n = Number(v) || 0; return n > 1 ? n / 100 : n }
@@ -2557,7 +2558,8 @@
     <script src="src/mynba-ai-trades.js"></script>
     <script src="src/mynba-injuries-media.js"></script>
     <script src="src/ratings-sync.js"></script>
-    <script src="src/real-game-mode.js"></script>\n    <script src="src/mycareer-mode.js"></script>
+    <script src="src/real-game-mode.js"></script>
+    <script src="src/mycareer-mode.js"></script>
 </body>
 
 </html>
