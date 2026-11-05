@@ -549,22 +549,25 @@ function simulateNextMatch(options){
 function simulateCareerSeason(options){
  if(!career||career.retired)return;
  const isResume=!!(options&&options.resume);
- if(!isResume)career.autoSeasonSimulation=true;
+ if(!isResume){career.autoSeasonSimulation=true;career.autoBatchBoxScores=[];career.autoBatchBoxIndex=0;}
  if(career.pendingStory){renderStory();return;}
- career.autoBatchBoxScores=[];career.autoBatchBoxIndex=0;
- let guard=0,lastResult=null;
- while(career.gamesPlayed<82&&!career.pendingStory&&guard++<82){
+ let lastResult=null;
+ const step=()=>{
+  if(!career||career.retired){career.autoSeasonSimulation=false;return;}
+  if(career.pendingStory){career.autoSeasonSimulation=false;saveCareer();renderLastBoxScore();return;}
+  if(career.gamesPlayed>=82){career.autoSeasonSimulation=false;saveCareer();renderLastBoxScore();return;}
   const before=career.gamesPlayed;
   lastResult=simulateNextMatch({silent:true});
-  if(!lastResult||!lastResult.ok||career.gamesPlayed===before)break;
- }
- if(!lastResult||!lastResult.ok){
-  career.autoSeasonSimulation=false;saveCareer();
-  if(lastResult&&lastResult.retired)renderRetirement();else renderDashboard();
-  return;
- }
- if(career.gamesPlayed>=82||career.pendingStory){renderLastBoxScore();return;}
- if(career.lastGame)renderLastBoxScore();else renderDashboard();
+  if(!lastResult||!lastResult.ok||career.gamesPlayed===before){
+   career.autoSeasonSimulation=false;saveCareer();
+   if(lastResult&&lastResult.retired)renderRetirement();else if(career.lastGame)renderLastBoxScore();else renderDashboard();
+   return;
+  }
+  if(career.gamesPlayed>=82||career.pendingStory){career.autoSeasonSimulation=false;saveCareer();renderLastBoxScore();return;}
+  saveCareer();
+  setTimeout(step,20);
+ };
+ step();
 }
 function simulateCareerSeries(teamA,teamB,roundLabel,seriesIndex){
  const homePattern=[0,0,1,1,0,1,0];let winsA=0,winsB=0;
