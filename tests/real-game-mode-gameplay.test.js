@@ -23,7 +23,7 @@ assert.ok(source.includes("<th>PTS</th><th>REB</th><th>AST</th><th>STL</th><th>B
 assert.ok(source.includes("shotClock=24"), "Each new possession must reset the shot clock.");
 assert.ok(source.includes("clock=720"), "Each quarter must start at twelve minutes.");
 assert.ok(source.includes("clock=300"), "Tied games must enter a five-minute overtime.");
-assert.ok(source.includes("rgmMeter.onclick=takeShot"), "The user can click the timing bar directly.");
+assert.ok(source.includes("meter.onclick=takeShot"), "The user can click the timing bar directly.");
 assert.ok(source.includes('data-side="'+side+'"'), "Blue players must be selectable as ball handlers.");
 assert.ok(source.includes("gameSprite.shoot"), "Custom shooting sprites must be displayed during a shot.");
 assert.ok(source.includes("nba-sim-lab-real-game-sprites"), "Custom sprites must persist between sessions.");
