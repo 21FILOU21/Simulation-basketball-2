@@ -35,7 +35,8 @@ for (const key of new Set(profileKeys)) {
 const vm = require("node:vm");
 
 assert.match(career, /function simulateCareerSeason\(/, "MyCareer should offer a full-season simulation.");
-assert.match(career, /career\.gamesPlayed%storyInterval===0/, "Narrative choices should occur on the five-game cadence.");
+assert.match(career, /function careerMonthForScheduledGame\(/, "Monthly events should follow the player's own schedule month.");
+assert.match(career, /upcomingPlayerGame=nextPlayerGame\(\),monthEnded/, "Monthly events should trigger when the player's schedule changes stage.");
 assert.match(career, /function awardCareerXP\(/, "Every played game should award XP.");
 assert.match(career, /function careerXPFromStats\(/, "XP should be based on the player's box-score production.");
 assert.match(career, /function xpRequiredForNextPoint\(/, "XP requirements should grow with overall rating.");
@@ -48,7 +49,7 @@ assert.match(career, /mc-attribute-locked/, "Unreachable attribute levels should
 assert.match(career, /Acheter les améliorations/, "Attribute points should be purchased explicitly.");
 assert.match(career, /mc-xp-track/, "The attribute screen should contain the XP progress bar.");
 
-const storyMatch = career.match(/const stories=(\[[\s\S]*?\]);\s*function renderStory/);
+const storyMatch = career.match(/const stories=(\[[\s\S]*?\]);\s*const STORY_RISK_REWARD/);
 assert.ok(storyMatch, "The MyCareer story library should be a JSON-compatible array.");
 const storyLibrary = JSON.parse(storyMatch[1]);
 assert.ok(storyLibrary.length >= 25, "There should be at least 25 different story events.");
@@ -133,3 +134,19 @@ assert.match(career, /rounds\.filter\(x=>x\.round===name\)/, "The postseason rec
 assert.match(career, /setTimeout\(step,20\)/, "Full-season simulation should yield between games to avoid blocking the UI.");
 assert.match(career, /GÉN après améliorations/, "Attribute allocation should show the preview overall.");
 assert.match(career, /"SHOOTING".*"DEFENSE".*"REBOND".*"FINITION".*"ORGANISATION".*"QUALITÉ ATHLÉTIQUE"/, "Attribute categories should follow the requested NBA 2K organization.");
+
+assert.match(career, /function physiqueAttributeCap\(/, "Physical measurements should change each player's attribute ceilings.");
+assert.match(career, /const STORY_RISK_REWARD=/, "Story choices should include risk/reward variants.");
+assert.match(career, /capIncrease/, "Story choices should be able to increase an attribute ceiling.");
+assert.match(career, /career\.fatigue=clamp/, "Story choices and matches should update player fatigue.");
+assert.match(career, /myCareerMoodModifiers=.*fatiguePenalty/, "Fatigue should impact in-game attributes.");
+assert.match(career, /function simulateCareerCalendarTarget\(/, "Calendar tiles should simulate through the selected game.");
+assert.match(career, /data-mc-calendar-game/, "Calendar games should be clickable controls.");
+assert.match(career, /function renderCareerCalendarGameBoxScore\(/, "Previously played calendar games should open their box score.");
+assert.match(career, /function careerBiggestTradesForSeason\(/, "Season recap should collect the league's biggest trades.");
+assert.match(career, /function buildCareerSeasonAwards\(/, "Season recap should display award winners.");
+assert.match(career, /function recordCareerPlayoffLeagueStats\(/, "Playoff games should record league-wide player stats.");
+assert.match(career, /function buildCareerFinalsMvp\(/, "The recap should include Finals MVP.");
+assert.match(career, /window\.NBASimActualPlayerStats/, "League Leaders should use raw season box-score totals.");
+assert.match(career, /threeAttempts\?x\.threeMade\/x\.threeAttempts\*100/, "League Leaders should calculate current-season 3P percentage.");
+assert.match(career, /Statistiques réelles · Saison/, "League Leaders should identify the active season.");
