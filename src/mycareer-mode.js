@@ -16,16 +16,20 @@ const style=document.createElement("style");
 style.textContent="#nbaMyCareerRoot{position:fixed;inset:0;z-index:300000;overflow:auto;background:radial-gradient(ellipse at top,#1b3457 0,#070c16 72%);color:#f4f7ff;font-family:inherit;padding:clamp(14px,3vw,36px);box-sizing:border-box}"+
 "#nbaMyCareerRoot[hidden]{display:none!important}#nbaMyCareerRoot *{box-sizing:border-box}.mc-shell{width:min(1250px,100%);margin:0 auto}.mc-top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:20px}.mc-kicker{font-size:11px;font-weight:900;letter-spacing:.2em;color:#f2d76c;text-transform:uppercase}.mc-title{font-size:clamp(32px,5vw,62px);line-height:1.03;margin:8px 0 12px;font-weight:1000}.mc-muted{color:#aebdd5;line-height:1.55}.mc-card{padding:clamp(16px,2.5vw,28px);border:1px solid #334c70;border-radius:16px;background:linear-gradient(145deg,#14243b,#0c1525);box-shadow:0 14px 40px #0005;margin:12px 0}.mc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.mc-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.mc-field{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:800;color:#cbd8eb}.mc-field input,.mc-field select{width:100%;padding:11px;border:1px solid #405879;border-radius:8px;background:#081426;color:#fff;font:inherit;font-size:14px}.mc-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.mc-btn{border:1px solid #587399;border-radius:9px;padding:12px 17px;background:#1b3454;color:#fff;font:inherit;font-weight:900;cursor:pointer}.mc-btn.primary{background:#dfbf45;color:#171b24;border-color:#f4d86b}.mc-btn.secondary{background:#111f33}.mc-btn:disabled{opacity:.45;cursor:not-allowed}.mc-mode-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:24px}.mc-mode{min-height:220px;padding:clamp(18px,3vw,30px);display:flex;flex-direction:column;justify-content:flex-end;text-align:left;background:linear-gradient(155deg,#203c61,#0e192b);border:1px solid #49658d;border-radius:16px;color:#fff;cursor:pointer}.mc-mode h2{font-size:clamp(24px,3vw,36px);margin:0 0 8px}.mc-mode p{color:#c4d2e8;margin:0}.mc-metric{padding:14px;border:1px solid #354c6b;border-radius:10px;background:#0b1729}.mc-metric strong{display:block;font-size:26px;color:#f5d76b}.mc-metric span{font-size:10px;letter-spacing:.1em;color:#aebdd5;text-transform:uppercase}.mc-bars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.mc-attribute{display:grid;grid-template-columns:minmax(95px,1fr) 45px;gap:6px 10px;align-items:center;padding:9px 10px;border:1px solid #293e5b;border-radius:8px;background:#0b1627}.mc-attribute label{font-size:12px;font-weight:800}.mc-attribute b{text-align:right;color:#f2d76c}.mc-attribute input{grid-column:1/-1;width:100%;accent-color:#e0c24d}.mc-meter{height:9px;border-radius:30px;background:#243b5b;overflow:hidden;margin-top:8px}.mc-meter>span{display:block;height:100%;background:linear-gradient(90deg,#40c98c,#f2d76c);width:0}.mc-choice{display:block;width:100%;text-align:left;padding:15px;margin:9px 0;border:1px solid #405b7f;border-radius:10px;background:#10213a;color:#f4f7ff;cursor:pointer}.mc-choice:hover{border-color:#f2d76c;background:#1a304d}.mc-choice b{display:block;margin-bottom:4px}.mc-result{padding:18px;border:1px solid #b89935;border-radius:12px;background:#292713}.mc-game-result{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;text-align:center}.mc-game-result strong{font-size:clamp(24px,4vw,42px)}.mc-status{min-height:22px;color:#f3d879;font-size:12px}.mc-divider{height:1px;background:#314866;margin:18px 0}.mc-retirement{border:1px solid #d2a64d;background:linear-gradient(135deg,#332719,#111a29);padding:25px;border-radius:15px;text-align:center}.mc-scroll{max-height:65vh;overflow:auto;padding-right:3px}@media(max-width:720px){.mc-mode-grid,.mc-grid,.mc-grid.three,.mc-bars{grid-template-columns:1fr}.mc-mode{min-height:160px}.mc-actions .mc-btn{flex:1 1 100%}.mc-top .mc-btn{width:100%}}";
 document.head.appendChild(style);
+style.textContent += ".mc-attribute-arrow{touch-action:none;user-select:none;-webkit-user-select:none}";
+style.textContent += "\n.mc-my-team-player{background:#253344}.mc-my-team-player td:first-child{color:#f5d45d}.mc-my-team-player small{display:block;color:#f5d45d;font-size:9px;letter-spacing:.1em}\n.mc-team-injury{color:#f28c8c;font-weight:800}.mc-team-healthy{color:#7be0ad;font-weight:800}\n.mc-box-nav{display:flex;align-items:center;justify-content:center;gap:12px;margin:14px 0;color:#aebbd0;font-size:12px}.mc-box-nav button:disabled{opacity:.3}\n";
 style.textContent += "\n.mc-xp-card{border-color:#8f7936;background:linear-gradient(145deg,#292719,#111b2b)}\n.mc-xp-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.mc-xp-heading h2{margin:5px 0;font-size:clamp(19px,2.5vw,27px)}\n.mc-xp-points{text-align:right}.mc-xp-points strong{display:block;color:#f4d257;font-size:30px}.mc-xp-points span{font-size:10px;color:#b8c1d2;letter-spacing:.08em}\n.mc-xp-track{height:14px;margin:13px 0 8px;border-radius:20px;background:#202632;overflow:hidden;border:1px solid #4c5159}.mc-xp-track span{display:block;height:100%;background:repeating-linear-gradient(135deg,#f1d04f 0,#f1d04f 7px,#d8b33a 7px,#d8b33a 11px);border-radius:20px;transition:width .2s}\n.mc-attribute-panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;padding-bottom:105px}\n.mc-attribute-panel{padding:16px;border:1px solid #334154;border-radius:14px;min-width:0;background:#142033}\n.mc-attribute-panel header{display:flex;align-items:center;gap:9px;margin-bottom:14px}.mc-attribute-panel header h3{font-size:14px;letter-spacing:.09em;margin:0}\n.mc-attribute-panel-dot{height:9px;width:9px;border-radius:50%;background:#e6c54e}\n.mc-panel-finish{background:linear-gradient(145deg,#192538,#111a28);border-color:#354e71}.mc-panel-shoot{background:linear-gradient(145deg,#142b25,#0e1e1b);border-color:#2f6550}.mc-panel-shoot .mc-attribute-panel-dot{background:#43d28d}\n.mc-panel-play{background:linear-gradient(145deg,#30291a,#211d16);border-color:#6b5934}.mc-panel-play .mc-attribute-panel-dot{background:#e3b84a}\n.mc-panel-defense{background:linear-gradient(145deg,#301e24,#20151a);border-color:#6b3844}.mc-panel-defense .mc-attribute-panel-dot{background:#e56a77}\n.mc-panel-physical{background:linear-gradient(145deg,#242338,#171625);border-color:#4f486d}.mc-panel-physical .mc-attribute-panel-dot{background:#a99be8}\n.mc-panel-mental{background:linear-gradient(145deg,#192b35,#101d25);border-color:#355b68}.mc-panel-mental .mc-attribute-panel-dot{background:#6bc4d8}\n.mc-attribute-list{display:flex;flex-direction:column;gap:15px}.mc-attribute-row{padding:7px 0 9px;border-bottom:1px solid #ffffff12;min-width:0}.mc-attribute-row:last-child{border-bottom:0}\n.mc-attribute-heading{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;align-items:baseline;gap:9px;margin-bottom:7px}\n.mc-attribute-name{font-size:12px;color:#d2d9e4;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mc-attribute-current{color:#f5d04f;font-weight:900;font-size:15px;font-variant-numeric:tabular-nums}.mc-attribute-preview-level{color:#aeb5c0;font-size:11px;font-weight:800}.mc-attribute-max{font-size:10px;color:#9299a4;font-weight:800;white-space:nowrap}\n.mc-attribute-track{height:17px;background:#333a43;border:1px solid #4a515b;border-radius:4px;overflow:hidden;position:relative}\n.mc-attribute-fill{position:absolute;inset:0 auto 0 0;background:repeating-linear-gradient(135deg,#f2d04d 0,#f2d04d 6px,#d9b63d 6px,#d9b63d 10px);z-index:1}\n.mc-attribute-preview{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg,#b8bdc7 0,#b8bdc7 5px,#858d99 5px,#858d99 9px);z-index:2;opacity:.95}\n.mc-attribute-locked{position:absolute;top:0;bottom:0;right:0;background:#171b22;z-index:3}.mc-attribute-cap-marker{position:absolute;top:-2px;bottom:-2px;width:2px;background:#8d929c;z-index:4;transform:translateX(-1px)}\n.mc-attribute-controls{display:flex;justify-content:space-between;align-items:center;margin-top:5px;color:#929baa;font-size:10px}.mc-attribute-controls>div{display:flex;gap:5px}\n.mc-attribute-arrow{min-width:27px;height:24px;border:1px solid #5f6570;border-radius:5px;background:#333943;color:#f3d25a;font-weight:900;cursor:pointer}.mc-attribute-arrow:disabled{opacity:.22;cursor:not-allowed}\n.mc-attribute-purchase{position:sticky;bottom:8px;z-index:5;display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px 14px;margin-top:-88px;background:#0b1424ed;border:1px solid #52617a;border-radius:12px;box-shadow:0 12px 32px #0008;backdrop-filter:blur(10px)}\n.mc-attribute-purchase>div{margin-right:auto}.mc-attribute-purchase strong{display:block;color:#f4d257;font-size:20px}.mc-attribute-purchase span{font-size:10px;color:#aebbd0}\n.mc-story-prompt{margin:15px 0 0;color:#f3d45c;font-weight:800}\n.mc-box-summary{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;text-align:center}.mc-box-summary>div{display:flex;flex-direction:column;gap:5px}.mc-box-summary span{font-size:12px;color:#b4c4dd;letter-spacing:.12em}.mc-box-summary strong{font-size:clamp(32px,6vw,58px);color:#f5d45d}.mc-box-summary>b{font-size:12px;color:#a8b5c9}\n.mc-box-team{margin:15px 0;padding:16px;border:1px solid #344c6c;border-radius:13px;background:#0e1a2b}.mc-box-team-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.mc-box-team-head h2{margin:4px 0 0}.mc-box-team-head>strong{font-size:32px;color:#f3d45c}\n.mc-table-wrap{width:100%;overflow-x:auto}.mc-box-table{width:100%;border-collapse:collapse;font-size:11px;white-space:nowrap;font-variant-numeric:tabular-nums}\n.mc-box-table th,.mc-box-table td{padding:8px 9px;text-align:right;border-bottom:1px solid #ffffff14}.mc-box-table th:first-child,.mc-box-table td:first-child{text-align:left;min-width:145px}\n.mc-box-table th{font-size:10px;color:#aebbd0;letter-spacing:.07em}.mc-box-table td:first-child small{display:block;color:#8696ae;font-size:9px}.mc-box-total{font-weight:900;color:#f5d45d;background:#202c3b}\n@media(max-width:820px){.mc-attribute-panels{grid-template-columns:1fr}.mc-attribute-purchase{flex-wrap:wrap}.mc-attribute-purchase .mc-btn{flex:1}.mc-box-table{font-size:10px}.mc-box-table th,.mc-box-table td{padding:7px 6px}}\n@media(max-width:480px){.mc-attribute-heading{gap:6px}.mc-attribute-name{font-size:11px}.mc-xp-heading{align-items:flex-start}.mc-box-team{padding:9px}.mc-attribute-purchase{bottom:4px;padding:8px}.mc-attribute-purchase .mc-btn{font-size:12px;padding:10px}}\n";
 const root=document.createElement("div");root.id="nbaMyCareerRoot";root.hidden=true;document.body.appendChild(root);
 let career=null,draftPlayer=null,activeStory=null,buildBudget=760,saveError="";
-let activeMode="launcher",mygmSnapshot=null,launcherSnapshot=null;
+let activeMode="launcher",mygmSnapshot=null,launcherSnapshot=null,careerBaseSource="";
+const ATTRIBUTE_HOLD_INTERVAL_MS=50;
+let attributeHoldSession=null;
 const labelFor=key=>{for(const list of Object.values(groups))for(const pair of list)if(pair[0]===key)return pair[1];return key;};
 function allPlayers(){return typeof players!=="undefined"&&Array.isArray(players)?players:[];}
 function findPlayer(id){return allPlayers().find(p=>String(p.id)===String(id))||null;}
 function playerForCareer(){return career&&findPlayer(career.playerId);}
 function seasonName(year){return typeof seasonLabel==="function"?seasonLabel(year):String(year)+"-"+String((year+1)%100).padStart(2,"0");}
-function render(html){root.innerHTML='<div class="mc-shell">'+html+'</div>';root.hidden=false;}
+function render(html){stopAttributeHold(false);root.innerHTML='<div class="mc-shell">'+html+'</div>';root.hidden=false;}
 function header(title,subtitle){return '<div class="mc-top"><div><div class="mc-kicker">NBA SIM LAB · MYCAREER</div><div style="font-weight:900;font-size:13px;color:#aebdd5">'+escHtml(subtitle||"Une carrière. Une légende.")+'</div></div><button class="mc-btn secondary" id="mcReturn">↩ Écran de départ</button></div><h1 class="mc-title">'+escHtml(title)+'</h1>';}
 function attachReturn(){const b=$("mcReturn");if(b)b.onclick=returnToStart;}
 function hideGM(){const gm=$("myGMStart");if(gm)gm.hidden=true;document.body.classList.remove("gm-startup");document.body.style.overflow="";}
@@ -42,7 +46,7 @@ function saveCareer(){
 }
 function restoreStored(data){
  if(!data||!data.career||!Array.isArray(data.players))return false;
- try{players=data.players;seasonYear=Number(data.seasonYear)||2025;phase=data.phase||"regular";seasonCalendar=data.seasonCalendar||null;seasonResults=data.seasonResults||[];if(typeof retired!=="undefined")retired=data.retired||[];customTeams=[];nextCustomTeamId=1;nextPlayerId=Math.max(1000,...players.map(p=>(Number(p.id)||0)+1));career=data.career;draftPlayer=data.draftPlayer||career.draftPlayer||null;career.player=findPlayer(career.playerId)||career.player||null;if(!career.progression)career.progression={xp:0,totalXp:0,points:0,required:xpRequiredForNextPoint(careerOverall(career.player||{})),levelsEarned:0,lastAward:0};if(career.storyIndex==null)career.storyIndex=0;if(!career.storyInterval){career.storyInterval=5;career.pendingStory=Number(career.gamesPlayed||0)>0&&Number(career.gamesPlayed||0)%5===0;}window.NBASimActualPlayerStats=data.actualPlayerStats||{};window.NBASimActualBoxScores=data.actualBoxScores||{};if(!findPlayer(career.playerId)&&career.player&&!career.retired)players.push(career.player);if(typeof window.NBASimPrepareMyCareerMode==="function")window.NBASimPrepareMyCareerMode();if(typeof window.NBAMyNBARosterChanged==="function")window.NBAMyNBARosterChanged();if(typeof renderAll==="function")renderAll();return true;}catch(error){saveError="Reprise impossible : "+error.message;return false;}
+ try{players=data.players;seasonYear=Number(data.seasonYear)||2025;phase=data.phase||"regular";seasonCalendar=data.seasonCalendar||null;seasonResults=data.seasonResults||[];if(typeof retired!=="undefined")retired=data.retired||[];customTeams=[];nextCustomTeamId=1;nextPlayerId=Math.max(1000,...players.map(p=>(Number(p.id)||0)+1));career=data.career;draftPlayer=data.draftPlayer||career.draftPlayer||null;career.player=findPlayer(career.playerId)||career.player||null;if(!career.progression)career.progression={xp:0,totalXp:0,points:0,required:xpRequiredForNextPoint(careerOverall(career.player||{})),levelsEarned:0,lastAward:0};if(career.storyIndex==null)career.storyIndex=0;if(!career.storyInterval){career.storyInterval=5;career.pendingStory=Number(career.gamesPlayed||0)>0&&Number(career.gamesPlayed||0)%5===0;}if(typeof career.autoSeasonSimulation!=="boolean")career.autoSeasonSimulation=false;if(!Array.isArray(career.autoBatchBoxScores))career.autoBatchBoxScores=[];if(career.autoBatchBoxIndex==null)career.autoBatchBoxIndex=career.autoBatchBoxScores.length?career.autoBatchBoxScores.length-1:0;window.NBASimActualPlayerStats=data.actualPlayerStats||{};window.NBASimActualBoxScores=data.actualBoxScores||{};if(!findPlayer(career.playerId)&&career.player&&!career.retired)players.push(career.player);if(typeof window.NBASimPrepareMyCareerMode==="function")window.NBASimPrepareMyCareerMode();if(typeof window.NBAMyNBARosterChanged==="function")window.NBAMyNBARosterChanged();if(typeof renderAll==="function")renderAll();return true;}catch(error){saveError="Reprise impossible : "+error.message;return false;}
 }
 function showPicker(){
  hideGM();render('<div style="padding-top:clamp(25px,8vh,90px)"><div class="mc-kicker">NBA SIM LAB · CHOISIS TON EXPÉRIENCE</div><h1 class="mc-title">Quelle carrière<br>vas-tu écrire ?</h1><p class="mc-muted">Choisis ton mode de jeu. MyGM conserve la gestion de franchise. MyCareer te place dans la peau d’un seul joueur NBA.</p><div class="mc-mode-grid"><button class="mc-mode" id="mcChooseCareer"><div class="mc-kicker">MODE JOUEUR</div><h2>MyCareer</h2><p>Crée ton joueur, passe par la Draft et construis ta légende jusqu’à la retraite.</p></button><button class="mc-mode" id="mcChooseGM"><div class="mc-kicker">MODE FRANCHISE</div><h2>MyGM</h2><p>Contrôle une franchise, gère ton effectif, les transferts, la saison et les playoffs.</p></button></div></div>');
@@ -56,10 +60,52 @@ function openCareerHome(){
 }
 function beginNewCareer(){
  if(loadStored()&&!confirm("Remplacer la sauvegarde MyCareer actuelle par une nouvelle carrière ?"))return;
- localStorage.removeItem(KEY);career=null;draftPlayer=null;
- players=allPlayers().filter(p=>!p.myCareer&&p.source!=="MyCareer · Rival généré"&&((typeof nbaTeams!=="undefined"&&nbaTeams.some(team=>team[0]===p.team))||String(p.team).toUpperCase()==="FA"||String(p.team).toUpperCase()==="FREE_AGENT"));
- customTeams=[];nextCustomTeamId=1;if(typeof resetLeague==="function")resetLeague();seasonCalendar=null;if(typeof window.NBASimPrepareMyCareerMode==="function")window.NBASimPrepareMyCareerMode();
- if(!players.length&&$("demo")){$("demo").click();showCreation();}else showCreation();
+ showCareerBaseChoice();
+}
+function showCareerBaseChoice(){
+ render(header("CHOISIR LES JOUEURS NBA","Sélectionne la base qui composera les effectifs de ta ligue.")+
+  '<div class="mc-grid" style="gap:16px"><button class="mc-mode" id="mcUseDemo"><div class="mc-kicker">BASE INTÉGRÉE</div><h2>Charger les joueurs de la démo</h2><p>Utiliser les joueurs de démonstration et conserver leurs équipes NBA.</p></button><button class="mc-mode" id="mcUseSave"><div class="mc-kicker">FICHIER JSON</div><h2>Charger les joueurs d’une sauvegarde</h2><p>Importer les joueurs et leurs équipes depuis une sauvegarde NBA Sim Lab.</p></button></div><input id="mcCareerBaseFile" type="file" accept=".json,.txt,application/json" hidden><p id="mcBaseStatus" class="mc-status"></p><div class="mc-actions"><button class="mc-btn secondary" id="mcBaseCancel">Annuler</button></div>');
+ attachReturn();
+ $("mcUseDemo").onclick=()=>{
+  if(typeof demoPlayers==="undefined"||!Array.isArray(demoPlayers)||!demoPlayers.length){$("mcBaseStatus").textContent="La base de démonstration est indisponible.";return;}
+  prepareCareerPlayerBase(demoPlayers,"Démo NBA");
+ };
+ $("mcUseSave").onclick=()=>$("mcCareerBaseFile").click();
+ $("mcCareerBaseFile").onchange=async event=>{
+  const file=event.target.files&&event.target.files[0];if(!file)return;
+  $("mcBaseStatus").textContent="Lecture de "+file.name+"…";
+  try{
+   const data=typeof parseSaveJsonFile==="function"?await parseSaveJsonFile(file):JSON.parse(await file.text());
+   const list=Array.isArray(data)?data:data&&data.players;
+   if(!Array.isArray(list)||!list.length)throw new Error("Le fichier doit contenir un tableau de joueurs ou une sauvegarde NBA Sim Lab.");
+   prepareCareerPlayerBase(list,"Sauvegarde · "+file.name);
+  }catch(error){$("mcBaseStatus").textContent="Chargement impossible : "+error.message;}
+ };
+ $("mcBaseCancel").onclick=openCareerHome;
+}
+function prepareCareerPlayerBase(sourcePlayers,sourceLabel){
+ const teams=typeof nbaTeams!=="undefined"?nbaTeams:[];
+ const valid=[];
+ sourcePlayers.forEach(player=>{
+  if(!player||typeof player!=="object"||player.retired===true||player.isRetired===true||player.myCareer||player.source==="MyCareer · Rival généré")return;
+  const rawTeam=String(player.team??player.teamAbbreviation??"").trim();
+  const found=teams.find(team=>String(team[0]).toUpperCase()===rawTeam.toUpperCase()||String(team[1]).toLowerCase()===rawTeam.toLowerCase());
+  const teamCode=found?found[0]:(["FA","FREE_AGENT","FREE AGENT"].includes(rawTeam.toUpperCase())?"FA":null);
+  if(teamCode)valid.push(Object.assign({},player,{team:teamCode}));
+ });
+ if(!valid.length){const status=$("mcBaseStatus");if(status)status.textContent="Aucun joueur d’une équipe NBA ou agent libre n’a été trouvé dans cette base.";return false;}
+ try{
+  players=typeof normalize==="function"?normalize(valid):valid.map(player=>Object.assign({},player));
+  customTeams=[];nextCustomTeamId=1;nextPlayerId=Math.max(1000,...players.map(player=>(Number(player.id)||0)+1));
+  if(typeof resetLeague==="function")resetLeague();
+  seasonCalendar=null;seasonResults=[];phase="idle";seasonYear=2025;
+  if(typeof window.NBASimPrepareMyCareerMode==="function")window.NBASimPrepareMyCareerMode();
+  career=null;draftPlayer=null;pendingAttributeUpgrades={};careerBaseSource=sourceLabel;
+  localStorage.removeItem(KEY);
+  if(typeof window.NBAMyNBARosterChanged==="function")window.NBAMyNBARosterChanged();
+  showCreation();
+  return true;
+ }catch(error){const status=$("mcBaseStatus");if(status)status.textContent="Préparation de la ligue impossible : "+error.message;return false;}
 }
 function specialtyOptions(pos){return(profiles[pos]||profiles.SF).map(x=>'<option value="'+x.id+'">'+x.name+'</option>').join("");}
 function profileFor(pos,id){const list=profiles[pos]||profiles.SF;return list.find(x=>x.id===id)||list[0];}
@@ -106,7 +152,7 @@ const draftScenes=[
 ];
 function confirmBuild(){
  if(pointsUsed()>buildBudget)return;
- career={version:1,playerId:null,player:null,teamCode:null,teamName:null,seasonNumber:1,draftScore:0,draftScene:0,emotions:70,chemistry:60,popularity:35,lossStreak:0,rivalId:null,rivalName:"",generatedRival:false,lastRoundPlayed:0,gamesPlayed:0,wins:0,losses:0,seasonStats:{pts:0,reb:0,ast:0,stl:0,blk:0,tov:0,minutes:0,gp:0},seasonHistory:[],storyHistory:[],lastGame:null,retired:false,pendingStory:true};
+ career={version:1,baseSource:careerBaseSource,playerId:null,player:null,teamCode:null,teamName:null,seasonNumber:1,draftScore:0,draftScene:0,emotions:70,chemistry:60,popularity:35,lossStreak:0,rivalId:null,rivalName:"",generatedRival:false,lastRoundPlayed:0,gamesPlayed:0,wins:0,losses:0,autoSeasonSimulation:false,autoBatchBoxScores:[],autoBatchBoxIndex:0,seasonStats:{pts:0,reb:0,ast:0,stl:0,blk:0,tov:0,minutes:0,gp:0},seasonHistory:[],storyHistory:[],lastGame:null,retired:false,pendingStory:true};
  career.draftPlayer=draftPlayer;saveCareer();showDraftStory();
 }
 function showDraftStory(){
@@ -190,7 +236,7 @@ function renderStory(){
   const choice=scene.choices[Number(button.dataset.storyChoice)],player=playerForCareer(),effects=choice.e||{};
   career.emotions=clamp(career.emotions+(effects.emotions||0),0,100);career.chemistry=clamp(career.chemistry+(effects.chemistry||0),0,100);career.popularity=clamp(career.popularity+(effects.popularity||0),0,100);
   if(player&&player.attributes)Object.keys(effects).forEach(key=>{if(["emotions","chemistry","popularity"].includes(key))return;player.attributes[key]=clamp((Number(player.attributes[key])||40)+effects[key],20,attributeUpgradeCap(player,key));});
-  career.storyHistory.push({season:seasonName(seasonYear),event:scene.title,choice:choice.label,storyIndex:index});career.storyIndex=(index+1)%stories.length;career.pendingStory=false;saveCareer();renderDashboard();
+  career.storyHistory.push({season:seasonName(seasonYear),event:scene.title,choice:choice.label,storyIndex:index});career.storyIndex=(index+1)%stories.length;career.pendingStory=false;const resumeSimulation=career.autoSeasonSimulation===true;saveCareer();if(resumeSimulation){simulateCareerSeason({resume:true});return;}renderDashboard();
  });
 }
 function careerOverall(p){
@@ -279,16 +325,51 @@ function captureCareerBoxScore(game){
  return {home:makeSide("home",game.home,game.homeScore),away:makeSide("away",game.away,game.awayScore)};
 }
 function renderLastBoxScore(){
- const game=career&&career.lastGame;if(!game||!game.boxScore)return renderDashboard();
+ const batch=career&&Array.isArray(career.autoBatchBoxScores)?career.autoBatchBoxScores:[];
+ const source=batch.length?batch:[career&&career.lastGame].filter(Boolean);
+ if(!source.length)return renderDashboard();
+ const index=clamp(career.autoBatchBoxIndex==null?source.length-1:Number(career.autoBatchBoxIndex),0,source.length-1);
+ career.autoBatchBoxIndex=index;
+ const game=source[index];if(!game||!game.boxScore)return renderDashboard();
  const home=game.boxScore.home,away=game.boxScore.away;
- render(header("BOX SCORE","Match "+career.gamesPlayed+" · "+game.result)+
+ let batchNav="";
+ if(source.length>1){
+  batchNav='<div class="mc-box-nav"><button class="mc-btn secondary" id="mcBoxPrevious" '+(index<=0?"disabled":"")+'>← Match précédent</button><span>Match '+(index+1)+' / '+source.length+'</span><button class="mc-btn secondary" id="mcBoxNext" '+(index>=source.length-1?"disabled":"")+'>Match suivant →</button></div>';
+ }
+ render(header("BOX SCORE","Match "+(game.gameNumber||career.gamesPlayed)+" · "+game.result)+
   '<p class="mc-story-prompt">+'+(Number(game.xpEarned)||0)+' EXP après ce match · '+(progressionState(playerForCareer()).points||0)+' point(s) d’attribut disponibles.</p>'+
   '<div class="mc-card mc-box-summary"><div><span>'+escHtml(home.code)+'</span><strong>'+home.score+'</strong></div><b>FINAL</b><div><span>'+escHtml(away.code)+'</span><strong>'+away.score+'</strong></div></div>'+
-  renderCareerBoxScoreSide(home)+renderCareerBoxScoreSide(away)+
-  '<div class="mc-actions"><button class="mc-btn primary" id="mcBoxContinue">'+(career.pendingStory?"Continuer vers ton histoire →":career.gamesPlayed>=82?"Terminer la saison →":"Retour à ma carrière")+'</button><button class="mc-btn secondary" id="mcBoxAttributes">Voir mes attributs</button></div>');
+  batchNav+renderCareerBoxScoreSide(home)+renderCareerBoxScoreSide(away)+
+  '<div class="mc-actions"><button class="mc-btn primary" id="mcBoxContinue">'+(career.pendingStory?"Continuer vers ton histoire →":career.gamesPlayed>=82?"Terminer la saison →":career.autoSeasonSimulation?"Reprendre la simulation →":"Retour à ma carrière")+'</button><button class="mc-btn secondary" id="mcBoxAttributes">Voir mes attributs</button></div>');
  attachReturn();
- $("mcBoxContinue").onclick=()=>{if(career.pendingStory)renderStory();else if(career.gamesPlayed>=82)finishSeason();else renderDashboard();};
+ if($("mcBoxPrevious"))$("mcBoxPrevious").onclick=()=>{career.autoBatchBoxIndex=Math.max(0,career.autoBatchBoxIndex-1);renderLastBoxScore();};
+ if($("mcBoxNext"))$("mcBoxNext").onclick=()=>{career.autoBatchBoxIndex=Math.min(source.length-1,career.autoBatchBoxIndex+1);renderLastBoxScore();};
+ $("mcBoxContinue").onclick=()=>{
+  if(career.pendingStory){renderStory();return;}
+  if(career.gamesPlayed>=82){finishSeason();return;}
+  if(career.autoSeasonSimulation){career.autoBatchBoxScores=[];career.autoBatchBoxIndex=0;saveCareer();simulateCareerSeason({resume:true});return;}
+  renderDashboard();
+ };
  $("mcBoxAttributes").onclick=showCareerAttributes;
+}
+function renderCareerTeam(){
+ const p=playerForCareer();if(!p)return renderDashboard();
+ const teamMeta=(typeof nbaTeams!=="undefined"?nbaTeams:[]).find(team=>String(team[0])===String(career.teamCode));
+ const teamName=teamMeta?teamMeta[1]:career.teamName||career.teamCode;
+ const roster=allPlayers().filter(player=>String(player.team)===String(career.teamCode)&&player.retired!==true&&player.isRetired!==true).sort((a,b)=>{
+  if(String(a.id)===String(p.id))return -1;if(String(b.id)===String(p.id))return 1;
+  return (typeof overallRating==="function"?overallRating(b):Number(b.pts)||0)-(typeof overallRating==="function"?overallRating(a):Number(a.pts)||0);
+ }).slice(0,15);
+ const body=roster.map(player=>{
+  const isCareerPlayer=String(player.id)===String(p.id),injury=player.injury;
+  const ovr=isCareerPlayer?careerOverall(player):(typeof overallRating==="function"?overallRating(player):"—");
+  const portrait=typeof window.NBASimPlayerPortraitMarkup==="function"?window.NBASimPlayerPortraitMarkup(player,34):"";
+  return '<tr class="'+(isCareerPlayer?"mc-my-team-player":"")+'"><td><b>'+portrait+escHtml(player.name)+'</b>'+(isCareerPlayer?'<small>TON JOUEUR</small>':"")+'</td><td>'+escHtml(player.pos||"—")+'</td><td><b>'+ovr+'</b></td><td>'+Math.round(Number(player.age)||0)+'</td><td>'+Math.round(Number(player.height)||0)+' cm</td><td>'+Math.round(Number(player.mpg)||0)+'</td><td>'+(Number(player.pts)||0).toFixed(1)+'</td><td>'+(Number(player.reb)||0).toFixed(1)+'</td><td>'+(Number(player.ast)||0).toFixed(1)+'</td><td>'+(injury?'<span class="mc-team-injury">Blessé</span>':'<span class="mc-team-healthy">Disponible</span>')+'</td></tr>';
+ }).join("");
+ render(header("MON ÉQUIPE",teamName+" · "+roster.length+" joueurs")+
+  '<div class="mc-grid three"><div class="mc-metric"><strong>'+career.wins+'-'+career.losses+'</strong><span>Bilan de l’équipe</span></div><div class="mc-metric"><strong>'+career.gamesPlayed+'/82</strong><span>Matchs joués</span></div><div class="mc-metric"><strong>'+roster.length+'/15</strong><span>Effectif</span></div></div>'+
+  '<div class="mc-card"><div class="mc-kicker">EFFECTIF NBA · LECTURE SEULE</div><p class="mc-muted">Voici les joueurs actuellement enregistrés dans ta franchise. Les minutes, la rotation, les tendances et les contrats ne peuvent pas être modifiés depuis MyCareer.</p><div class="mc-table-wrap"><table class="mc-box-table mc-roster-table"><thead><tr><th>Joueur</th><th>POS</th><th>GÉN</th><th>ÂGE</th><th>TAILLE</th><th>MIN</th><th>PTS</th><th>REB</th><th>AST</th><th>ÉTAT</th></tr></thead><tbody>'+body+'</tbody></table></div><div class="mc-actions"><button class="mc-btn secondary" id="mcTeamBack">Retour à ma carrière</button></div></div>');
+ attachReturn();$("mcTeamBack").onclick=renderDashboard;
 }
 function renderDashboard(){
  const p=playerForCareer();if(!p||career.retired)return renderRetirement();installCareerOverall();
@@ -300,17 +381,63 @@ function renderDashboard(){
  '<div class="mc-grid three"><div class="mc-metric"><strong>'+career.emotions+'</strong><span>Émotions</span></div><div class="mc-metric"><strong>'+career.chemistry+'</strong><span>Entente d’équipe</span></div><div class="mc-metric"><strong>'+career.popularity+'</strong><span>Popularité</span></div></div>'+
  '<div class="mc-card"><div class="mc-grid"><div><div class="mc-kicker">STATISTIQUES DE LA SAISON</div><h2>'+statLine()+'</h2><p class="mc-muted">Blessure : '+injuryText+'</p><p class="mc-muted">Prochain match : '+(next?escHtml(next.home.name)+" vs "+escHtml(next.away.name):"Saison régulière terminée")+'</p></div><div><div class="mc-kicker">TON RIVAL</div><h2>'+(rival?escHtml(rival.name):escHtml(career.rivalName||"Rival à déterminer"))+'</h2><p class="mc-muted">'+(rival?escHtml(rival.team)+" · GÉN "+(typeof overallRating==="function"?overallRating(rival):"—"):"Un nouveau rival sera identifié.")+'</p></div></div><div class="mc-divider"></div><div class="mc-kicker">DERNIER MATCH</div>'+
  (game?'<div class="mc-game-result"><b>'+escHtml(game.teamCode)+'</b><strong>'+game.teamScore+' – '+game.opponentScore+'</strong><b>'+escHtml(game.opponentCode)+'</b></div><p class="mc-muted" style="text-align:center">'+escHtml(game.result)+' · '+escHtml(game.line)+'</p>':'<p class="mc-muted">Tu n’as pas encore disputé ton premier match NBA.</p>')+
- '<div class="mc-actions"><button class="mc-btn primary" id="mcNextMatch" '+(!next||storyDue?"disabled":"")+'>Simuler le prochain match →</button><button class="mc-btn primary" id="mcSimSeason" '+(seasonComplete||storyDue?"disabled":"")+'>Simuler la saison →</button><button class="mc-btn secondary" id="mcAttributes">Voir mes attributs'+(xp.points>0?" · "+xp.points+" point(s)":"")+'</button>'+(game&&game.boxScore?'<button class="mc-btn secondary" id="mcViewBox">Voir le box score</button>':'')+'<button class="mc-btn secondary" id="mcSave">Sauvegarder</button></div>'+
+ '<div class="mc-actions"><button class="mc-btn primary" id="mcNextMatch" '+(!next||storyDue?"disabled":"")+'>Simuler le prochain match →</button><button class="mc-btn primary" id="mcSimSeason" '+(seasonComplete||storyDue?"disabled":"")+'>Simuler la saison →</button><button class="mc-btn secondary" id="mcAttributes">Voir mes attributs'+(xp.points>0?" · "+xp.points+" point(s)":"")+'</button><button class="mc-btn secondary" id="mcTeam">Voir mon équipe</button>'+(game&&game.boxScore?'<button class="mc-btn secondary" id="mcViewBox">Voir le box score</button>':'')+'<button class="mc-btn secondary" id="mcSave">Sauvegarder</button></div>'+
  (storyDue?'<p class="mc-story-prompt">Une histoire t’attend après '+career.gamesPlayed+' matchs.</p><div class="mc-actions"><button class="mc-btn primary" id="mcOpenStory">Faire mon choix d’histoire →</button></div>':'')+
  '<p class="mc-status">'+escHtml(saveError||"La simulation MyCareer est isolée de MyGM.")+'</p></div>');
  attachReturn();
  $("mcNextMatch").onclick=()=>simulateNextMatch();
  $("mcSimSeason").onclick=simulateCareerSeason;
  $("mcAttributes").onclick=()=>{pendingAttributeUpgrades={};showCareerAttributes();};
+ $("mcTeam").onclick=renderCareerTeam;
  if($("mcViewBox"))$("mcViewBox").onclick=renderLastBoxScore;
  if($("mcOpenStory"))$("mcOpenStory").onclick=renderStory;
  $("mcSave").onclick=()=>{saveCareer();renderDashboard();};
  if(!next&&career.gamesPlayed>=82)finishSeason();
+}
+function refreshAttributeUpgradeUI(player,progress){
+ const selected=pendingUpgradeCount();
+ root.querySelectorAll("[data-attribute-row]").forEach(row=>{
+  const key=row.dataset.attributeRow,current=clamp(Number(player.attributes[key])||0,0,99),cap=attributeUpgradeCap(player,key),planned=clamp(Number(pendingAttributeUpgrades[key])||0,0,cap-current);
+  const currentLabel=row.querySelector(".mc-attribute-current"),previewLabel=row.querySelector(".mc-attribute-preview-level"),trackPreview=row.querySelector(".mc-attribute-preview");
+  if(currentLabel)currentLabel.textContent=String(current);
+  if(previewLabel)previewLabel.textContent=planned>0?"→ "+(current+planned):"";
+  if(trackPreview){trackPreview.style.left=(current/99*100).toFixed(3)+"%";trackPreview.style.width=(planned/99*100).toFixed(3)+"%";}
+  const add=row.querySelector("[data-add-upgrade]"),remove=row.querySelector("[data-remove-upgrade]");
+  if(add)add.disabled=!(progress.points>selected&&current+planned<cap);
+  if(remove)remove.disabled=planned<=0;
+ });
+ const countLabel=$("mcSelectedPoints");if(countLabel)countLabel.textContent=selected+" / "+progress.points;
+ const buy=$("mcBuyAttributes"),clear=$("mcClearAttributes");
+ if(buy)buy.disabled=selected===0||selected>progress.points;
+ if(clear)clear.disabled=selected===0;
+}
+function addPendingAttributePoint(key,player,progress){
+ if(!player||player!==playerForCareer())return false;
+ const cap=attributeUpgradeCap(player,key),current=clamp(Number(player.attributes[key])||0,0,99),planned=Number(pendingAttributeUpgrades[key])||0;
+ if(progress.points<=pendingUpgradeCount()||current+planned>=cap)return false;
+ pendingAttributeUpgrades[key]=planned+1;
+ refreshAttributeUpgradeUI(player,progress);
+ return true;
+}
+function stopAttributeHold(addSingle){
+ const session=attributeHoldSession;if(!session)return;
+ clearInterval(session.timer);attributeHoldSession=null;
+ if(addSingle&&session.ticks===0)addPendingAttributePoint(session.key,session.player,session.progress);
+}
+function startAttributeHold(button,key,player,progress,event){
+ if(event.button!=null&&event.button!==0)return;
+ event.preventDefault();stopAttributeHold(false);
+ const session={button,key,player,progress,pointerId:event.pointerId,ticks:0,timer:null};
+ attributeHoldSession=session;
+ try{if(button.setPointerCapture&&event.pointerId!=null)button.setPointerCapture(event.pointerId);}catch(_){}
+ session.timer=setInterval(()=>{
+  if(attributeHoldSession!==session)return;
+  if(!addPendingAttributePoint(key,player,progress)){stopAttributeHold(false);return;}
+  session.ticks++;
+ },ATTRIBUTE_HOLD_INTERVAL_MS);
+ button.addEventListener("pointerup",()=>{if(attributeHoldSession===session)stopAttributeHold(true);},{once:true});
+ button.addEventListener("pointercancel",()=>{if(attributeHoldSession===session)stopAttributeHold(false);},{once:true});
+ button.addEventListener("lostpointercapture",()=>{if(attributeHoldSession===session)stopAttributeHold(false);},{once:true});
 }
 function showCareerAttributes(){
  const p=playerForCareer();if(!p)return renderDashboard();
@@ -321,7 +448,7 @@ function showCareerAttributes(){
    const fill=(current/99*100).toFixed(3),capAt=(cap/99*100).toFixed(3),previewWidth=(planned/99*100).toFixed(3);
    const canAdd=progress.points>pending&&preview<cap,canRemove=planned>0;
    const arrowControls=progress.points>0?'<div><button type="button" class="mc-attribute-arrow" data-remove-upgrade="'+key+'" '+(!canRemove?"disabled":"")+' aria-label="Retirer le point de '+escHtml(existing[1])+'">←</button><button type="button" class="mc-attribute-arrow" data-add-upgrade="'+key+'" '+(!canAdd?"disabled":"")+' aria-label="Améliorer '+escHtml(existing[1])+'">→</button></div>':"";
-   return '<article class="mc-attribute-row"><div class="mc-attribute-heading"><span class="mc-attribute-name">'+escHtml(existing[1])+'</span><span class="mc-attribute-current">'+current+'</span><span class="mc-attribute-preview-level">'+(planned>0?"→ "+preview:"")+'</span><span class="mc-attribute-max">'+cap+' MAX</span></div><div class="mc-attribute-track"><span class="mc-attribute-fill" style="width:'+fill+'%"></span><span class="mc-attribute-preview" style="left:'+fill+'%;width:'+previewWidth+'%"></span><span class="mc-attribute-locked" style="left:'+capAt+'%"></span><span class="mc-attribute-cap-marker" style="left:'+capAt+'%"></span></div><div class="mc-attribute-controls"><span>'+current+' / 99</span>'+arrowControls+'</div></article>';
+   return '<article class="mc-attribute-row" data-attribute-row="'+key+'"><div class="mc-attribute-heading"><span class="mc-attribute-name">'+escHtml(existing[1])+'</span><span class="mc-attribute-current">'+current+'</span><span class="mc-attribute-preview-level">'+(planned>0?"→ "+preview:"")+'</span><span class="mc-attribute-max">'+cap+' MAX</span></div><div class="mc-attribute-track"><span class="mc-attribute-fill" style="width:'+fill+'%"></span><span class="mc-attribute-preview" style="left:'+fill+'%;width:'+previewWidth+'%"></span><span class="mc-attribute-locked" style="left:'+capAt+'%"></span><span class="mc-attribute-cap-marker" style="left:'+capAt+'%"></span></div><div class="mc-attribute-controls"><span>'+current+' / 99</span>'+arrowControls+'</div></article>';
   }).join("");
   return '<section class="mc-attribute-panel mc-panel-'+section.tone+'"><header><span class="mc-attribute-panel-dot"></span><h3>'+section.title+'</h3></header><div class="mc-attribute-list">'+items+'</div></section>';
  }).join("");
@@ -330,16 +457,17 @@ function showCareerAttributes(){
   '<div class="mc-card mc-xp-card"><div class="mc-xp-heading"><div><div class="mc-kicker">PROGRESSION DU JOUEUR</div><h2>'+progress.xp+' / '+progress.required+' EXP</h2></div><div class="mc-xp-points"><strong>'+progress.points+'</strong><span>POINTS DISPONIBLES</span></div></div><div class="mc-xp-track"><span style="width:'+ratio.toFixed(2)+'%"></span></div><p class="mc-muted">Encore '+remaining+' EXP pour gagner un point d’attribut · '+progress.totalXp+' EXP gagnée(s) au total.</p><p class="mc-status">'+(progress.lastAward?'Dernier match : +'+progress.lastAward+' EXP.':'Tes performances en match déterminent ton EXP.')+'</p></div>'+
   '<div class="mc-card mc-overall-card"><div class="mc-metric"><strong>'+careerOverall(p)+'</strong><span>GÉN actuel</span></div><p class="mc-muted">Les barres jaunes montrent ton niveau. Les zones gris foncé sont au-delà de ton plafond de spécialité. Les flèches préparent les améliorations avant achat.</p></div>'+
   '<div class="mc-attribute-panels">'+sections+'</div>'+
-  '<div class="mc-attribute-purchase"><div><strong>'+pending+' / '+progress.points+'</strong><span>Points sélectionnés</span></div><button class="mc-btn primary" id="mcBuyAttributes" '+(pending===0||pending>progress.points?"disabled":"")+'>Acheter les améliorations</button><button class="mc-btn secondary" id="mcClearAttributes" '+(pending===0?"disabled":"")+'>Annuler</button></div>'+
+  '<div class="mc-attribute-purchase"><div><strong id="mcSelectedPoints">'+pending+' / '+progress.points+'</strong><span>Points sélectionnés</span></div><button class="mc-btn primary" id="mcBuyAttributes" '+(pending===0||pending>progress.points?"disabled":"")+'>Acheter les améliorations</button><button class="mc-btn secondary" id="mcClearAttributes" '+(pending===0?"disabled":"")+'>Annuler</button></div>'+
   '<div class="mc-actions"><button class="mc-btn secondary" id="mcBackDashboard">Retour à ma carrière</button></div>');
  attachReturn();
- root.querySelectorAll("[data-add-upgrade]").forEach(button=>button.onclick=()=>{
-  const key=button.dataset.addUpgrade,cap=attributeUpgradeCap(p,key),current=Number(p.attributes[key])||0,planned=Number(pendingAttributeUpgrades[key])||0;
-  if(progress.points>pendingUpgradeCount()&&current+planned<cap){pendingAttributeUpgrades[key]=planned+1;showCareerAttributes();}
+ root.querySelectorAll("[data-add-upgrade]").forEach(button=>{
+  const key=button.dataset.addUpgrade;
+  button.addEventListener("pointerdown",event=>startAttributeHold(button,key,p,progress,event));
+  button.addEventListener("click",event=>{if(event.detail===0){event.preventDefault();addPendingAttributePoint(key,p,progress);}});
  });
  root.querySelectorAll("[data-remove-upgrade]").forEach(button=>button.onclick=()=>{
   const key=button.dataset.removeUpgrade,planned=Number(pendingAttributeUpgrades[key])||0;
-  if(planned>0){if(planned===1)delete pendingAttributeUpgrades[key];else pendingAttributeUpgrades[key]=planned-1;showCareerAttributes();}
+  if(planned>0){if(planned===1)delete pendingAttributeUpgrades[key];else pendingAttributeUpgrades[key]=planned-1;refreshAttributeUpgradeUI(p,progress);}
  });
  $("mcBuyAttributes").onclick=()=>{
   const count=pendingUpgradeCount();if(!count||count>progress.points)return;
@@ -363,6 +491,7 @@ function createNewRival(p){
 }
 function simulateNextMatch(options){
  const silent=!!(options&&options.silent),p=playerForCareer();if(!p||career.retired)return {ok:false};
+ if(!silent){career.autoSeasonSimulation=false;career.autoBatchBoxScores=[];career.autoBatchBoxIndex=0;}
  if(career.pendingStory&&!silent){renderStory();return {ok:false,storyDue:true};}
  const target=nextPlayerGame();
  if(!target){if(career.gamesPlayed>=82){if(!silent)finishSeason();return {ok:false,finished:true};}if(!silent)renderDashboard();return {ok:false};}
@@ -394,6 +523,8 @@ function simulateNextMatch(options){
  const points=Number(line.pts)||0,assists=Number(line.ast)||0;
  // Les relations évoluent surtout lors des décisions narratives, jamais automatiquement à chaque match.
  career.lastGame={gameId:target.id,teamCode:career.teamCode,opponentCode:home?target.away.code:target.home.code,teamScore:Number(teamScore)||0,opponentScore:Number(oppScore)||0,result:won?"Victoire":"Défaite",line:(points)+" PTS · "+(Number(line.reb)||0)+" REB · "+assists+" AST · "+(Number(line.minutes)||0)+" MIN",xpEarned,boxScore:captureCareerBoxScore(target)};
+ career.lastGame.gameNumber=career.gamesPlayed;
+ if(silent&&career.autoSeasonSimulation){career.autoBatchBoxScores=Array.isArray(career.autoBatchBoxScores)?career.autoBatchBoxScores:[];career.autoBatchBoxScores.push(JSON.parse(JSON.stringify(career.lastGame)));career.autoBatchBoxScores=career.autoBatchBoxScores.slice(-5);career.autoBatchBoxIndex=career.autoBatchBoxScores.length-1;}
  p.careerGames=p.careerGames||[];p.careerGames.push({season:seasonName(seasonYear),gameId:target.id,teamScore:teamScore,opponentScore:oppScore,...line,xpEarned});
  const gp=Math.max(1,Number(career.seasonStats.gp)||0);
  p.pts=career.seasonStats.pts/gp;p.reb=career.seasonStats.reb/gp;p.ast=career.seasonStats.ast/gp;p.mpg=career.seasonStats.minutes/gp;
@@ -407,18 +538,25 @@ function simulateNextMatch(options){
  renderLastBoxScore();
  return {ok:true,storyDue:career.pendingStory,xpEarned};
 }
-function simulateCareerSeason(){
+function simulateCareerSeason(options){
  if(!career||career.retired)return;
+ const isResume=!!(options&&options.resume);
+ if(!isResume)career.autoSeasonSimulation=true;
  if(career.pendingStory){renderStory();return;}
+ career.autoBatchBoxScores=[];career.autoBatchBoxIndex=0;
  let guard=0,lastResult=null;
  while(career.gamesPlayed<82&&!career.pendingStory&&guard++<82){
   const before=career.gamesPlayed;
   lastResult=simulateNextMatch({silent:true});
   if(!lastResult||!lastResult.ok||career.gamesPlayed===before)break;
  }
- if(career.gamesPlayed>=82){renderLastBoxScore();return;}
- if(lastResult&&lastResult.ok&&career.lastGame)renderLastBoxScore();
- else renderDashboard();
+ if(!lastResult||!lastResult.ok){
+  career.autoSeasonSimulation=false;saveCareer();
+  if(lastResult&&lastResult.retired)renderRetirement();else renderDashboard();
+  return;
+ }
+ if(career.gamesPlayed>=82||career.pendingStory){renderLastBoxScore();return;}
+ if(career.lastGame)renderLastBoxScore();else renderDashboard();
 }
 function simulateCareerSeries(teamA,teamB,roundLabel,seriesIndex){
  const homePattern=[0,0,1,1,0,1,0];let winsA=0,winsB=0;
@@ -495,7 +633,7 @@ function simulateCareerPlayoffs(){
  }
 }
 function finishSeason(){
- const p=playerForCareer();if(!p||career.seasonCompleted)return;career.seasonCompleted=true;
+ const p=playerForCareer();if(!p||career.seasonCompleted)return;career.seasonCompleted=true;career.autoSeasonSimulation=false;career.autoBatchBoxScores=[];career.autoBatchBoxIndex=0;
  try{simulateCareerPlayoffs();}catch(error){saveError="Simulation des playoffs : "+error.message;career.postseason=career.postseason||{qualified:false,champion:null,rounds:[]};}
  if(career.retired){saveCareer();renderRetirement();return;}
  if(!allPlayers().some(x=>String(x.id)===String(p.id))){career.retired=true;career.retirementReason="Carrière terminée à la suite d’une blessure.";saveCareer();renderRetirement();return;}
@@ -558,7 +696,7 @@ function installMyCareerIsolation(){
 function install(){
  installMyCareerIsolation();installCareerOverall();mygmSnapshot=loadGMStored();if(typeof window.NBASimCaptureMyGMState==="function"){try{launcherSnapshot=window.NBASimCaptureMyGMState();}catch(_){launcherSnapshot=null;}}const gm=$("myGMStart");if(gm)gm.hidden=true;showPicker();installMenuReturn();
  const observer=new MutationObserver(()=>installMenuReturn());observer.observe(document.body,{childList:true,subtree:true});
- window.NBASimMyCareerSave=saveCareer;window.NBASimMyCareerState=()=>career;window.NBASimMyCareerXPRequired=xpRequiredForNextPoint;window.NBASimMyCareerXPFromStats=careerXPFromStats;window.NBASimReturnToModePicker=function(){activeMode="launcher";root.hidden=true;showPicker();};
+ window.NBASimMyCareerSave=saveCareer;window.NBASimMyCareerState=()=>career;window.NBASimMyCareerHoldIntervalMs=ATTRIBUTE_HOLD_INTERVAL_MS;window.NBASimMyCareerXPRequired=xpRequiredForNextPoint;window.NBASimMyCareerXPFromStats=careerXPFromStats;window.NBASimReturnToModePicker=function(){activeMode="launcher";root.hidden=true;showPicker();};
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
 })();

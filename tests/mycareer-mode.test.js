@@ -97,4 +97,26 @@ let stopped = false;
 document.clickGuard({target:{},preventDefault(){stopped=true;},stopPropagation(){},stopImmediatePropagation(){}});
 assert.equal(stopped, true, "Clicks outside MyCareer must be blocked while the mode is active.");
 
+
+assert.match(career, /function simulateCareerSeason\(options\)/, "Season simulation should support resuming automatically.");
+assert.match(career, /resumeSimulation=career\.autoSeasonSimulation===true/, "Story choices should resume a running season simulation without another click.");
+assert.match(career, /career\.autoBatchBoxScores\.push/, "Automatic simulation should retain a box score for every player game in the batch.");
+assert.match(career, /mcBoxPrevious/);
+assert.match(career, /mcBoxNext/);
+assert.match(career, /function renderCareerTeam\(/, "MyCareer should include a roster screen.");
+const teamScreen = career.slice(career.indexOf("function renderCareerTeam("), career.indexOf("function renderDashboard(", career.indexOf("function renderCareerTeam(")));
+assert.match(teamScreen, /EFFECTIF NBA · LECTURE SEULE/);
+assert.doesNotMatch(teamScreen, /<input|data-minutes|data-release|data-tendency|mynbaSubmitTrade/, "MyCareer team roster must not expose MyGM management controls.");
+assert.match(career, /function showCareerBaseChoice\(/, "New careers should ask which player database to load.");
+assert.match(career, /Charger les joueurs de la démo/);
+assert.match(career, /Charger les joueurs d’une sauvegarde/);
+assert.match(career, /function prepareCareerPlayerBase\(/, "Demo/save players should be normalized while preserving NBA team codes.");
+assert.match(career, /careerBaseSource/);
+assert.match(career, /const ATTRIBUTE_HOLD_INTERVAL_MS=50/);
+assert.match(career, /setInterval\([\s\S]*?ATTRIBUTE_HOLD_INTERVAL_MS\)/, "Holding an attribute arrow should repeat every 50ms.");
+assert.match(career, /if\(addSingle&&session\.ticks===0\)addPendingAttributePoint/, "A quick click/release should add exactly one point.");
+assert.match(career, /event\.detail===0/, "Keyboard activation should add one attribute point.");
+assert.match(career, /pointerup/);
+assert.match(career, /window\.NBASimMyCareerHoldIntervalMs=ATTRIBUTE_HOLD_INTERVAL_MS/);
+
 console.log("OK — MyCareer : XP, attributs, histoires, box scores et isolation MyGM.");
