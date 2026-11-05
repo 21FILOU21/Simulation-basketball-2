@@ -352,6 +352,12 @@ function renderLastBoxScore(){
  };
  $("mcBoxAttributes").onclick=showCareerAttributes;
 }
+function renderCareerLeagueLeaders(){
+ const p=playerForCareer();if(!p)return renderDashboard();const s=career.seasonStats||{},gp=Math.max(1,Number(s.gp)||1),mine={pts:(Number(s.pts)||0)/gp,reb:(Number(s.reb)||0)/gp,ast:(Number(s.ast)||0)/gp,stl:(Number(s.stl)||0)/gp,blk:(Number(s.blk)||0)/gp};
+ const categories=[["pts","PPG","Points par match"],["reb","RPG","Rebonds par match"],["ast","APG","Passes décisives par match"],["stl","SPG","Interceptions par match"],["blk","BPG","Contres par match"]];
+ const league=allPlayers().filter(x=>x&&!x.retired&&!x.isRetired),markup=categories.map(([key,title,description])=>{const rows=league.map(x=>({name:x.name,team:x.team,value:String(x.id)===String(p.id)?mine[key]:(Number(x[key])||0)}));if(!rows.some(x=>x.name===p.name))rows.push({name:p.name,team:career.teamCode,value:mine[key]});rows.sort((a,b)=>b.value-a.value);return '<section class="mc-card"><h3>'+title+' · '+description+'</h3><div class="mc-table-wrap"><table class="mc-box-table"><thead><tr><th>#</th><th>Joueur</th><th>Équipe</th><th>Moyenne</th></tr></thead><tbody>'+rows.slice(0,10).map((x,i)=>'<tr><td>'+(i+1)+'</td><td>'+escHtml(x.name)+'</td><td>'+escHtml(x.team)+'</td><td><b>'+x.value.toFixed(1)+'</b></td></tr>').join("")+'</tbody></table></div></section>';}).join("");
+ render(header("LEAGUE LEADERS","Classements · Saison "+career.seasonNumber)+markup+'<div class="mc-actions"><button class="mc-btn secondary" id="mcLeadersBack">Retour à ma carrière</button></div>');attachReturn();$("mcLeadersBack").onclick=renderDashboard;
+}
 function renderCareerTeam(){
  const p=playerForCareer();if(!p)return renderDashboard();
  const teamMeta=(typeof nbaTeams!=="undefined"?nbaTeams:[]).find(team=>String(team[0])===String(career.teamCode));
@@ -373,22 +379,23 @@ function renderCareerTeam(){
 }
 function renderDashboard(){
  const p=playerForCareer();if(!p||career.retired)return renderRetirement();installCareerOverall();
- const rival=career.rivalId!=null?findPlayer(career.rivalId):null,next=nextPlayerGame(),game=career.lastGame,injury=p.injury;
+ const rival=career.rivalId!=null?findPlayer(career.rivalId):null,next=nextPlayerGame(),game=career.lastGame,injury=p.injury,tradeNotice=career.tradeNotice;
  const xp=progressionState(p),storyDue=career.pendingStory===true,seasonComplete=career.gamesPlayed>=82||!next;
  const injuryText=injury?(injury.label||injury.severity)+" · "+(Number(injury.restGamesRemaining)||0)+" matchs avant retour":"En santé";
  render(header("SAISON "+career.seasonNumber,p.name+" · "+p.team+" · "+p.age+" ans")+
  '<div class="mc-grid three"><div class="mc-metric"><strong>'+careerOverall(p)+'</strong><span>GÉN</span></div><div class="mc-metric"><strong>'+career.wins+'-'+career.losses+'</strong><span>Bilan équipe</span></div><div class="mc-metric"><strong>'+career.gamesPlayed+'/82</strong><span>Matchs joués</span></div></div>'+
  '<div class="mc-grid three"><div class="mc-metric"><strong>'+career.emotions+'</strong><span>Émotions</span></div><div class="mc-metric"><strong>'+career.chemistry+'</strong><span>Entente d’équipe</span></div><div class="mc-metric"><strong>'+career.popularity+'</strong><span>Popularité</span></div></div>'+
- '<div class="mc-card"><div class="mc-grid"><div><div class="mc-kicker">STATISTIQUES DE LA SAISON</div><h2>'+statLine()+'</h2><p class="mc-muted">Blessure : '+injuryText+'</p><p class="mc-muted">Prochain match : '+(next?escHtml(next.home.name)+" vs "+escHtml(next.away.name):"Saison régulière terminée")+'</p></div><div><div class="mc-kicker">TON RIVAL</div><h2>'+(rival?escHtml(rival.name):escHtml(career.rivalName||"Rival à déterminer"))+'</h2><p class="mc-muted">'+(rival?escHtml(rival.team)+" · GÉN "+(typeof overallRating==="function"?overallRating(rival):"—"):"Un nouveau rival sera identifié.")+'</p></div></div><div class="mc-divider"></div><div class="mc-kicker">DERNIER MATCH</div>'+
+ '<div class="mc-card">'+(tradeNotice?'<div class="mc-result"><div class="mc-kicker">TRADE · NOUVELLE FRANCHISE</div><h2>'+escHtml(tradeNotice.to||career.teamName)+'</h2><p class="mc-muted">Tu as été échangé par '+escHtml(tradeNotice.from||"ton ancienne équipe")+' vers '+escHtml(tradeNotice.toCode||career.teamCode)+'. L’affichage est actualisé sur ta nouvelle équipe.</p><button class="mc-btn secondary" id="mcDismissTrade">Compris</button></div>':"")+'<div class="mc-grid"><div><div class="mc-kicker">STATISTIQUES DE LA SAISON</div><h2>'+statLine()+'</h2><p class="mc-muted">Blessure : '+injuryText+'</p><p class="mc-muted">Prochain match : '+(next?escHtml(next.home.name)+" vs "+escHtml(next.away.name):"Saison régulière terminée")+'</p></div><div><div class="mc-kicker">TON RIVAL</div><h2>'+(rival?escHtml(rival.name):escHtml(career.rivalName||"Rival à déterminer"))+'</h2><p class="mc-muted">'+(rival?escHtml(rival.team)+" · GÉN "+(typeof overallRating==="function"?overallRating(rival):"—"):"Un nouveau rival sera identifié.")+'</p></div></div><div class="mc-divider"></div><div class="mc-kicker">DERNIER MATCH</div>'+
  (game?'<div class="mc-game-result"><b>'+escHtml(game.teamCode)+'</b><strong>'+game.teamScore+' – '+game.opponentScore+'</strong><b>'+escHtml(game.opponentCode)+'</b></div><p class="mc-muted" style="text-align:center">'+escHtml(game.result)+' · '+escHtml(game.line)+'</p>':'<p class="mc-muted">Tu n’as pas encore disputé ton premier match NBA.</p>')+
- '<div class="mc-actions"><button class="mc-btn primary" id="mcNextMatch" '+(!next||storyDue?"disabled":"")+'>Simuler le prochain match →</button><button class="mc-btn primary" id="mcSimSeason" '+(seasonComplete||storyDue?"disabled":"")+'>Simuler la saison →</button><button class="mc-btn secondary" id="mcAttributes">Voir mes attributs'+(xp.points>0?" · "+xp.points+" point(s)":"")+'</button><button class="mc-btn secondary" id="mcTeam">Voir mon équipe</button>'+(game&&game.boxScore?'<button class="mc-btn secondary" id="mcViewBox">Voir le box score</button>':'')+'<button class="mc-btn secondary" id="mcSave">Sauvegarder</button></div>'+
+ '<div class="mc-actions"><button class="mc-btn primary" id="mcNextMatch" '+(!next||storyDue?"disabled":"")+'>Simuler le prochain match →</button><button class="mc-btn primary" id="mcSimSeason" '+(seasonComplete||storyDue?"disabled":"")+'>Simuler la saison →</button><button class="mc-btn secondary" id="mcAttributes">Voir mes attributs'+(xp.points>0?" · "+xp.points+" point(s)":"")+'</button><button class="mc-btn secondary" id="mcTeam">Voir mon équipe</button><button class="mc-btn secondary" id="mcLeagueLeaders">League Leaders</button>'+(game&&game.boxScore?'<button class="mc-btn secondary" id="mcViewBox">Voir le box score</button>':'')+'<button class="mc-btn secondary" id="mcSave">Sauvegarder</button></div>'+
  (storyDue?'<p class="mc-story-prompt">Une histoire t’attend après '+career.gamesPlayed+' matchs.</p><div class="mc-actions"><button class="mc-btn primary" id="mcOpenStory">Faire mon choix d’histoire →</button></div>':'')+
  '<p class="mc-status">'+escHtml(saveError||"La simulation MyCareer est isolée de MyGM.")+'</p></div>');
  attachReturn();
+ if($("mcDismissTrade"))$("mcDismissTrade").onclick=()=>{career.tradeNotice=null;saveCareer();renderDashboard();};
  $("mcNextMatch").onclick=()=>simulateNextMatch();
  $("mcSimSeason").onclick=simulateCareerSeason;
  $("mcAttributes").onclick=()=>{pendingAttributeUpgrades={};showCareerAttributes();};
- $("mcTeam").onclick=renderCareerTeam;
+ $("mcTeam").onclick=renderCareerTeam;$("mcLeagueLeaders").onclick=renderCareerLeagueLeaders;
  if($("mcViewBox"))$("mcViewBox").onclick=renderLastBoxScore;
  if($("mcOpenStory"))$("mcOpenStory").onclick=renderStory;
  $("mcSave").onclick=()=>{saveCareer();renderDashboard();};
@@ -493,6 +500,7 @@ function simulateNextMatch(options){
  const silent=!!(options&&options.silent),p=playerForCareer();if(!p||career.retired)return {ok:false};
  if(!silent){career.autoSeasonSimulation=false;career.autoBatchBoxScores=[];career.autoBatchBoxIndex=0;}
  if(career.pendingStory&&!silent){renderStory();return {ok:false,storyDue:true};}
+ if(p.team&&String(p.team)!==String(career.teamCode)){const oldCode=career.teamCode,oldMeta=(typeof nbaTeams!=="undefined"?nbaTeams:[]).find(t=>String(t[0])===String(oldCode)),newMeta=(typeof nbaTeams!=="undefined"?nbaTeams:[]).find(t=>String(t[0])===String(p.team));career.teamCode=String(p.team);career.teamName=newMeta?newMeta[1]:String(p.team);career.tradeNotice={from:oldMeta?oldMeta[1]:String(oldCode||"ancienne équipe"),fromCode:oldCode,to:career.teamName,toCode:career.teamCode};saveCareer();}
  const target=nextPlayerGame();
  if(!target){if(career.gamesPlayed>=82){if(!silent)finishSeason();return {ok:false,finished:true};}if(!silent)renderDashboard();return {ok:false};}
  if(typeof window.simulateScheduledGame!=="function"){saveError="Le moteur de simulation par possessions n'est pas disponible.";if(!silent)renderDashboard();return {ok:false,error:saveError};}
