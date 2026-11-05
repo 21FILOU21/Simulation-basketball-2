@@ -19,7 +19,7 @@ assert.ok(source.includes("line.threeA++"), "Three-point attempts must be record
 assert.ok(source.includes("stats[reb._rgmKey].reb++"), "Offensive and defensive rebounds must be recorded.");
 assert.ok(source.includes("function renderGameOver("), "A completed match must show its final result.");
 assert.ok(source.includes("function renderStats("), "The match must expose a box score.");
-assert.ok(source.includes("<th>PTS</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>FG</th><th>3PT"), "The box score must show core basketball stats.");
+assert.ok(source.includes("<th>PTS</th><th>REB</th><th>AST</th><th>STL</th><th>BLK</th><th>TO</th><th>FG</th><th>3PT"), "The box score must show core basketball stats.");
 assert.ok(source.includes("shotClock=24"), "Each new possession must reset the shot clock.");
 assert.ok(source.includes("clock=720"), "Each quarter must start at twelve minutes.");
 assert.ok(source.includes("clock=300"), "Tied games must enter a five-minute overtime.");
