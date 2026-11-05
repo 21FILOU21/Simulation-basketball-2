@@ -500,7 +500,7 @@ function simulateNextMatch(options){
  const silent=!!(options&&options.silent),p=playerForCareer();if(!p||career.retired)return {ok:false};
  if(!silent){career.autoSeasonSimulation=false;career.autoBatchBoxScores=[];career.autoBatchBoxIndex=0;}
  if(career.pendingStory&&!silent){renderStory();return {ok:false,storyDue:true};}
- if(p.team&&String(p.team)!==String(career.teamCode)){const oldCode=career.teamCode,oldMeta=(typeof nbaTeams!=="undefined"?nbaTeams:[]).find(t=>String(t[0])===String(oldCode)),newMeta=(typeof nbaTeams!=="undefined"?nbaTeams:[]).find(t=>String(t[0])===String(p.team));career.teamCode=String(p.team);career.teamName=newMeta?newMeta[1]:String(p.team);career.tradeNotice={from:oldMeta?oldMeta[1]:String(oldCode||"ancienne équipe"),fromCode:oldCode,to:career.teamName,toCode:career.teamCode};saveCareer();}
+ if(p.team&&String(p.team)!==String(career.teamCode)){const oldCode=career.teamCode,oldMeta=(typeof nbaTeams!=="undefined"?nbaTeams:[]).find(t=>String(t[0])===String(oldCode)),newMeta=(typeof nbaTeams!=="undefined"?nbaTeams:[]).find(t=>String(t[0])===String(p.team));career.teamCode=String(p.team);career.teamName=newMeta?newMeta[1]:String(p.team);career.tradeNotice={from:oldMeta?oldMeta[1]:String(oldCode||"ancienne équipe"),fromCode:oldCode,to:career.teamName,toCode:career.teamCode,season:seasonName(seasonYear)};career.tradeHistory=Array.isArray(career.tradeHistory)?career.tradeHistory:[];career.tradeHistory.push(Object.assign({},career.tradeNotice));saveCareer();}
  const target=nextPlayerGame();
  if(!target){if(career.gamesPlayed>=82){if(!silent)finishSeason();return {ok:false,finished:true};}if(!silent)renderDashboard();return {ok:false};}
  if(typeof window.simulateScheduledGame!=="function"){saveError="Le moteur de simulation par possessions n'est pas disponible.";if(!silent)renderDashboard();return {ok:false,error:saveError};}
@@ -655,6 +655,9 @@ function finishSeason(){
  const entry={season:label,team:career.teamCode,height:p.height,overall:careerOverall(p),gp:Number(s.gp)||0,pts:(Number(s.pts)||0)/gp,reb:(Number(s.reb)||0)/gp,ast:(Number(s.ast)||0)/gp,stl:(Number(s.stl)||0)/gp,blk:(Number(s.blk)||0)/gp,playoffs:career.postseason,postseasonStats:completedPostseasonStats};
  p.history=p.history||[];p.history.push(entry);career.seasonHistory.push(entry);p.age=Number(p.age||19)+1;
  if(typeof window.progress==="function"&&p.age<40)window.progress(p);
+ const startAttrs=career.seasonStartAttributes||{},gains=attrs.map(([key,label])=>({key,label,delta:(Number(p.attributes&&p.attributes[key])||0)-(Number(startAttrs[key])||0)})).filter(x=>x.delta>0).sort((a,b)=>b.delta-a.delta),startOverall=Number(career.seasonStartOverall)||Number(entry.overall)||careerOverall(p),endOverall=careerOverall(p),publicOpinion=Number(career.popularity)||0;
+ career.lastSeasonRecap={season:label,overallStart:startOverall,overallEnd:endOverall,overallDelta:endOverall-startOverall,topAttributeGains:gains.slice(0,6),publicOpinion,publicOpinionLabel:publicOpinion>=80?"Très positive":publicOpinion>=60?"Positive":publicOpinion>=40?"Mitigée":publicOpinion>=20?"Négative":"Très négative",tradeHistory:(career.tradeHistory||[]).filter(x=>x.season===label),stats:entry};
+ entry.overall=endOverall;
  if(career.progression)career.progression.required=xpRequiredForNextPoint(careerOverall(p));
  p.rookie=false;p.season=seasonName(Number(seasonYear)+1);career.seasonCompleted=false;
  if(p.age>=40){career.retired=true;career.retirementReason="Retraite à 40 ans.";career.retiredAt=label;saveCareer();renderRetirement();return;}
@@ -663,7 +666,7 @@ function finishSeason(){
  if(typeof initializeSeasonCalendar==="function")initializeSeasonCalendar();
  if(typeof phase!=="undefined")phase="regular";
  saveCareer();
- const postseasonText=career.postseason&&career.postseason.qualified?"Qualifié en playoffs":"Non qualifié pour les playoffs";
+ const recap=career.lastSeasonRecap||{},gainsMarkup=(recap.topAttributeGains||[]).map(x=>'<li>'+escHtml(x.label)+' : +'+x.delta+'</li>').join("")||'<li>Aucun attribut n’a progressé.</li>',tradeMarkup=(recap.tradeHistory||[]).map(x=>'<li>'+escHtml(x.from)+' → '+escHtml(x.to)+'</li>').join("")||'<li>Aucun changement d’équipe cette saison.</li>',rounds=career.lastPostseason&&career.lastPostseason.rounds||[],phaseNames=["Premier tour","Demi-finales","Finales de conférence","Finale NBA"],phaseMarkup=phaseNames.map(name=>{const rows=rounds.filter(x=>x.round===name);return '<section class="mc-card"><h3>'+name+'</h3>'+(rows.length?rows.map(x=>'<p class="mc-muted">'+escHtml(x.conference)+': '+escHtml(x.teamA)+' <b>'+x.winsA+'–'+x.winsB+'</b> '+escHtml(x.teamB)+' · Gagnant : '+escHtml(x.winner||"série incomplète")+'</p>').join(""):'<p class="mc-muted">Aucune série disputée dans cette phase.</p>')+'</section>';}).join(""),postseasonText=career.postseason&&career.postseason.qualified?"Qualifié en playoffs":"Non qualifié pour les playoffs";
  const championText=career.postseason&&career.postseason.champion?career.postseason.champion:"aucun champion déterminé";
  const playoffGames=career.lastPostseasonStats&&career.lastPostseasonStats.gp||0;
  const playoffPoints=career.lastPostseasonStats&&career.lastPostseasonStats.pts||0;
@@ -671,6 +674,9 @@ function finishSeason(){
   '<div class="mc-card"><div class="mc-kicker">BILAN DE TA SAISON</div><h2>'+label+'</h2>'+
   '<div class="mc-grid three"><div class="mc-metric"><strong>'+entry.overall+'</strong><span>GÉN final</span></div><div class="mc-metric"><strong>'+entry.pts.toFixed(1)+'</strong><span>PTS / match</span></div><div class="mc-metric"><strong>'+entry.gp+'</strong><span>Matchs joués</span></div></div>'+
   '<p class="mc-muted">'+postseasonText+'. Champion NBA : '+escHtml(championText)+'. Tes playoffs : '+playoffGames+' MJ · '+playoffPoints+' PTS.</p>'+
+  '<div class="mc-grid three"><div class="mc-metric"><strong>'+recap.overallStart+' → '+recap.overallEnd+'</strong><span>Progression du général ('+(recap.overallDelta>=0?"+":"")+recap.overallDelta+')</span></div><div class="mc-metric"><strong>'+recap.publicOpinion+'/100</strong><span>Opinion publique · '+escHtml(recap.publicOpinionLabel||"Mitigée")+'</span></div><div class="mc-metric"><strong>'+entry.gp+'</strong><span>Matchs de saison régulière</span></div></div>'+
+  '<div class="mc-card"><h3>Attributs les plus améliorés</h3><ul>'+gainsMarkup+'</ul><h3>Changements d’équipe</h3><ul>'+tradeMarkup+'</ul><p class="mc-muted">Statistiques saison régulière : '+entry.pts.toFixed(1)+' PTS · '+entry.reb.toFixed(1)+' REB · '+entry.ast.toFixed(1)+' AST · '+entry.stl.toFixed(1)+' STL · '+entry.blk.toFixed(1)+' BLK.</p></div>'+
+  '<h2>Parcours complet des playoffs</h2>'+phaseMarkup+
   '<p class="mc-muted">Ton âge passe à '+p.age+' ans. Tes attributs évoluent selon ton développement, ton potentiel et ton âge.</p>'+
   '<div class="mc-actions"><button class="mc-btn primary" id="mcNextSeason">Préparer la prochaine saison →</button></div></div>');
  attachReturn();$("mcNextSeason").onclick=renderStory;
