@@ -529,7 +529,8 @@ function renderCareerStoryOverview(player){
   const value=clamp(Number(career[key])||0,0,100);
   return '<div class="mc-metric mc-story-social-metric"><strong>'+value+'/100</strong><span>'+label+'</span><div class="mc-story-social-track"><i style="width:'+value+'%"></i></div></div>';
  }).join("");
- return '<section class="mc-story-overview"><div class="mc-story-overview-heading"><div><div class="mc-kicker">ÉTAT ACTUEL DE TON JOUEUR</div><h3>'+escHtml(player.name||"Mon joueur")+' · GÉN '+careerOverall(player)+'</h3></div><span class="mc-story-fatigue-label">Fatigue '+Math.round(Number(career.fatigue)||0)+'/100</span></div><div class="mc-grid three mc-story-social-grid">'+social+'</div><div class="mc-story-attribute-grid">'+sections+extraMarkup+'</div></section>';
+ const teamLabel=String(career.teamName||player.team||career.teamCode||"Équipe NBA");
+ return '<section class="mc-story-overview"><div class="mc-story-overview-heading"><div><div class="mc-kicker">ÉTAT ACTUEL DE TON JOUEUR · '+escHtml(teamLabel)+'</div><h3>'+escHtml(player.name||"Mon joueur")+' · GÉN '+careerOverall(player)+'</h3></div><span class="mc-story-fatigue-label">Fatigue '+Math.round(Number(career.fatigue)||0)+'/100</span></div><div class="mc-grid three mc-story-social-grid">'+social+'</div><div class="mc-story-attribute-grid">'+sections+extraMarkup+'</div></section>';
 }
 function renderStory(){
  const index=Math.max(0,Number(career.storyIndex)||0)%stories.length,scene=stories[index],month=career.pendingStoryMonth||career.lastPlayedMonth||"Fin de mois";activeStory=scene;
@@ -1193,7 +1194,7 @@ function installMyCareerIsolation(){
 function install(){
  installMyCareerIsolation();installCareerOverall();mygmSnapshot=loadGMStored();if(typeof window.NBASimCaptureMyGMState==="function"){try{launcherSnapshot=window.NBASimCaptureMyGMState();}catch(_){launcherSnapshot=null;}}const gm=$("myGMStart");if(gm)gm.hidden=true;showPicker();installMenuReturn();
  const observer=new MutationObserver(()=>installMenuReturn());observer.observe(document.body,{childList:true,subtree:true});
- window.NBASimMyCareerStoryOutcome=storyChoiceOutcome;window.NBASimMyCareerStoryCount=stories.length;window.NBASimMyCareerBuildSaveSnapshot=buildCareerSaveData;window.NBASimMyCareerStoryOutcome=storyChoiceOutcome;window.NBASimMyCareerStoryCount=stories.length;window.NBASimMyCareerBuildSaveSnapshot=buildCareerSaveData;window.NBASimMyCareerNextLeagueGame=nextCareerLeagueGame;window.NBASimMyCareerSave=saveCareer;window.NBASimMyCareerState=()=>career;window.NBASimMyCareerHoldIntervalMs=ATTRIBUTE_HOLD_INTERVAL_MS;window.NBASimMyCareerXPRequired=xpRequiredForNextPoint;window.NBASimMyCareerXPFromStats=careerXPFromStats;window.NBASimReturnToModePicker=function(){activeMode="launcher";root.hidden=true;showPicker();};
+ window.NBASimMyCareerStoryOutcome=storyChoiceOutcome;window.NBASimMyCareerStoryCount=stories.length;window.NBASimMyCareerBuildSaveSnapshot=buildCareerSaveData;window.NBASimMyCareerNextLeagueGame=nextCareerLeagueGame;window.NBASimMyCareerSave=saveCareer;window.NBASimMyCareerState=()=>career;window.NBASimMyCareerHoldIntervalMs=ATTRIBUTE_HOLD_INTERVAL_MS;window.NBASimMyCareerXPRequired=xpRequiredForNextPoint;window.NBASimMyCareerXPFromStats=careerXPFromStats;window.NBASimReturnToModePicker=function(){activeMode="launcher";root.hidden=true;showPicker();};
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
 })();
