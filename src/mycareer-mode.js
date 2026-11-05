@@ -478,13 +478,13 @@ const STORY_RISK_REWARD={
  "22:1":{changes:{agility:3,speed:2,stamina:-1},fatigue:11,capIncrease:{agility:1}},
  "22:2":{changes:{strength:2,finishing:2,speed:-1},fatigue:10,capIncrease:{finishing:1}},
  "24:1":{changes:{ballHandle:3,workEthic:1,stamina:-1},fatigue:9,capIncrease:{ballHandle:1}},
- "28:0":{changes:{clutch:4,speed:2},socialChanges:{emotions:4,popularity:2},fatigue:26,capIncrease:{clutch:2},injuryRisk:18},
+ "26:0":{changes:{clutch:4,speed:2},socialChanges:{emotions:4,popularity:2},fatigue:26,capIncrease:{clutch:2},injuryRisk:18},
  "26:1":{changes:{passing:4,basketballIQ:2},socialChanges:{chemistry:5},fatigue:12,capIncrease:{passing:2}},
- "26:0":{changes:{speed:4,acceleration:3,stamina:2},socialChanges:{emotions:2},fatigue:32,capIncrease:{speed:3,acceleration:2},injuryRisk:28},
- "27:0":{changes:{midRange:4,consistency:2},socialChanges:{popularity:6},fatigue:5,capIncrease:{midRange:2}},
+ "27:0":{changes:{speed:4,acceleration:3,stamina:2},socialChanges:{emotions:2},fatigue:32,capIncrease:{speed:3,acceleration:2},injuryRisk:28},
+ "28:0":{changes:{midRange:4,consistency:2},socialChanges:{popularity:6},fatigue:5,capIncrease:{midRange:2}},
  "29:1":{changes:{workEthic:4,consistency:4},socialChanges:{chemistry:4},fatigue:24,capIncrease:{workEthic:2},injuryRisk:20},
- "31:0":{changes:{threePoint:4,stamina:3},socialChanges:{popularity:4,emotions:4},fatigue:24,capIncrease:{threePoint:3},injuryRisk:22},
- "30:0":{changes:{clutch:4,shotIQ:3},socialChanges:{emotions:4,chemistry:2},fatigue:21,capIncrease:{clutch:2},injuryRisk:14}
+ "30:0":{changes:{threePoint:4,stamina:3},socialChanges:{popularity:4,emotions:4},fatigue:24,capIncrease:{threePoint:3},injuryRisk:22},
+ "31:0":{changes:{clutch:4,shotIQ:3},socialChanges:{emotions:4,chemistry:2},fatigue:21,capIncrease:{clutch:2},injuryRisk:14}
 };
 function storyChoiceOutcome(sceneIndex,choiceIndex,choice){
  const social={},attributes={};Object.entries(choice&&choice.e||{}).forEach(([key,value])=>{if(["emotions","chemistry","popularity"].includes(key))social[key]=Number(value)||0;else attributes[key]=Number(value)||0;});
