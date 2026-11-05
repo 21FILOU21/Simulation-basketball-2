@@ -12,7 +12,7 @@ assert.match(source, /green\?\.25/, "Shot timing must materially affect shot suc
 assert.match(source, /perimeterDefense/, "Perimeter defense must influence outside shots.");
 assert.match(source, /interiorDefense/, "Interior defense must influence close-range shots.");
 assert.match(source, /blockChance/, "Defenders must be able to block shots.");
-assert.match(source, /defenderLine\.stl\+\+/, "Interceptions must award steals.");
+assert.match(source, /stats\\[thief\\._rgmKey\\]\\.stl\\+\\+/, "Interceptions must award steals.");
 assert.match(source, /lastPasser\._rgmKey/, "A made basket after a pass must award an assist.");
 assert.match(source, /line\.fga\+\+/, "Shot attempts must be recorded.");
 assert.match(source, /line\.threeA\+\+/, "Three-point attempts must be recorded.");
