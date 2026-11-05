@@ -718,6 +718,53 @@ function simulateCareerPlayoffs(){
   if(typeof oldRender==="function"){window.renderAll=oldRender;oldRender();}
  }
 }
+function buildCareerSeasonAwards(){
+ const actual=window.NBASimActualPlayerStats||{},self=playerForCareer(),records=allPlayers().filter(p=>p&&!p.retired&&!p.isRetired).map(player=>{
+  let raw=actual[String(player.id)]||{},gp=Number(raw.gp)||0;
+  if(String(player.id)===String(career.playerId)&&!gp){const own=career.seasonStats||{};raw={pts:own.pts,reb:own.reb,ast:own.ast,stl:own.stl,blk:own.blk,tov:own.tov,minutes:own.minutes,gp:own.gp};gp=Number(raw.gp)||0;}
+  if(gp<=0)return null;
+  const total=key=>Number(raw[key])||0,avg=key=>total(key)/gp,fgm=total("fgm"),fga=total("fga"),threes=total("threeMade"),threeAtt=total("threeAttempts"),ftm=total("ftm"),fta=total("fta"),points=total("pts");
+  return {player,gp,pts:avg("pts"),reb:avg("reb"),ast:avg("ast"),stl:avg("stl"),blk:avg("blk"),mpg:avg("minutes"),fg:fga?fgm/fga:0,three:threeAtt?threes/threeAtt:0,ft:fta?ftm/fta:0,ts:(fga+fta*.44)>0?points/(2*(fga+fta*.44)):0};
+ }).filter(Boolean);
+ const eligible=records.filter(x=>x.gp>=Math.min(30,Math.max(1,career.gamesPlayed||30))),pool=eligible.length?eligible:records;
+ const best=(list,score)=>list.reduce((winner,item)=>!winner||score(item)>score(winner)?item:winner,null);
+ const detail=x=>x.pts.toFixed(1)+" PTS · "+x.reb.toFixed(1)+" REB · "+x.ast.toFixed(1)+" AST";
+ const awards=[];
+ const add=(icon,title,winner,description)=>{if(winner)awards.push({icon,title,name:winner.player.name,team:winner.player.team,detail:description||detail(winner)});};
+ add("🏆","MVP",best(pool,x=>x.pts+x.reb*.55+x.ast*.9+x.stl+x.blk+(x.ts-.54)*45));
+ add("🛡️","Défenseur de l’année",best(pool,x=>x.stl*3+x.blk*3+x.reb*.35+(Number(x.player.attributes&&x.player.attributes.defensiveIQ)||50)*.02),null);
+ add("🌟","Recrue de l’année",best(pool.filter(x=>x.player.rookie),x=>x.pts+x.ast*.8+x.reb*.5));
+ add("🪑","Sixième homme",best(pool.filter(x=>x.mpg<=27).length?pool.filter(x=>x.mpg<=27):pool,x=>x.pts+x.ast*.5+x.reb*.3));
+ const improved=pool.filter(x=>Array.isArray(x.player.history)&&x.player.history.length).map(x=>{const old=x.player.history[x.player.history.length-1]||{};return {...x,improvement:x.pts-(Number(old.pts)||0)+(x.ast-(Number(old.ast)||0))*.5+(x.reb-(Number(old.reb)||0))*.25};});
+ add("📈","Joueur le plus amélioré",best(improved,x=>x.improvement));
+ add("🎯","Meilleur marqueur",best(pool,x=>x.pts));
+ add("💪","Meilleur rebondeur",best(pool,x=>x.reb));
+ add("🎩","Meilleur passeur",best(pool,x=>x.ast));
+ return awards;
+}
+function careerTeamLabel(code){const team=(typeof nbaTeams!=="undefined"?nbaTeams:[]).find(t=>String(t[0])===String(code));if(team)return team[1];const custom=(typeof customTeams!=="undefined"?customTeams:[]).find(t=>String(t.code)===String(code));return custom?custom.name:String(code||"—");}
+function careerBiggestTradesForSeason(){
+ const year=Number(seasonYear),label=seasonName(year),history=Array.isArray(window.NBASimAITradeHistory)?window.NBASimAITradeHistory:[],trades=history.filter(t=>t&&t.accepted!==false&&(Number(t.season)===year||String(t.season)===String(label))).map(t=>Object.assign({},t));
+ (career.tradeHistory||[]).filter(t=>t&&(Number(t.season)===year||String(t.season)===String(label))).forEach(t=>{
+  if(trades.some(x=>String(x.from)===String(t.fromCode||t.from)&&String(x.to)===String(t.toCode||t.to)&&String(x.headlinePlayer||"")===String(career.player&&career.player.name||"")))return;
+  const player=career.player||playerForCareer();trades.push({kind:"trade de carrière",from:t.fromCode||t.from,to:t.toCode||t.to,round:t.round||0,headlinePlayer:player&&player.name||"Ton joueur",headlineValue:Math.round(careerOverall(player)*2),outgoing:[{name:player&&player.name||"Ton joueur",ovr:careerOverall(player)}],incoming:[],accepted:true});
+ });
+ return trades.sort((a,b)=>(Number(b.headlineValue)||0)-(Number(a.headlineValue)||0)).slice(0,5);
+}
+function recordCareerPlayoffLeagueStats(game,roundLabel){
+ if(!career||!game||!game.playerBoxScores)return;
+ career.playoffLeagueStats=career.playoffLeagueStats||{};career.finalsLeagueStats=career.finalsLeagueStats||{};
+ [["home",game.playerBoxScores.home],["away",game.playerBoxScores.away]].forEach(([side,lines])=>Object.entries(lines||{}).forEach(([id,line])=>{
+  const player=findPlayer(id);if(!player)return;
+  const addTo=(store)=>{const row=store[id]||(store[id]={id,name:player.name,team:player.team,gp:0,pts:0,reb:0,ast:0,stl:0,blk:0});if(Number(line.gp)>0)row.gp++;["pts","reb","ast","stl","blk"].forEach(key=>row[key]+=Number(line[key])||0);};
+  addTo(career.playoffLeagueStats);if(String(roundLabel)==="Finale")addTo(career.finalsLeagueStats);
+ }));
+}
+function buildCareerFinalsMvp(){
+ const rows=Object.values(career.finalsLeagueStats||{}).filter(x=>x.gp>0).sort((a,b)=>(b.pts+b.reb*.5+b.ast*.8+b.stl+b.blk)-(a.pts+a.reb*.5+a.ast*.8+a.stl+a.blk));
+ const winner=rows[0];if(!winner)return null;
+ const player=findPlayer(winner.id);return {icon:"🏆",title:"MVP des Finales",name:winner.name,team:player?player.team:winner.team,detail:(winner.pts/winner.gp).toFixed(1)+" PTS · "+(winner.reb/winner.gp).toFixed(1)+" REB · "+(winner.ast/winner.gp).toFixed(1)+" AST"};
+}
 function finishSeason(){
  const p=playerForCareer();if(!p||career.seasonCompleted)return;career.seasonCompleted=true;career.autoSeasonSimulation=false;career.autoBatchBoxScores=[];career.autoBatchBoxIndex=0;
  try{simulateCareerPlayoffs();}catch(error){saveError="Simulation des playoffs : "+error.message;career.postseason=career.postseason||{qualified:false,champion:null,rounds:[]};}
