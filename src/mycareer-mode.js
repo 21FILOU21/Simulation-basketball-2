@@ -19,13 +19,15 @@ document.head.appendChild(style);
 style.textContent += "\n.mc-xp-card{border-color:#8f7936;background:linear-gradient(145deg,#292719,#111b2b)}\n.mc-xp-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.mc-xp-heading h2{margin:5px 0;font-size:clamp(19px,2.5vw,27px)}\n.mc-xp-points{text-align:right}.mc-xp-points strong{display:block;color:#f4d257;font-size:30px}.mc-xp-points span{font-size:10px;color:#b8c1d2;letter-spacing:.08em}\n.mc-xp-track{height:14px;margin:13px 0 8px;border-radius:20px;background:#202632;overflow:hidden;border:1px solid #4c5159}.mc-xp-track span{display:block;height:100%;background:repeating-linear-gradient(135deg,#f1d04f 0,#f1d04f 7px,#d8b33a 7px,#d8b33a 11px);border-radius:20px;transition:width .2s}\n.mc-attribute-panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;padding-bottom:105px}\n.mc-attribute-panel{padding:16px;border:1px solid #334154;border-radius:14px;min-width:0;background:#142033}\n.mc-attribute-panel header{display:flex;align-items:center;gap:9px;margin-bottom:14px}.mc-attribute-panel header h3{font-size:14px;letter-spacing:.09em;margin:0}\n.mc-attribute-panel-dot{height:9px;width:9px;border-radius:50%;background:#e6c54e}\n.mc-panel-finish{background:linear-gradient(145deg,#192538,#111a28);border-color:#354e71}.mc-panel-shoot{background:linear-gradient(145deg,#142b25,#0e1e1b);border-color:#2f6550}.mc-panel-shoot .mc-attribute-panel-dot{background:#43d28d}\n.mc-panel-play{background:linear-gradient(145deg,#30291a,#211d16);border-color:#6b5934}.mc-panel-play .mc-attribute-panel-dot{background:#e3b84a}\n.mc-panel-defense{background:linear-gradient(145deg,#301e24,#20151a);border-color:#6b3844}.mc-panel-defense .mc-attribute-panel-dot{background:#e56a77}\n.mc-panel-physical{background:linear-gradient(145deg,#242338,#171625);border-color:#4f486d}.mc-panel-physical .mc-attribute-panel-dot{background:#a99be8}\n.mc-panel-mental{background:linear-gradient(145deg,#192b35,#101d25);border-color:#355b68}.mc-panel-mental .mc-attribute-panel-dot{background:#6bc4d8}\n.mc-attribute-list{display:flex;flex-direction:column;gap:15px}.mc-attribute-row{padding:7px 0 9px;border-bottom:1px solid #ffffff12;min-width:0}.mc-attribute-row:last-child{border-bottom:0}\n.mc-attribute-heading{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;align-items:baseline;gap:9px;margin-bottom:7px}\n.mc-attribute-name{font-size:12px;color:#d2d9e4;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mc-attribute-current{color:#f5d04f;font-weight:900;font-size:15px;font-variant-numeric:tabular-nums}.mc-attribute-preview-level{color:#aeb5c0;font-size:11px;font-weight:800}.mc-attribute-max{font-size:10px;color:#9299a4;font-weight:800;white-space:nowrap}\n.mc-attribute-track{height:17px;background:#333a43;border:1px solid #4a515b;border-radius:4px;overflow:hidden;position:relative}\n.mc-attribute-fill{position:absolute;inset:0 auto 0 0;background:repeating-linear-gradient(135deg,#f2d04d 0,#f2d04d 6px,#d9b63d 6px,#d9b63d 10px);z-index:1}\n.mc-attribute-preview{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg,#b8bdc7 0,#b8bdc7 5px,#858d99 5px,#858d99 9px);z-index:2;opacity:.95}\n.mc-attribute-locked{position:absolute;top:0;bottom:0;right:0;background:#171b22;z-index:3}.mc-attribute-cap-marker{position:absolute;top:-2px;bottom:-2px;width:2px;background:#8d929c;z-index:4;transform:translateX(-1px)}\n.mc-attribute-controls{display:flex;justify-content:space-between;align-items:center;margin-top:5px;color:#929baa;font-size:10px}.mc-attribute-controls>div{display:flex;gap:5px}\n.mc-attribute-arrow{min-width:27px;height:24px;border:1px solid #5f6570;border-radius:5px;background:#333943;color:#f3d25a;font-weight:900;cursor:pointer}.mc-attribute-arrow:disabled{opacity:.22;cursor:not-allowed}\n.mc-attribute-purchase{position:sticky;bottom:8px;z-index:5;display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px 14px;margin-top:-88px;background:#0b1424ed;border:1px solid #52617a;border-radius:12px;box-shadow:0 12px 32px #0008;backdrop-filter:blur(10px)}\n.mc-attribute-purchase>div{margin-right:auto}.mc-attribute-purchase strong{display:block;color:#f4d257;font-size:20px}.mc-attribute-purchase span{font-size:10px;color:#aebbd0}\n.mc-story-prompt{margin:15px 0 0;color:#f3d45c;font-weight:800}\n.mc-box-summary{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;text-align:center}.mc-box-summary>div{display:flex;flex-direction:column;gap:5px}.mc-box-summary span{font-size:12px;color:#b4c4dd;letter-spacing:.12em}.mc-box-summary strong{font-size:clamp(32px,6vw,58px);color:#f5d45d}.mc-box-summary>b{font-size:12px;color:#a8b5c9}\n.mc-box-team{margin:15px 0;padding:16px;border:1px solid #344c6c;border-radius:13px;background:#0e1a2b}.mc-box-team-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.mc-box-team-head h2{margin:4px 0 0}.mc-box-team-head>strong{font-size:32px;color:#f3d45c}\n.mc-table-wrap{width:100%;overflow-x:auto}.mc-box-table{width:100%;border-collapse:collapse;font-size:11px;white-space:nowrap;font-variant-numeric:tabular-nums}\n.mc-box-table th,.mc-box-table td{padding:8px 9px;text-align:right;border-bottom:1px solid #ffffff14}.mc-box-table th:first-child,.mc-box-table td:first-child{text-align:left;min-width:145px}\n.mc-box-table th{font-size:10px;color:#aebbd0;letter-spacing:.07em}.mc-box-table td:first-child small{display:block;color:#8696ae;font-size:9px}.mc-box-total{font-weight:900;color:#f5d45d;background:#202c3b}\n@media(max-width:820px){.mc-attribute-panels{grid-template-columns:1fr}.mc-attribute-purchase{flex-wrap:wrap}.mc-attribute-purchase .mc-btn{flex:1}.mc-box-table{font-size:10px}.mc-box-table th,.mc-box-table td{padding:7px 6px}}\n@media(max-width:480px){.mc-attribute-heading{gap:6px}.mc-attribute-name{font-size:11px}.mc-xp-heading{align-items:flex-start}.mc-box-team{padding:9px}.mc-attribute-purchase{bottom:4px;padding:8px}.mc-attribute-purchase .mc-btn{font-size:12px;padding:10px}}\n";
 const root=document.createElement("div");root.id="nbaMyCareerRoot";root.hidden=true;document.body.appendChild(root);
 let career=null,draftPlayer=null,activeStory=null,buildBudget=760,saveError="";
-let activeMode="launcher",mygmSnapshot=null,launcherSnapshot=null;
+let activeMode="launcher",mygmSnapshot=null,launcherSnapshot=null,careerBaseSource="";
+const ATTRIBUTE_HOLD_INTERVAL_MS=50;
+let attributeHoldSession=null;
 const labelFor=key=>{for(const list of Object.values(groups))for(const pair of list)if(pair[0]===key)return pair[1];return key;};
 function allPlayers(){return typeof players!=="undefined"&&Array.isArray(players)?players:[];}
 function findPlayer(id){return allPlayers().find(p=>String(p.id)===String(id))||null;}
 function playerForCareer(){return career&&findPlayer(career.playerId);}
 function seasonName(year){return typeof seasonLabel==="function"?seasonLabel(year):String(year)+"-"+String((year+1)%100).padStart(2,"0");}
-function render(html){root.innerHTML='<div class="mc-shell">'+html+'</div>';root.hidden=false;}
+function render(html){stopAttributeHold(false);root.innerHTML='<div class="mc-shell">'+html+'</div>';root.hidden=false;}
 function header(title,subtitle){return '<div class="mc-top"><div><div class="mc-kicker">NBA SIM LAB · MYCAREER</div><div style="font-weight:900;font-size:13px;color:#aebdd5">'+escHtml(subtitle||"Une carrière. Une légende.")+'</div></div><button class="mc-btn secondary" id="mcReturn">↩ Écran de départ</button></div><h1 class="mc-title">'+escHtml(title)+'</h1>';}
 function attachReturn(){const b=$("mcReturn");if(b)b.onclick=returnToStart;}
 function hideGM(){const gm=$("myGMStart");if(gm)gm.hidden=true;document.body.classList.remove("gm-startup");document.body.style.overflow="";}
@@ -56,10 +58,52 @@ function openCareerHome(){
 }
 function beginNewCareer(){
  if(loadStored()&&!confirm("Remplacer la sauvegarde MyCareer actuelle par une nouvelle carrière ?"))return;
- localStorage.removeItem(KEY);career=null;draftPlayer=null;
- players=allPlayers().filter(p=>!p.myCareer&&p.source!=="MyCareer · Rival généré"&&((typeof nbaTeams!=="undefined"&&nbaTeams.some(team=>team[0]===p.team))||String(p.team).toUpperCase()==="FA"||String(p.team).toUpperCase()==="FREE_AGENT"));
- customTeams=[];nextCustomTeamId=1;if(typeof resetLeague==="function")resetLeague();seasonCalendar=null;if(typeof window.NBASimPrepareMyCareerMode==="function")window.NBASimPrepareMyCareerMode();
- if(!players.length&&$("demo")){$("demo").click();showCreation();}else showCreation();
+ showCareerBaseChoice();
+}
+function showCareerBaseChoice(){
+ render(header("CHOISIR LES JOUEURS NBA","Sélectionne la base qui composera les effectifs de ta ligue.")+
+  '<div class="mc-grid" style="gap:16px"><button class="mc-mode" id="mcUseDemo"><div class="mc-kicker">BASE INTÉGRÉE</div><h2>Charger les joueurs de la démo</h2><p>Utiliser les joueurs de démonstration et conserver leurs équipes NBA.</p></button><button class="mc-mode" id="mcUseSave"><div class="mc-kicker">FICHIER JSON</div><h2>Charger les joueurs d’une sauvegarde</h2><p>Importer les joueurs et leurs équipes depuis une sauvegarde NBA Sim Lab.</p></button></div><input id="mcCareerBaseFile" type="file" accept=".json,.txt,application/json" hidden><p id="mcBaseStatus" class="mc-status"></p><div class="mc-actions"><button class="mc-btn secondary" id="mcBaseCancel">Annuler</button></div>');
+ attachReturn();
+ $("mcUseDemo").onclick=()=>{
+  if(typeof demoPlayers==="undefined"||!Array.isArray(demoPlayers)||!demoPlayers.length){$("mcBaseStatus").textContent="La base de démonstration est indisponible.";return;}
+  prepareCareerPlayerBase(demoPlayers,"Démo NBA");
+ };
+ $("mcUseSave").onclick=()=>$("mcCareerBaseFile").click();
+ $("mcCareerBaseFile").onchange=async event=>{
+  const file=event.target.files&&event.target.files[0];if(!file)return;
+  $("mcBaseStatus").textContent="Lecture de "+file.name+"…";
+  try{
+   const data=typeof parseSaveJsonFile==="function"?await parseSaveJsonFile(file):JSON.parse(await file.text());
+   const list=Array.isArray(data)?data:data&&data.players;
+   if(!Array.isArray(list)||!list.length)throw new Error("Le fichier doit contenir un tableau de joueurs ou une sauvegarde NBA Sim Lab.");
+   prepareCareerPlayerBase(list,"Sauvegarde · "+file.name);
+  }catch(error){$("mcBaseStatus").textContent="Chargement impossible : "+error.message;}
+ };
+ $("mcBaseCancel").onclick=openCareerHome;
+}
+function prepareCareerPlayerBase(sourcePlayers,sourceLabel){
+ const teams=typeof nbaTeams!=="undefined"?nbaTeams:[];
+ const valid=[];
+ sourcePlayers.forEach(player=>{
+  if(!player||typeof player!=="object"||player.retired===true||player.isRetired===true||player.myCareer||player.source==="MyCareer · Rival généré")return;
+  const rawTeam=String(player.team??player.teamAbbreviation??"").trim();
+  const found=teams.find(team=>String(team[0]).toUpperCase()===rawTeam.toUpperCase()||String(team[1]).toLowerCase()===rawTeam.toLowerCase());
+  const teamCode=found?found[0]:(["FA","FREE_AGENT","FREE AGENT"].includes(rawTeam.toUpperCase())?"FA":null);
+  if(teamCode)valid.push(Object.assign({},player,{team:teamCode}));
+ });
+ if(!valid.length){const status=$("mcBaseStatus");if(status)status.textContent="Aucun joueur d’une équipe NBA ou agent libre n’a été trouvé dans cette base.";return false;}
+ try{
+  players=typeof normalize==="function"?normalize(valid):valid.map(player=>Object.assign({},player));
+  customTeams=[];nextCustomTeamId=1;nextPlayerId=Math.max(1000,...players.map(player=>(Number(player.id)||0)+1));
+  if(typeof resetLeague==="function")resetLeague();
+  seasonCalendar=null;seasonResults=[];phase="idle";seasonYear=2025;
+  if(typeof window.NBASimPrepareMyCareerMode==="function")window.NBASimPrepareMyCareerMode();
+  career=null;draftPlayer=null;pendingAttributeUpgrades={};careerBaseSource=sourceLabel;
+  localStorage.removeItem(KEY);
+  if(typeof window.NBAMyNBARosterChanged==="function")window.NBAMyNBARosterChanged();
+  showCreation();
+  return true;
+ }catch(error){const status=$("mcBaseStatus");if(status)status.textContent="Préparation de la ligue impossible : "+error.message;return false;}
 }
 function specialtyOptions(pos){return(profiles[pos]||profiles.SF).map(x=>'<option value="'+x.id+'">'+x.name+'</option>').join("");}
 function profileFor(pos,id){const list=profiles[pos]||profiles.SF;return list.find(x=>x.id===id)||list[0];}
