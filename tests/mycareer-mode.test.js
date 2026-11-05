@@ -120,3 +120,16 @@ assert.match(career, /pointerup/);
 assert.match(career, /window\.NBASimMyCareerHoldIntervalMs=ATTRIBUTE_HOLD_INTERVAL_MS/);
 
 console.log("OK — MyCareer : XP, attributs, histoires, box scores et isolation MyGM.");
+
+assert.match(career, /function applyPhysiqueBaseline\(/, "Body measurements should directly adjust starting attributes.");
+assert.match(career, /function renderCareerLeagueLeaders\(/, "MyCareer should include League Leaders.");
+assert.match(career, /function renderCareerCalendarMarkup\(/, "MyCareer should show the 82-game schedule as a calendar grid.");
+assert.match(career, /mc-calendar-grid/, "The schedule should render monthly game tiles.");
+assert.match(career, /career\.firedFromNBA/, "Dynamic NBA job security should provide a dismissal ending.");
+assert.match(career, /career\.tradeHistory/, "MyCareer should record team changes for the season recap.");
+assert.match(career, /topAttributeGains/, "The end-of-season recap should show the most improved attributes.");
+assert.match(career, /publicOpinionLabel/, "The end-of-season recap should show public opinion.");
+assert.match(career, /rounds\.filter\(x=>x\.round===name\)/, "The postseason recap should display each playoff phase separately.");
+assert.match(career, /setTimeout\(step,20\)/, "Full-season simulation should yield between games to avoid blocking the UI.");
+assert.match(career, /GÉN après améliorations/, "Attribute allocation should show the preview overall.");
+assert.match(career, /"SHOOTING".*"DEFENSE".*"REBOND".*"FINITION".*"ORGANISATION".*"QUALITÉ ATHLÉTIQUE"/, "Attribute categories should follow the requested NBA 2K organization.");
