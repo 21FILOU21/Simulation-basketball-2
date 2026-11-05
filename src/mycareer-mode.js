@@ -304,6 +304,11 @@ function nextPlayerGame(){
  if(typeof seasonCalendar==="undefined"||!seasonCalendar||!Array.isArray(seasonCalendar.games))return null;
  return seasonCalendar.games.filter(g=>g.status!=="completed"&&(g.home.code===career.teamCode||g.away.code===career.teamCode)&&Number(g.round)>Number(career.lastRoundPlayed||0)).sort((a,b)=>a.round-b.round)[0]||null;
 }
+function careerMonthForScheduledGame(game,teamCode){
+ if(!game)return "Calendrier";const number=String(game.home&&game.home.code)===String(teamCode)?Number(game.homeGameNumber||game.gameNumberHome):Number(game.awayGameNumber||game.gameNumberHome),stages=seasonCalendar&&Array.isArray(seasonCalendar.stages)?seasonCalendar.stages:[];
+ let remaining=number;for(const stage of stages){remaining-=Number(stage.count)||0;if(remaining<=0)return String(stage.label||"Calendrier");}
+ return String(game.stage||"Calendrier");
+}
 function statLine(){const s=career.seasonStats||{},gp=Math.max(1,Number(s.gp)||0);return (Number(s.gp)||0)+" MJ · "+((Number(s.pts)||0)/gp).toFixed(1)+" PTS · "+((Number(s.reb)||0)/gp).toFixed(1)+" REB · "+((Number(s.ast)||0)/gp).toFixed(1)+" AST";}
 const CAREER_ATTRIBUTE_SECTIONS=[
  {title:"SHOOTING",tone:"shoot",keys:["midRange","threePoint","freeThrow","shotIQ"]},
@@ -451,13 +456,13 @@ function renderCareerTeam(){
 function renderCareerCalendarMarkup(){
  const p=playerForCareer();if(!p||!career.teamCode||typeof seasonCalendar==="undefined"||!seasonCalendar||!Array.isArray(seasonCalendar.games))return "";
  const games=seasonCalendar.games.filter(g=>g.home&&g.away&&(String(g.home.code)===String(career.teamCode)||String(g.away.code)===String(career.teamCode))),stages=[];
- games.forEach(g=>{const stage=g.stage||"Calendrier";let group=stages.find(x=>x.name===stage);if(!group){group={name:stage,games:[]};stages.push(group);}group.games.push(g);});
+ games.forEach(g=>{const stage=careerMonthForScheduledGame(g,career.teamCode);let group=stages.find(x=>x.name===stage);if(!group){group={name:stage,games:[]};stages.push(group);}group.games.push(g);});
  const html=stages.map(group=>'<section class="mc-calendar-month"><h3>'+escHtml(group.name)+'</h3><div class="mc-calendar-grid">'+group.games.map(g=>{const home=String(g.home.code)===String(career.teamCode),opponent=home?g.away:g.home,played=g.status==="completed",score=played?(home?g.homeScore+"–"+g.awayScore:g.awayScore+"–"+g.homeScore):"À jouer",won=played&&Number(home?g.homeScore:g.awayScore)>Number(home?g.awayScore:g.homeScore),lost=played&&!won;return '<button type="button" class="mc-calendar-game '+(won?"is-win":lost?"is-loss":"is-pending")+'" data-mc-calendar-game="'+escHtml(g.id)+'" aria-label="'+(played?"Consulter":"Simuler jusqu’à")+' '+escHtml(opponent.name||opponent.code)+'"><small>'+(home?"DOMICILE":"EXTÉRIEUR")+' · J'+Number(g.gameNumberHome||0)+'</small><b>'+escHtml(opponent.code||opponent.name)+'</b><span>'+score+'</span><em>'+(played?"Voir le box score":"Cliquer pour simuler")+'</em></button>';}).join("")+'</div></section>').join("");
  return '<div class="mc-card mc-calendar-card"><div class="mc-kicker">CALENDRIER · 82 MATCHS</div><h2>Grille interactive des matchs</h2><p class="mc-muted">Clique sur un match déjà joué pour revoir son box score, ou sur un match à venir pour simuler toutes les journées précédentes jusqu’à cette rencontre. La simulation s’arrête aux choix mensuels.</p>'+html+'</div>';
 }
 function renderCareerCalendarGameBoxScore(game){
  if(!game||!game.playerBoxScores)return renderDashboard();const box=captureCareerBoxScore(game),home=box.home,away=box.away;
- render(header("BOX SCORE","Calendrier · "+escHtml(game.stage||"Saison")+' · '+(Number(game.round)||"") )+'<div class="mc-card mc-box-summary"><div><span>'+escHtml(home.code)+'</span><strong>'+home.score+'</strong></div><b>FINAL</b><div><span>'+escHtml(away.code)+'</span><strong>'+away.score+'</strong></div></div>'+renderCareerBoxScoreSide(home)+renderCareerBoxScoreSide(away)+'<div class="mc-actions"><button class="mc-btn secondary" id="mcCalendarBoxBack">Retour au calendrier</button></div>');
+ render(header("BOX SCORE","Calendrier · "+escHtml(careerMonthForScheduledGame(game,career.teamCode))+' · '+(Number(game.round)||"") )+'<div class="mc-card mc-box-summary"><div><span>'+escHtml(home.code)+'</span><strong>'+home.score+'</strong></div><b>FINAL</b><div><span>'+escHtml(away.code)+'</span><strong>'+away.score+'</strong></div></div>'+renderCareerBoxScoreSide(home)+renderCareerBoxScoreSide(away)+'<div class="mc-actions"><button class="mc-btn secondary" id="mcCalendarBoxBack">Retour au calendrier</button></div>');
  attachReturn();$("mcCalendarBoxBack").onclick=renderDashboard;
 }
 function simulateCareerCalendarTarget(gameId){
@@ -631,7 +636,7 @@ function simulateNextMatch(options){
   career.retired=true;career.retirementReason="Blessure très grave mettant fin à la carrière.";saveCareer();if(!silent)renderRetirement();return {ok:false,retired:true};
  }
  career.fatigue=clamp((Number(career.fatigue)||0)+Math.max(0,(Number(line.minutes)||0)-28)*.35-1.5,0,100);
- const currentMonth=String(target.stage||"Calendrier");career.lastPlayedMonth=currentMonth;
+ const currentMonth=careerMonthForScheduledGame(target,career.teamCode);career.lastPlayedMonth=currentMonth;
  const upcomingPlayerGame=nextPlayerGame(),monthEnded=!upcomingPlayerGame||String(upcomingPlayerGame.stage||"Calendrier")!==currentMonth;
  career.pendingStory=monthEnded&&career.lastStoryMonth!==currentMonth;
  if(career.pendingStory){career.pendingStoryMonth=currentMonth;career.lastStoryMonth=currentMonth;}
