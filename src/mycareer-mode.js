@@ -334,6 +334,25 @@ function renderLastBoxScore(){
  $("mcBoxContinue").onclick=()=>{if(career.pendingStory)renderStory();else if(career.gamesPlayed>=82)finishSeason();else renderDashboard();};
  $("mcBoxAttributes").onclick=showCareerAttributes;
 }
+function renderCareerTeam(){
+ const p=playerForCareer();if(!p)return renderDashboard();
+ const teamMeta=(typeof nbaTeams!=="undefined"?nbaTeams:[]).find(team=>String(team[0])===String(career.teamCode));
+ const teamName=teamMeta?teamMeta[1]:career.teamName||career.teamCode;
+ const roster=allPlayers().filter(player=>String(player.team)===String(career.teamCode)&&player.retired!==true&&player.isRetired!==true).sort((a,b)=>{
+  if(String(a.id)===String(p.id))return -1;if(String(b.id)===String(p.id))return 1;
+  return (typeof overallRating==="function"?overallRating(b):Number(b.pts)||0)-(typeof overallRating==="function"?overallRating(a):Number(a.pts)||0);
+ }).slice(0,15);
+ const body=roster.map(player=>{
+  const isCareerPlayer=String(player.id)===String(p.id),injury=player.injury;
+  const ovr=isCareerPlayer?careerOverall(player):(typeof overallRating==="function"?overallRating(player):"—");
+  const portrait=typeof window.NBASimPlayerPortraitMarkup==="function"?window.NBASimPlayerPortraitMarkup(player,34):"";
+  return '<tr class="'+(isCareerPlayer?"mc-my-team-player":"")+'"><td><b>'+portrait+escHtml(player.name)+'</b>'+(isCareerPlayer?'<small>TON JOUEUR</small>':"")+'</td><td>'+escHtml(player.pos||"—")+'</td><td><b>'+ovr+'</b></td><td>'+Math.round(Number(player.age)||0)+'</td><td>'+Math.round(Number(player.height)||0)+' cm</td><td>'+Math.round(Number(player.mpg)||0)+'</td><td>'+(Number(player.pts)||0).toFixed(1)+'</td><td>'+(Number(player.reb)||0).toFixed(1)+'</td><td>'+(Number(player.ast)||0).toFixed(1)+'</td><td>'+(injury?'<span class="mc-team-injury">Blessé</span>':'<span class="mc-team-healthy">Disponible</span>')+'</td></tr>';
+ }).join("");
+ render(header("MON ÉQUIPE",teamName+" · "+roster.length+" joueurs")+
+  '<div class="mc-grid three"><div class="mc-metric"><strong>'+career.wins+'-'+career.losses+'</strong><span>Bilan de l’équipe</span></div><div class="mc-metric"><strong>'+career.gamesPlayed+'/82</strong><span>Matchs joués</span></div><div class="mc-metric"><strong>'+roster.length+'/15</strong><span>Effectif</span></div></div>'+
+  '<div class="mc-card"><div class="mc-kicker">EFFECTIF NBA · LECTURE SEULE</div><p class="mc-muted">Voici les joueurs actuellement enregistrés dans ta franchise. Les minutes, la rotation, les tendances et les contrats ne peuvent pas être modifiés depuis MyCareer.</p><div class="mc-table-wrap"><table class="mc-box-table mc-roster-table"><thead><tr><th>Joueur</th><th>POS</th><th>GÉN</th><th>ÂGE</th><th>TAILLE</th><th>MIN</th><th>PTS</th><th>REB</th><th>AST</th><th>ÉTAT</th></tr></thead><tbody>'+body+'</tbody></table></div><div class="mc-actions"><button class="mc-btn secondary" id="mcTeamBack">Retour à ma carrière</button></div></div>');
+ attachReturn();$("mcTeamBack").onclick=renderDashboard;
+}
 function renderDashboard(){
  const p=playerForCareer();if(!p||career.retired)return renderRetirement();installCareerOverall();
  const rival=career.rivalId!=null?findPlayer(career.rivalId):null,next=nextPlayerGame(),game=career.lastGame,injury=p.injury;
@@ -344,13 +363,14 @@ function renderDashboard(){
  '<div class="mc-grid three"><div class="mc-metric"><strong>'+career.emotions+'</strong><span>Émotions</span></div><div class="mc-metric"><strong>'+career.chemistry+'</strong><span>Entente d’équipe</span></div><div class="mc-metric"><strong>'+career.popularity+'</strong><span>Popularité</span></div></div>'+
  '<div class="mc-card"><div class="mc-grid"><div><div class="mc-kicker">STATISTIQUES DE LA SAISON</div><h2>'+statLine()+'</h2><p class="mc-muted">Blessure : '+injuryText+'</p><p class="mc-muted">Prochain match : '+(next?escHtml(next.home.name)+" vs "+escHtml(next.away.name):"Saison régulière terminée")+'</p></div><div><div class="mc-kicker">TON RIVAL</div><h2>'+(rival?escHtml(rival.name):escHtml(career.rivalName||"Rival à déterminer"))+'</h2><p class="mc-muted">'+(rival?escHtml(rival.team)+" · GÉN "+(typeof overallRating==="function"?overallRating(rival):"—"):"Un nouveau rival sera identifié.")+'</p></div></div><div class="mc-divider"></div><div class="mc-kicker">DERNIER MATCH</div>'+
  (game?'<div class="mc-game-result"><b>'+escHtml(game.teamCode)+'</b><strong>'+game.teamScore+' – '+game.opponentScore+'</strong><b>'+escHtml(game.opponentCode)+'</b></div><p class="mc-muted" style="text-align:center">'+escHtml(game.result)+' · '+escHtml(game.line)+'</p>':'<p class="mc-muted">Tu n’as pas encore disputé ton premier match NBA.</p>')+
- '<div class="mc-actions"><button class="mc-btn primary" id="mcNextMatch" '+(!next||storyDue?"disabled":"")+'>Simuler le prochain match →</button><button class="mc-btn primary" id="mcSimSeason" '+(seasonComplete||storyDue?"disabled":"")+'>Simuler la saison →</button><button class="mc-btn secondary" id="mcAttributes">Voir mes attributs'+(xp.points>0?" · "+xp.points+" point(s)":"")+'</button>'+(game&&game.boxScore?'<button class="mc-btn secondary" id="mcViewBox">Voir le box score</button>':'')+'<button class="mc-btn secondary" id="mcSave">Sauvegarder</button></div>'+
+ '<div class="mc-actions"><button class="mc-btn primary" id="mcNextMatch" '+(!next||storyDue?"disabled":"")+'>Simuler le prochain match →</button><button class="mc-btn primary" id="mcSimSeason" '+(seasonComplete||storyDue?"disabled":"")+'>Simuler la saison →</button><button class="mc-btn secondary" id="mcAttributes">Voir mes attributs'+(xp.points>0?" · "+xp.points+" point(s)":"")+'</button><button class="mc-btn secondary" id="mcTeam">Voir mon équipe</button>'+(game&&game.boxScore?'<button class="mc-btn secondary" id="mcViewBox">Voir le box score</button>':'')+'<button class="mc-btn secondary" id="mcSave">Sauvegarder</button></div>'+
  (storyDue?'<p class="mc-story-prompt">Une histoire t’attend après '+career.gamesPlayed+' matchs.</p><div class="mc-actions"><button class="mc-btn primary" id="mcOpenStory">Faire mon choix d’histoire →</button></div>':'')+
  '<p class="mc-status">'+escHtml(saveError||"La simulation MyCareer est isolée de MyGM.")+'</p></div>');
  attachReturn();
  $("mcNextMatch").onclick=()=>simulateNextMatch();
  $("mcSimSeason").onclick=simulateCareerSeason;
  $("mcAttributes").onclick=()=>{pendingAttributeUpgrades={};showCareerAttributes();};
+ $("mcTeam").onclick=renderCareerTeam;
  if($("mcViewBox"))$("mcViewBox").onclick=renderLastBoxScore;
  if($("mcOpenStory"))$("mcOpenStory").onclick=renderStory;
  $("mcSave").onclick=()=>{saveCareer();renderDashboard();};
