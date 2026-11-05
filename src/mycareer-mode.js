@@ -207,13 +207,14 @@ async function openCareerSaveManager(){
 }
 async function saveCareerToSlot(index){
  if(index<0||index>=10||!career)return;
- if(!careerSaveDirectoryHandle){const chosen=await chooseCareerSaveDirectory();if(!chosen)return;}
+ const inputBeforePicker=$("mcSaveLabel"),requestedLabel=(inputBeforePicker&&inputBeforePicker.value||"").trim();
+ if(!careerSaveDirectoryHandle){const chosen=await chooseCareerSaveDirectory();if(!chosen)return;const refreshedInput=$("mcSaveLabel");if(refreshedInput&&requestedLabel)refreshedInput.value=requestedLabel;}
  if(careerSaveDirectoryPermission!=="granted"){
   careerSaveDirectoryPermission=await careerSavePermission(careerSaveDirectoryHandle,true);
   if(careerSaveDirectoryPermission!=="granted"){renderCareerSaveManager("Autorise l’accès au dossier avant d’enregistrer.");return;}
  }
  if(careerSaveSlots[index]&&!confirm("Remplacer la sauvegarde de l’emplacement "+(index+1)+" ?"))return;
- const input=$("mcSaveLabel"),label=(input&&input.value||"").trim()||("Carrière "+(playerForCareer()&&playerForCareer().name||"MyCareer"));
+ const input=$("mcSaveLabel"),label=requestedLabel||(input&&input.value||"").trim()||("Carrière "+(playerForCareer()&&playerForCareer().name||"MyCareer"));
  try{
   const payload={format:"nba-sim-lab-mycareer-slot",version:1,slot:index+1,label,updatedAt:new Date().toISOString(),data:buildCareerSaveData()};
   const handle=await careerSaveDirectoryHandle.getFileHandle(careerSaveFileName(index),{create:true});
@@ -477,12 +478,12 @@ const STORY_RISK_REWARD={
  "22:1":{changes:{agility:3,speed:2,stamina:-1},fatigue:11,capIncrease:{agility:1}},
  "22:2":{changes:{strength:2,finishing:2,speed:-1},fatigue:10,capIncrease:{finishing:1}},
  "24:1":{changes:{ballHandle:3,workEthic:1,stamina:-1},fatigue:9,capIncrease:{ballHandle:1}},
- "25:0":{changes:{clutch:4,speed:2},socialChanges:{emotions:4,popularity:2},fatigue:26,capIncrease:{clutch:2},injuryRisk:18},
- "25:1":{changes:{passing:4,basketballIQ:2},socialChanges:{chemistry:5},fatigue:12,capIncrease:{passing:2}},
+ "28:0":{changes:{clutch:4,speed:2},socialChanges:{emotions:4,popularity:2},fatigue:26,capIncrease:{clutch:2},injuryRisk:18},
+ "26:1":{changes:{passing:4,basketballIQ:2},socialChanges:{chemistry:5},fatigue:12,capIncrease:{passing:2}},
  "26:0":{changes:{speed:4,acceleration:3,stamina:2},socialChanges:{emotions:2},fatigue:32,capIncrease:{speed:3,acceleration:2},injuryRisk:28},
  "27:0":{changes:{midRange:4,consistency:2},socialChanges:{popularity:6},fatigue:5,capIncrease:{midRange:2}},
- "28:1":{changes:{workEthic:4,consistency:4},socialChanges:{chemistry:4},fatigue:24,capIncrease:{workEthic:2},injuryRisk:20},
- "29:0":{changes:{threePoint:4,stamina:3},socialChanges:{popularity:4,emotions:4},fatigue:24,capIncrease:{threePoint:3},injuryRisk:22},
+ "29:1":{changes:{workEthic:4,consistency:4},socialChanges:{chemistry:4},fatigue:24,capIncrease:{workEthic:2},injuryRisk:20},
+ "31:0":{changes:{threePoint:4,stamina:3},socialChanges:{popularity:4,emotions:4},fatigue:24,capIncrease:{threePoint:3},injuryRisk:22},
  "30:0":{changes:{clutch:4,shotIQ:3},socialChanges:{emotions:4,chemistry:2},fatigue:21,capIncrease:{clutch:2},injuryRisk:14}
 };
 function storyChoiceOutcome(sceneIndex,choiceIndex,choice){
@@ -1192,7 +1193,7 @@ function installMyCareerIsolation(){
 function install(){
  installMyCareerIsolation();installCareerOverall();mygmSnapshot=loadGMStored();if(typeof window.NBASimCaptureMyGMState==="function"){try{launcherSnapshot=window.NBASimCaptureMyGMState();}catch(_){launcherSnapshot=null;}}const gm=$("myGMStart");if(gm)gm.hidden=true;showPicker();installMenuReturn();
  const observer=new MutationObserver(()=>installMenuReturn());observer.observe(document.body,{childList:true,subtree:true});
- window.NBASimMyCareerStoryOutcome=storyChoiceOutcome;window.NBASimMyCareerStoryCount=stories.length;window.NBASimMyCareerBuildSaveSnapshot=buildCareerSaveData;window.NBASimMyCareerNextLeagueGame=nextCareerLeagueGame;window.NBASimMyCareerSave=saveCareer;window.NBASimMyCareerState=()=>career;window.NBASimMyCareerHoldIntervalMs=ATTRIBUTE_HOLD_INTERVAL_MS;window.NBASimMyCareerXPRequired=xpRequiredForNextPoint;window.NBASimMyCareerXPFromStats=careerXPFromStats;window.NBASimReturnToModePicker=function(){activeMode="launcher";root.hidden=true;showPicker();};
+ window.NBASimMyCareerStoryOutcome=storyChoiceOutcome;window.NBASimMyCareerStoryCount=stories.length;window.NBASimMyCareerBuildSaveSnapshot=buildCareerSaveData;window.NBASimMyCareerStoryOutcome=storyChoiceOutcome;window.NBASimMyCareerStoryCount=stories.length;window.NBASimMyCareerBuildSaveSnapshot=buildCareerSaveData;window.NBASimMyCareerNextLeagueGame=nextCareerLeagueGame;window.NBASimMyCareerSave=saveCareer;window.NBASimMyCareerState=()=>career;window.NBASimMyCareerHoldIntervalMs=ATTRIBUTE_HOLD_INTERVAL_MS;window.NBASimMyCareerXPRequired=xpRequiredForNextPoint;window.NBASimMyCareerXPFromStats=careerXPFromStats;window.NBASimReturnToModePicker=function(){activeMode="launcher";root.hidden=true;showPicker();};
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
 })();
