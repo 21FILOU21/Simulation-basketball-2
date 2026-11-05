@@ -20,6 +20,7 @@ document.head.appendChild(style);
 style.textContent += ".mc-attribute-arrow{touch-action:none;user-select:none;-webkit-user-select:none}";
 style.textContent += ".mc-fatigue-card{padding:12px 16px}.mc-fatigue-heading{display:flex;justify-content:space-between;align-items:center}.mc-fatigue-heading strong{color:#fb923c}.mc-fatigue-track{height:9px;background:#26364b;border-radius:20px;overflow:hidden;margin:8px 0}.mc-fatigue-track span{height:100%;display:block;background:linear-gradient(90deg,#36bd7c,#f59e0b,#ef4444);border-radius:20px}.mc-season-awards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.mc-season-award{display:flex;align-items:flex-start;gap:10px;padding:11px;border:1px solid #4b5b74;border-radius:10px;background:#101c2e}.mc-season-award>span{font-size:25px}.mc-season-award div{display:flex;flex-direction:column;gap:4px;min-width:0}.mc-season-award b{color:#f5d76b}.mc-season-award strong{font-size:14px}.mc-season-award small{color:#aebdd5;font-size:11px}@media(max-width:700px){.mc-season-awards{grid-template-columns:1fr}}";
 style.textContent += ".mc-story-outcome{display:flex;gap:6px 10px;flex-wrap:wrap;margin-top:10px;padding-top:9px;border-top:1px solid #ffffff1c;font-size:11px}.mc-story-gain{color:#86efac}.mc-story-loss{color:#fca5a5}.mc-story-cap{color:#fcd34d}.mc-story-fatigue{color:#fb923c}.mc-story-recovery{color:#67e8f9}.mc-story-outcome small{opacity:.78}";
+style.textContent += "\n.mc-sim-progress-card{max-width:760px;margin:clamp(28px,8vh,90px) auto;text-align:center}.mc-sim-progress-card h2{font-size:clamp(22px,4vw,34px);margin:14px 0}.mc-sim-progress-card .mc-meter{height:12px;margin:24px 0 10px}.mc-sim-progress-card .mc-meter span{transition:width .12s ease}\n";
 style.textContent += "\n.mc-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}.mc-calendar-month{margin:18px 0}.mc-calendar-month h3{color:#f5d76b}.mc-calendar-game{display:flex;flex-direction:column;gap:3px;padding:8px 5px;border-radius:7px;text-align:center;min-width:0;width:100%;min-height:82px;color:#f4f7ff;font:inherit;background:#1b293d;border:1px solid #43536b;cursor:pointer}.mc-calendar-game:hover,.mc-calendar-game:focus-visible{outline:2px solid #f5d76b;outline-offset:2px;filter:brightness(1.2)}.mc-calendar-game small{font-size:8px;color:#aab8ce}.mc-calendar-game b{font-size:13px}.mc-calendar-game span{font-size:11px}.mc-calendar-game em{font-size:9px;color:#bac6d8;font-style:normal;margin-top:auto}.mc-calendar-game.is-win{border-color:#258c56;background:#173425}.mc-calendar-game.is-loss{border-color:#b33942;background:#3a1e25}.mc-calendar-game.is-pending{opacity:.9}@media(max-width:700px){.mc-calendar-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}";
 style.textContent += "\n.mc-my-team-player{background:#253344}.mc-my-team-player td:first-child{color:#f5d45d}.mc-my-team-player small{display:block;color:#f5d45d;font-size:9px;letter-spacing:.1em}\n.mc-team-injury{color:#f28c8c;font-weight:800}.mc-team-healthy{color:#7be0ad;font-weight:800}\n.mc-box-nav{display:flex;align-items:center;justify-content:center;gap:12px;margin:14px 0;color:#aebbd0;font-size:12px}.mc-box-nav button:disabled{opacity:.3}\n";
 style.textContent += "\n.mc-xp-card{border-color:#8f7936;background:linear-gradient(145deg,#292719,#111b2b)}\n.mc-xp-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.mc-xp-heading h2{margin:5px 0;font-size:clamp(19px,2.5vw,27px)}\n.mc-xp-points{text-align:right}.mc-xp-points strong{display:block;color:#f4d257;font-size:30px}.mc-xp-points span{font-size:10px;color:#b8c1d2;letter-spacing:.08em}\n.mc-xp-track{height:14px;margin:13px 0 8px;border-radius:20px;background:#202632;overflow:hidden;border:1px solid #4c5159}.mc-xp-track span{display:block;height:100%;background:repeating-linear-gradient(135deg,#f1d04f 0,#f1d04f 7px,#d8b33a 7px,#d8b33a 11px);border-radius:20px;transition:width .2s}\n.mc-attribute-panels{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;padding-bottom:105px}\n.mc-attribute-panel{padding:16px;border:1px solid #334154;border-radius:14px;min-width:0;background:#142033}\n.mc-attribute-panel header{display:flex;align-items:center;gap:9px;margin-bottom:14px}.mc-attribute-panel header h3{font-size:14px;letter-spacing:.09em;margin:0}\n.mc-attribute-panel-dot{height:9px;width:9px;border-radius:50%;background:#e6c54e}\n.mc-panel-finish{background:linear-gradient(145deg,#192538,#111a28);border-color:#354e71}.mc-panel-shoot{background:linear-gradient(145deg,#142b25,#0e1e1b);border-color:#2f6550}.mc-panel-shoot .mc-attribute-panel-dot{background:#43d28d}\n.mc-panel-play{background:linear-gradient(145deg,#30291a,#211d16);border-color:#6b5934}.mc-panel-play .mc-attribute-panel-dot{background:#e3b84a}\n.mc-panel-defense{background:linear-gradient(145deg,#301e24,#20151a);border-color:#6b3844}.mc-panel-defense .mc-attribute-panel-dot{background:#e56a77}\n.mc-panel-physical{background:linear-gradient(145deg,#242338,#171625);border-color:#4f486d}.mc-panel-physical .mc-attribute-panel-dot{background:#a99be8}\n.mc-panel-mental{background:linear-gradient(145deg,#192b35,#101d25);border-color:#355b68}.mc-panel-mental .mc-attribute-panel-dot{background:#6bc4d8}\n.mc-attribute-list{display:flex;flex-direction:column;gap:15px}.mc-attribute-row{padding:7px 0 9px;border-bottom:1px solid #ffffff12;min-width:0}.mc-attribute-row:last-child{border-bottom:0}\n.mc-attribute-heading{display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;align-items:baseline;gap:9px;margin-bottom:7px}\n.mc-attribute-name{font-size:12px;color:#d2d9e4;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mc-attribute-current{color:#f5d04f;font-weight:900;font-size:15px;font-variant-numeric:tabular-nums}.mc-attribute-preview-level{color:#aeb5c0;font-size:11px;font-weight:800}.mc-attribute-max{font-size:10px;color:#9299a4;font-weight:800;white-space:nowrap}\n.mc-attribute-track{height:17px;background:#333a43;border:1px solid #4a515b;border-radius:4px;overflow:hidden;position:relative}\n.mc-attribute-fill{position:absolute;inset:0 auto 0 0;background:repeating-linear-gradient(135deg,#f2d04d 0,#f2d04d 6px,#d9b63d 6px,#d9b63d 10px);z-index:1}\n.mc-attribute-preview{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg,#b8bdc7 0,#b8bdc7 5px,#858d99 5px,#858d99 9px);z-index:2;opacity:.95}\n.mc-attribute-locked{position:absolute;top:0;bottom:0;right:0;background:#171b22;z-index:3}.mc-attribute-cap-marker{position:absolute;top:-2px;bottom:-2px;width:2px;background:#8d929c;z-index:4;transform:translateX(-1px)}\n.mc-attribute-controls{display:flex;justify-content:space-between;align-items:center;margin-top:5px;color:#929baa;font-size:10px}.mc-attribute-controls>div{display:flex;gap:5px}\n.mc-attribute-arrow{min-width:27px;height:24px;border:1px solid #5f6570;border-radius:5px;background:#333943;color:#f3d25a;font-weight:900;cursor:pointer}.mc-attribute-arrow:disabled{opacity:.22;cursor:not-allowed}\n.mc-attribute-purchase{position:sticky;bottom:8px;z-index:5;display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px 14px;margin-top:-88px;background:#0b1424ed;border:1px solid #52617a;border-radius:12px;box-shadow:0 12px 32px #0008;backdrop-filter:blur(10px)}\n.mc-attribute-purchase>div{margin-right:auto}.mc-attribute-purchase strong{display:block;color:#f4d257;font-size:20px}.mc-attribute-purchase span{font-size:10px;color:#aebbd0}\n.mc-story-prompt{margin:15px 0 0;color:#f3d45c;font-weight:800}\n.mc-box-summary{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;text-align:center}.mc-box-summary>div{display:flex;flex-direction:column;gap:5px}.mc-box-summary span{font-size:12px;color:#b4c4dd;letter-spacing:.12em}.mc-box-summary strong{font-size:clamp(32px,6vw,58px);color:#f5d45d}.mc-box-summary>b{font-size:12px;color:#a8b5c9}\n.mc-box-team{margin:15px 0;padding:16px;border:1px solid #344c6c;border-radius:13px;background:#0e1a2b}.mc-box-team-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.mc-box-team-head h2{margin:4px 0 0}.mc-box-team-head>strong{font-size:32px;color:#f3d45c}\n.mc-table-wrap{width:100%;overflow-x:auto}.mc-box-table{width:100%;border-collapse:collapse;font-size:11px;white-space:nowrap;font-variant-numeric:tabular-nums}\n.mc-box-table th,.mc-box-table td{padding:8px 9px;text-align:right;border-bottom:1px solid #ffffff14}.mc-box-table th:first-child,.mc-box-table td:first-child{text-align:left;min-width:145px}\n.mc-box-table th{font-size:10px;color:#aebbd0;letter-spacing:.07em}.mc-box-table td:first-child small{display:block;color:#8696ae;font-size:9px}.mc-box-total{font-weight:900;color:#f5d45d;background:#202c3b}\n@media(max-width:820px){.mc-attribute-panels{grid-template-columns:1fr}.mc-attribute-purchase{flex-wrap:wrap}.mc-attribute-purchase .mc-btn{flex:1}.mc-box-table{font-size:10px}.mc-box-table th,.mc-box-table td{padding:7px 6px}}\n@media(max-width:480px){.mc-attribute-heading{gap:6px}.mc-attribute-name{font-size:11px}.mc-xp-heading{align-items:flex-start}.mc-box-team{padding:9px}.mc-attribute-purchase{bottom:4px;padding:8px}.mc-attribute-purchase .mc-btn{font-size:12px;padding:10px}}\n";
@@ -590,50 +591,63 @@ function createNewRival(p){
  const rival={id:typeof nextPlayerId!=="undefined"?nextPlayerId++:Date.now(),name,team:team[0],pos:p.pos,age:20,pts:0,reb:0,ast:0,stl:.8,blk:.4,ts:.56,three:.35,mpg:26,height:p.height,weight:p.weight,wingspan:p.wingspan,attributes:values,history:[],trophies:[],careerGames:[],source:"MyCareer · Rival généré"};
  players.push(rival);secureCareerRoster(rival);career.rivalId=rival.id;career.rivalName=name;career.generatedRival=true;if(typeof window.NBAMyNBARosterChanged==="function")window.NBAMyNBARosterChanged();
 }
-function simulateNextMatch(options){
- const silent=!!(options&&options.silent),p=playerForCareer();if(!p||career.retired)return {ok:false};
- if(!silent){career.autoSeasonSimulation=false;career.autoBatchBoxScores=[];career.autoBatchBoxIndex=0;}
- if(career.pendingStory&&!silent){renderStory();return {ok:false,storyDue:true};}
- if(p.team&&String(p.team)!==String(career.teamCode)){const oldCode=career.teamCode,oldMeta=(typeof nbaTeams!=="undefined"?nbaTeams:[]).find(t=>String(t[0])===String(oldCode)),newMeta=(typeof nbaTeams!=="undefined"?nbaTeams:[]).find(t=>String(t[0])===String(p.team));career.teamCode=String(p.team);career.teamName=newMeta?newMeta[1]:String(p.team);career.tradeNotice={from:oldMeta?oldMeta[1]:String(oldCode||"ancienne équipe"),fromCode:oldCode,to:career.teamName,toCode:career.teamCode,season:seasonName(seasonYear)};career.tradeHistory=Array.isArray(career.tradeHistory)?career.tradeHistory:[];career.tradeHistory.push(Object.assign({},career.tradeNotice));saveCareer();}
- const target=nextPlayerGame();
- if(!target){if(career.gamesPlayed>=82){if(!silent)finishSeason();return {ok:false,finished:true};}if(!silent)renderDashboard();return {ok:false};}
- if(typeof window.simulateScheduledGame!=="function"){saveError="Le moteur de simulation par possessions n'est pas disponible.";if(!silent)renderDashboard();return {ok:false,error:saveError};}
- const currentRound=Number(target.round)||0,games=seasonCalendar.games.filter(game=>game.status!=="completed"&&Number(game.round)<=currentRound).sort((a,b)=>a.round-b.round);
- const fatiguePenalty=clamp(Number(career.fatigue)||0,0,100);
- p.myCareerMoodModifiers={consistency:(Number(career.emotions||50)-50)*.025-fatiguePenalty*.025,clutch:(Number(career.emotions||50)-50)*.04-fatiguePenalty*.02,playmaking:(Number(career.chemistry||50)-50)*.035,passing:(Number(career.chemistry||50)-50)*.035,basketballIQ:(Number(career.chemistry||50)-50)*.03,intangibles:(Number(career.popularity||50)-50)*.02,speed:-fatiguePenalty*.035,acceleration:-fatiguePenalty*.035,agility:-fatiguePenalty*.03,stamina:-fatiguePenalty*.05,shotIQ:-fatiguePenalty*.02};
- let simulationError=null;
- window.NBASimMyCareerSimulationInProgress=true;
- try{
-  for(const game of games){
-   if(game.status==="completed")continue;
-   const result=window.simulateScheduledGame(game);
-   if(result===false&&game.status!=="completed")throw new Error("Le match "+game.id+" n'a pas pu être simulé.");
-  }
- }catch(error){simulationError=error;}
- finally{delete p.myCareerMoodModifiers;window.NBASimMyCareerSimulationInProgress=false;}
- if(simulationError||target.status!=="completed"){
-  saveError="Erreur de simulation : "+(simulationError?simulationError.message:"le match du joueur n'a pas été terminé.");
-  saveCareer();if(!silent)renderDashboard();return {ok:false,error:saveError};
- }
- career.lastRoundPlayed=currentRound;
- const home=target.home.code===career.teamCode,teamScore=home?target.homeScore:target.awayScore,oppScore=home?target.awayScore:target.homeScore,won=Number(teamScore)>Number(oppScore);
- career.gamesPlayed++;
+function syncCareerTeamFromPlayer(player){
+ if(!player||!player.team||String(player.team)===String(career.teamCode))return;
+ const oldCode=career.teamCode,oldMeta=(typeof nbaTeams!=="undefined"?nbaTeams:[]).find(t=>String(t[0])===String(oldCode)),newMeta=(typeof nbaTeams!=="undefined"?nbaTeams:[]).find(t=>String(t[0])===String(player.team));
+ career.teamCode=String(player.team);career.teamName=newMeta?newMeta[1]:String(player.team);
+ career.tradeNotice={from:oldMeta?oldMeta[1]:String(oldCode||"ancienne équipe"),fromCode:oldCode,to:career.teamName,toCode:career.teamCode,season:seasonName(seasonYear)};
+ career.tradeHistory=Array.isArray(career.tradeHistory)?career.tradeHistory:[];
+ career.tradeHistory.push(Object.assign({},career.tradeNotice));saveCareer();
+}
+function careerLeagueGamesThrough(targetGameId){
+ if(typeof seasonCalendar==="undefined"||!seasonCalendar||!Array.isArray(seasonCalendar.games))return [];
+ const ordered=seasonCalendar.games.map((game,index)=>({game,index})).sort((a,b)=>(Number(a.game.round)||0)-(Number(b.game.round)||0)||a.index-b.index);
+ const limit=targetGameId==null||targetGameId===""?ordered.length-1:ordered.findIndex(item=>String(item.game.id)===String(targetGameId));
+ return limit<0?[]:ordered.slice(0,limit+1).map(item=>item.game);
+}
+function nextCareerLeagueGame(targetGameId){
+ return careerLeagueGamesThrough(targetGameId).find(game=>game.status!=="completed")||null;
+}
+function renderCareerSimulationProgress(targetGameId){
+ const games=careerLeagueGamesThrough(targetGameId),target=targetGameId&&games.find(game=>String(game.id)===String(targetGameId));
+ render(header("SIMULATION EN COURS",target?"Simulation de la ligue jusqu’au match sélectionné.":"Simulation progressive de la saison régulière.")+
+  '<div class="mc-card mc-sim-progress-card"><div class="mc-kicker">MATCHS DE LA LIGUE · UN À LA FOIS</div><h2 id="mcSimulationMatchup">Préparation de la simulation…</h2><p class="mc-muted" id="mcSimulationScore">Chaque rencontre est simulée séparément dans l’ordre du calendrier.</p><div class="mc-meter"><span id="mcSimulationProgressBar" style="width:0%"></span></div><p class="mc-status" id="mcSimulationCounter">0 / '+games.length+' matchs</p><div class="mc-actions"><button class="mc-btn secondary" id="mcStopSimulation">Arrêter la simulation</button></div></div>');
+ attachReturn();
+ $("mcStopSimulation").onclick=()=>{
+  career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();renderDashboard();
+ };
+}
+function updateCareerSimulationProgress(game,targetGameId){
+ const games=careerLeagueGamesThrough(targetGameId),completed=games.filter(item=>item.status==="completed").length,total=games.length;
+ const matchup=$("mcSimulationMatchup"),score=$("mcSimulationScore"),counter=$("mcSimulationCounter"),bar=$("mcSimulationProgressBar");
+ if(matchup)matchup.textContent=(game.home.name||game.home.code)+" vs "+(game.away.name||game.away.code);
+ if(score)score.textContent=Number(game.homeScore)+" – "+Number(game.awayScore)+" · "+(game.homeScore>game.awayScore?game.home.code:game.away.code)+" gagne";
+ if(counter)counter.textContent=completed+" / "+total+" matchs simulés";
+ if(bar)bar.style.width=(total?completed/total*100:100).toFixed(1)+"%";
+}
+function finishCareerPlayerGame(target){
+ const p=playerForCareer();if(!p)return {ok:false};
+ const currentRound=Number(target.round)||0,home=target.home.code===career.teamCode,teamScore=home?target.homeScore:target.awayScore,oppScore=home?target.awayScore:target.homeScore,won=Number(teamScore)>Number(oppScore);
+ career.lastRoundPlayed=currentRound;career.gamesPlayed++;
  if(won){career.wins++;career.lossStreak=0;}else{career.losses++;career.lossStreak=(career.lossStreak||0)+1;}
  const box=target.playerBoxScores||{},side=home?box.home:box.away,line=side&&side[String(p.id)]||{};
  ["pts","reb","ast","stl","blk","tov","minutes"].forEach(key=>career.seasonStats[key]=(Number(career.seasonStats[key])||0)+(Number(line[key])||0));
  if(Number(line.gp)>0)career.seasonStats.gp=(Number(career.seasonStats.gp)||0)+1;
- const xpEarned=awardCareerXP(line,won);
- const points=Number(line.pts)||0,assists=Number(line.ast)||0;
- // Les relations évoluent surtout lors des décisions narratives, jamais automatiquement à chaque match.
+ const xpEarned=awardCareerXP(line,won),points=Number(line.pts)||0,assists=Number(line.ast)||0;
  career.lastGame={gameId:target.id,teamCode:career.teamCode,opponentCode:home?target.away.code:target.home.code,teamScore:Number(teamScore)||0,opponentScore:Number(oppScore)||0,result:won?"Victoire":"Défaite",line:(points)+" PTS · "+(Number(line.reb)||0)+" REB · "+assists+" AST · "+(Number(line.minutes)||0)+" MIN",xpEarned,boxScore:captureCareerBoxScore(target)};
  career.lastGame.gameNumber=career.gamesPlayed;
- if(silent&&career.autoSeasonSimulation){career.autoBatchBoxScores=Array.isArray(career.autoBatchBoxScores)?career.autoBatchBoxScores:[];career.autoBatchBoxScores.push(JSON.parse(JSON.stringify(career.lastGame)));career.autoBatchBoxScores=career.autoBatchBoxScores.slice(-5);career.autoBatchBoxIndex=career.autoBatchBoxScores.length-1;}
+ if(career.autoSeasonSimulation){
+  career.autoBatchBoxScores=Array.isArray(career.autoBatchBoxScores)?career.autoBatchBoxScores:[];
+  career.autoBatchBoxScores.push(JSON.parse(JSON.stringify(career.lastGame)));
+  career.autoBatchBoxScores=career.autoBatchBoxScores.slice(-5);
+  career.autoBatchBoxIndex=career.autoBatchBoxScores.length-1;
+ }
  p.careerGames=p.careerGames||[];p.careerGames.push({season:seasonName(seasonYear),gameId:target.id,teamScore:teamScore,opponentScore:oppScore,...line,xpEarned});
  const gp=Math.max(1,Number(career.seasonStats.gp)||0);
  p.pts=career.seasonStats.pts/gp;p.reb=career.seasonStats.reb/gp;p.ast=career.seasonStats.ast/gp;p.mpg=career.seasonStats.minutes/gp;
  if(career.lossStreak>=4&&!career.generatedRival)createNewRival(p);
  if(!allPlayers().some(player=>String(player.id)===String(p.id))&&typeof retired!=="undefined"&&retired.some(player=>String(player.id)===String(p.id))){
-  career.retired=true;career.retirementReason="Blessure très grave mettant fin à la carrière.";saveCareer();if(!silent)renderRetirement();return {ok:false,retired:true};
+  career.retired=true;career.retirementReason="Blessure très grave mettant fin à la carrière.";saveCareer();return {ok:false,retired:true,playerGame:true};
  }
  career.fatigue=clamp((Number(career.fatigue)||0)+Math.max(0,(Number(line.minutes)||0)-28)*.35-1.5,0,100);
  const currentMonth=careerMonthForScheduledGame(target,career.teamCode);career.lastPlayedMonth=currentMonth;
@@ -641,33 +655,76 @@ function simulateNextMatch(options){
  career.pendingStory=monthEnded&&career.lastStoryMonth!==currentMonth;
  if(career.pendingStory){career.pendingStoryMonth=currentMonth;career.lastStoryMonth=currentMonth;}
  saveCareer();
- if(silent)return {ok:true,storyDue:career.pendingStory,xpEarned};
- renderLastBoxScore();
- return {ok:true,storyDue:career.pendingStory,xpEarned};
+ return {ok:true,storyDue:career.pendingStory,xpEarned,playerGame:true};
+}
+function simulateCareerScheduledGame(game){
+ const p=playerForCareer();if(!p||!game)return {ok:false};
+ const isPlayerGame=game.home.code===career.teamCode||game.away.code===career.teamCode;
+ if(isPlayerGame){
+  const fatiguePenalty=clamp(Number(career.fatigue)||0,0,100);
+  p.myCareerMoodModifiers={consistency:(Number(career.emotions||50)-50)*.025-fatiguePenalty*.025,clutch:(Number(career.emotions||50)-50)*.04-fatiguePenalty*.02,playmaking:(Number(career.chemistry||50)-50)*.035,passing:(Number(career.chemistry||50)-50)*.035,basketballIQ:(Number(career.chemistry||50)-50)*.03,intangibles:(Number(career.popularity||50)-50)*.02,speed:-fatiguePenalty*.035,acceleration:-fatiguePenalty*.035,agility:-fatiguePenalty*.03,stamina:-fatiguePenalty*.05,shotIQ:-fatiguePenalty*.02};
+ }
+ let simulationResult=false,simulationError=null;
+ window.NBASimMyCareerSimulationInProgress=true;
+ try{simulationResult=window.simulateScheduledGame(game);}
+ catch(error){simulationError=error;}
+ finally{if(p.myCareerMoodModifiers)delete p.myCareerMoodModifiers;window.NBASimMyCareerSimulationInProgress=false;}
+ if(simulationError||simulationResult===false&&game.status!=="completed")return {ok:false,error:simulationError||new Error("Le match "+game.id+" n'a pas pu être simulé.")};
+ return isPlayerGame?finishCareerPlayerGame(game):{ok:true,playerGame:false};
+}
+function simulateNextMatch(){
+ const p=playerForCareer();if(!p||career.retired)return {ok:false};
+ if(career.pendingStory){renderStory();return {ok:false,storyDue:true};}
+ syncCareerTeamFromPlayer(p);
+ const target=nextPlayerGame();
+ if(!target){
+  if(career.gamesPlayed>=82){finishSeason();return {ok:false,finished:true};}
+  renderDashboard();return {ok:false};
+ }
+ if(typeof window.simulateScheduledGame!=="function"){saveError="Le moteur de simulation par possessions n'est pas disponible.";renderDashboard();return {ok:false,error:saveError};}
+ simulateCareerSeason({targetGameId:String(target.id)});
+ return {ok:true,started:true,targetGameId:String(target.id)};
 }
 function simulateCareerSeason(options){
  if(!career||career.retired)return;
  const isResume=!!(options&&options.resume),requestedId=options&&options.targetGameId!=null?String(options.targetGameId):"";
- if(!isResume){career.autoSeasonSimulation=true;career.autoBatchBoxScores=[];career.autoBatchBoxIndex=0;if(requestedId)career.autoSimulationTargetGameId=requestedId;}
- else career.autoSeasonSimulation=true;
+ if(!isResume){
+  career.autoSeasonSimulation=true;career.autoBatchBoxScores=[];career.autoBatchBoxIndex=0;
+  career.autoSimulationTargetGameId=requestedId||null;
+ }else career.autoSeasonSimulation=true;
  if(career.pendingStory){saveCareer();renderLastBoxScore();return;}
+ const targetId=career.autoSimulationTargetGameId==null?"":String(career.autoSimulationTargetGameId);
+ const targetGame=targetId&&seasonCalendar&&seasonCalendar.games.find(game=>String(game.id)===targetId);
+ if(targetId&&!targetGame){career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();renderDashboard();return;}
+ renderCareerSimulationProgress(targetId);
  const step=()=>{
   if(!career||career.retired){career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;return;}
   if(career.pendingStory){saveCareer();renderLastBoxScore();return;}
-  const requestedGame=career.autoSimulationTargetGameId&&typeof seasonCalendar!=="undefined"&&seasonCalendar&&seasonCalendar.games.find(g=>String(g.id)===String(career.autoSimulationTargetGameId));
-  if(requestedGame&&requestedGame.status==="completed"){career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();renderLastBoxScore();return;}
-  if(career.gamesPlayed>=82){career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();renderLastBoxScore();return;}
-  const before=career.gamesPlayed,lastResult=simulateNextMatch({silent:true});
-  if(!lastResult||!lastResult.ok||career.gamesPlayed===before){
+  const requestedGame=targetId&&seasonCalendar&&seasonCalendar.games.find(game=>String(game.id)===targetId);
+  if(requestedGame&&requestedGame.status==="completed"){
+   career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();renderLastBoxScore();return;
+  }
+  syncCareerTeamFromPlayer(playerForCareer());
+  const nextGame=nextCareerLeagueGame(targetId);
+  if(!nextGame){
    career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();
-   if(lastResult&&lastResult.retired)renderRetirement();else if(career.lastGame)renderLastBoxScore();else renderDashboard();
+   if(career.gamesPlayed>=82)renderLastBoxScore();else renderDashboard();
    return;
   }
+  const result=simulateCareerScheduledGame(nextGame);
+  if(!result||!result.ok){
+   career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();
+   if(result&&result.retired)renderRetirement();else if(career.lastGame)renderLastBoxScore();else renderDashboard();
+   return;
+  }
+  updateCareerSimulationProgress(nextGame,targetId);
   if(career.pendingStory){saveCareer();renderLastBoxScore();return;}
-  const targetNow=career.autoSimulationTargetGameId&&seasonCalendar&&seasonCalendar.games.find(g=>String(g.id)===String(career.autoSimulationTargetGameId));
-  if(targetNow&&targetNow.status==="completed"){career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();renderLastBoxScore();return;}
-  if(career.gamesPlayed>=82){career.autoSeasonSimulation=false;saveCareer();renderLastBoxScore();return;}
-  saveCareer();setTimeout(step,20);
+  if(targetId&&String(nextGame.id)===targetId||!targetId&&seasonCalendar.games.every(game=>game.status==="completed")){
+   career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();renderLastBoxScore();return;
+  }
+  const progressGames=careerLeagueGamesThrough(targetId),completed=progressGames.filter(game=>game.status==="completed").length;
+  if(completed%10===0||result.playerGame)saveCareer();
+  setTimeout(step,20);
  };
  step();
 }
@@ -869,7 +926,7 @@ function installMyCareerIsolation(){
 function install(){
  installMyCareerIsolation();installCareerOverall();mygmSnapshot=loadGMStored();if(typeof window.NBASimCaptureMyGMState==="function"){try{launcherSnapshot=window.NBASimCaptureMyGMState();}catch(_){launcherSnapshot=null;}}const gm=$("myGMStart");if(gm)gm.hidden=true;showPicker();installMenuReturn();
  const observer=new MutationObserver(()=>installMenuReturn());observer.observe(document.body,{childList:true,subtree:true});
- window.NBASimMyCareerSave=saveCareer;window.NBASimMyCareerState=()=>career;window.NBASimMyCareerHoldIntervalMs=ATTRIBUTE_HOLD_INTERVAL_MS;window.NBASimMyCareerXPRequired=xpRequiredForNextPoint;window.NBASimMyCareerXPFromStats=careerXPFromStats;window.NBASimReturnToModePicker=function(){activeMode="launcher";root.hidden=true;showPicker();};
+ window.NBASimMyCareerNextLeagueGame=nextCareerLeagueGame;window.NBASimMyCareerSave=saveCareer;window.NBASimMyCareerState=()=>career;window.NBASimMyCareerHoldIntervalMs=ATTRIBUTE_HOLD_INTERVAL_MS;window.NBASimMyCareerXPRequired=xpRequiredForNextPoint;window.NBASimMyCareerXPFromStats=careerXPFromStats;window.NBASimReturnToModePicker=function(){activeMode="launcher";root.hidden=true;showPicker();};
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",install,{once:true});else install();
 })();
