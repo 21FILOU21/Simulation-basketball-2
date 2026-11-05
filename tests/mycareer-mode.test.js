@@ -76,7 +76,8 @@ const localStorage = { getItem(){return null;}, setItem(){}, removeItem(){} };
 let simulationCalls=0;
 const window = { simulateScheduledGame(){simulationCalls++;return true;}, NBASimCaptureMyGMState:null };
 class MutationObserver { observe(){} }
-const context = { document, window, localStorage, MutationObserver, console, confirm(){return true;}, setTimeout, clearTimeout };
+const seasonCalendar = {games:[]};
+const context = { document, window, localStorage, seasonCalendar, MutationObserver, console, confirm(){return true;}, setTimeout, clearTimeout };
 vm.runInNewContext(career, context, { filename: "src/mycareer-mode.js" });
 assert.equal(typeof domReady, "function", "MyCareer should install on DOMContentLoaded.");
 domReady();
@@ -94,6 +95,20 @@ window.NBASimMyCareerSimulationInProgress = true;
 assert.equal(window.simulateScheduledGame({}), true, "MyCareer's own authorised simulation should still work.");
 window.NBASimMyCareerSimulationInProgress = false;
 assert.equal(simulationCalls, 1);
+seasonCalendar.games = [
+  {id:"same-round-after",round:2,status:"scheduled"},
+  {id:"target-game",round:2,status:"scheduled"},
+  {id:"round-one-next",round:1,status:"scheduled"},
+  {id:"round-one-done",round:1,status:"completed"}
+];
+assert.equal(window.NBASimMyCareerNextLeagueGame("target-game").id, "round-one-next", "The earliest unplayed league game must be selected first.");
+seasonCalendar.games.find(game=>game.id==="round-one-next").status="completed";
+assert.equal(window.NBASimMyCareerNextLeagueGame("target-game").id, "same-round-after", "Games before the clicked game on its round must be simulated in schedule order.");
+seasonCalendar.games.find(game=>game.id==="same-round-after").status="completed";
+assert.equal(window.NBASimMyCareerNextLeagueGame("target-game").id, "target-game", "The clicked game must be the final game in the queue.");
+seasonCalendar.games.find(game=>game.id==="target-game").status="completed";
+assert.equal(window.NBASimMyCareerNextLeagueGame("target-game"), null, "Games scheduled after the clicked game must remain untouched.");
+
 let stopped = false;
 document.clickGuard({target:{},preventDefault(){stopped=true;},stopPropagation(){},stopImmediatePropagation(){}});
 assert.equal(stopped, true, "Clicks outside MyCareer must be blocked while the mode is active.");
@@ -119,6 +134,14 @@ assert.match(career, /if\(addSingle&&session\.ticks===0\)addPendingAttributePoin
 assert.match(career, /event\.detail===0/, "Keyboard activation should add one attribute point.");
 assert.match(career, /pointerup/);
 assert.match(career, /window\.NBASimMyCareerHoldIntervalMs=ATTRIBUTE_HOLD_INTERVAL_MS/);
+
+
+assert.match(career, /function careerLeagueGamesThrough\(/, "Calendar simulation should build a chronological game queue.");
+assert.match(career, /function nextCareerLeagueGame\(/, "MyCareer should select only the next uncompleted league game.");
+assert.match(career, /function simulateCareerScheduledGame\(/, "Each calendar game should be simulated independently.");
+assert.match(career, /setTimeout\(step,20\)/, "Sequential simulation should yield between individual league games.");
+assert.match(career, /mcSimulationMatchup/, "The sequential simulation should show the current matchup.");
+assert.match(career, /mcStopSimulation/, "The user should be able to stop a running simulation.");
 
 console.log("OK — MyCareer : XP, attributs, histoires, box scores et isolation MyGM.");
 
