@@ -637,7 +637,7 @@ function simulateNextMatch(options){
  }
  career.fatigue=clamp((Number(career.fatigue)||0)+Math.max(0,(Number(line.minutes)||0)-28)*.35-1.5,0,100);
  const currentMonth=careerMonthForScheduledGame(target,career.teamCode);career.lastPlayedMonth=currentMonth;
- const upcomingPlayerGame=nextPlayerGame(),monthEnded=!upcomingPlayerGame||String(upcomingPlayerGame.stage||"Calendrier")!==currentMonth;
+ const upcomingPlayerGame=nextPlayerGame(),monthEnded=!upcomingPlayerGame||careerMonthForScheduledGame(upcomingPlayerGame,career.teamCode)!==currentMonth;
  career.pendingStory=monthEnded&&career.lastStoryMonth!==currentMonth;
  if(career.pendingStory){career.pendingStoryMonth=currentMonth;career.lastStoryMonth=currentMonth;}
  saveCareer();
