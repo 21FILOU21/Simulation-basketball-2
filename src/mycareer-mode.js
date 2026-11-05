@@ -649,7 +649,9 @@ function finishSeason(){
  if(career.retired){saveCareer();renderRetirement();return;}
  if(!allPlayers().some(x=>String(x.id)===String(p.id))){career.retired=true;career.retirementReason="Carrière terminée à la suite d’une blessure.";saveCareer();renderRetirement();return;}
  if(typeof phase!=="undefined")phase="regular";
- const s=career.seasonStats||{},gp=Math.max(1,Number(s.gp)||0),label=seasonName(seasonYear);
+ const s=career.seasonStats||{},gp=Math.max(1,Number(s.gp)||Number(career.gamesPlayed)||0),ppg=(Number(s.pts)||0)/gp,mpg=(Number(s.minutes)||0)/gp,ovr=careerOverall(p),expectedPpg=clamp(2+(ovr-40)*.24,2,16),poorScoring=ppg<Math.max(2.5,expectedPpg*.42),poorRole=mpg>=14,lowRating=ovr<=49,stagnant=careerOverall(p)-Number(career.seasonStartOverall||careerOverall(p))<=0;
+ if((lowRating&&poorScoring&&poorRole)||(ovr<=55&&ppg<3.5&&mpg>=20)||(ovr<=60&&ppg<4&&mpg>=28&&stagnant)){career.retired=true;career.firedFromNBA=true;career.retirementReason="Tu as été viré de la NBA après une saison insuffisante : "+ppg.toFixed(1)+" PPG, "+ovr+" GÉN et "+mpg.toFixed(1)+" minutes par match. Tu dois recommencer une carrière.";saveCareer();renderRetirement();return;}
+ const label=seasonName(seasonYear);
  const completedPostseasonStats=Object.assign({gp:0,pts:0,reb:0,ast:0,stl:0,blk:0,minutes:0},career.postseasonStats||{});
  career.lastPostseasonStats=completedPostseasonStats;career.lastPostseason=career.postseason||null;
  const entry={season:label,team:career.teamCode,height:p.height,overall:careerOverall(p),gp:Number(s.gp)||0,pts:(Number(s.pts)||0)/gp,reb:(Number(s.reb)||0)/gp,ast:(Number(s.ast)||0)/gp,stl:(Number(s.stl)||0)/gp,blk:(Number(s.blk)||0)/gp,playoffs:career.postseason,postseasonStats:completedPostseasonStats};
@@ -683,8 +685,8 @@ function finishSeason(){
 }
 function renderRetirement(){
  career=career||{};career.retired=true;saveCareer();const p=playerForCareer()||career.player||{};
- render(header("FIN DE CARRIÈRE","Ton histoire NBA restera dans les archives.")+'<div class="mc-retirement"><div style="font-size:70px">🏆</div><div class="mc-kicker">MYCAREER · HALL OF FAME</div><h2 class="mc-title" style="font-size:clamp(28px,4vw,46px)">'+escHtml(p.name||"Ta carrière")+'</h2><p class="mc-muted">'+(career.retirementReason||"Fin de carrière")+'</p><p class="mc-muted">Saisons terminées : '+(career.seasonHistory||[]).length+' · Dernière équipe : '+(career.teamCode||"—")+'</p><div class="mc-actions" style="justify-content:center"><button class="mc-btn primary" id="mcCareerHome">Retour à MyCareer</button><button class="mc-btn secondary" id="mcTitle">Écran de départ</button></div></div>');
- attachReturn();$("mcCareerHome").onclick=openCareerHome;$("mcTitle").onclick=showPicker;
+ render(header(career.firedFromNBA?"TU AS ÉTÉ VIRÉ DE LA NBA":"FIN DE CARRIÈRE",career.firedFromNBA?"Tes performances n’ont pas été suffisantes pour conserver ta place.":"Ton histoire NBA restera dans les archives.")+'<div class="mc-retirement"><div style="font-size:70px">'+(career.firedFromNBA?"🏀":"🏆")+'</div><div class="mc-kicker">'+(career.firedFromNBA?"MYCAREER · FIN DE CONTRAT":"MYCAREER · HALL OF FAME")+'</div><h2 class="mc-title" style="font-size:clamp(28px,4vw,46px)">'+escHtml(p.name||"Ta carrière")+'</h2><p class="mc-muted">'+(career.retirementReason||"Fin de carrière")+'</p><p class="mc-muted">Saisons terminées : '+(career.seasonHistory||[]).length+' · Dernière équipe : '+(career.teamCode||"—")+'</p><div class="mc-actions" style="justify-content:center"><button class="mc-btn primary" id="mcCareerHome">'+(career.firedFromNBA?"Recommencer une carrière":"Retour à MyCareer")+'</button><button class="mc-btn secondary" id="mcTitle">Écran de départ</button></div></div>');
+ attachReturn();$("mcCareerHome").onclick=career.firedFromNBA?showPicker:openCareerHome;$("mcTitle").onclick=showPicker;
 }
 function returnToStart(){if(activeMode==="gm"&&typeof window.NBASimCaptureMyGMState==="function"){try{mygmSnapshot=window.NBASimCaptureMyGMState();saveGMStored(mygmSnapshot);}catch(error){saveError="Sauvegarde de la session MyGM impossible : "+error.message;}}if(activeMode==="career"&&career)saveCareer();activeMode="launcher";root.hidden=true;showPicker();}
 function installMenuReturn(){
