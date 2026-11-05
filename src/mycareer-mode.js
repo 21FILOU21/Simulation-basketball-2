@@ -402,11 +402,33 @@ function renderLastBoxScore(){
  $("mcBoxAttributes").onclick=showCareerAttributes;
 }
 function renderCareerLeagueLeaders(){
- const p=playerForCareer();if(!p)return renderDashboard();const s=career.seasonStats||{},gp=Math.max(1,Number(s.gp)||1),mine={pts:(Number(s.pts)||0)/gp,reb:(Number(s.reb)||0)/gp,ast:(Number(s.ast)||0)/gp,stl:(Number(s.stl)||0)/gp,blk:(Number(s.blk)||0)/gp};
- const categories=[["pts","PPG","Points par match"],["reb","RPG","Rebonds par match"],["ast","APG","Passes décisives par match"],["stl","SPG","Interceptions par match"],["blk","BPG","Contres par match"]];
- const league=allPlayers().filter(x=>x&&!x.retired&&!x.isRetired),markup=categories.map(([key,title,description])=>{const rows=league.map(x=>({name:x.name,team:x.team,value:String(x.id)===String(p.id)?mine[key]:(Number(x[key])||0)}));if(!rows.some(x=>x.name===p.name))rows.push({name:p.name,team:career.teamCode,value:mine[key]});rows.sort((a,b)=>b.value-a.value);return '<section class="mc-card"><h3>'+title+' · '+description+'</h3><div class="mc-table-wrap"><table class="mc-box-table"><thead><tr><th>#</th><th>Joueur</th><th>Équipe</th><th>Moyenne</th></tr></thead><tbody>'+rows.slice(0,10).map((x,i)=>'<tr><td>'+(i+1)+'</td><td>'+escHtml(x.name)+'</td><td>'+escHtml(x.team)+'</td><td><b>'+x.value.toFixed(1)+'</b></td></tr>').join("")+'</tbody></table></div></section>';}).join("");
- render(header("LEAGUE LEADERS","Classements · Saison "+career.seasonNumber)+markup+'<div class="mc-actions"><button class="mc-btn secondary" id="mcLeadersBack">Retour à ma carrière</button></div>');attachReturn();$("mcLeadersBack").onclick=renderDashboard;
+ const p=playerForCareer();if(!p)return renderDashboard();
+ const actual=window.NBASimActualPlayerStats||{},mine=career.seasonStats||{};
+ const categories=[
+  ["pts","PPG","Points par match",x=>x.pts],
+  ["reb","RPG","Rebonds par match",x=>x.reb],
+  ["ast","APG","Passes décisives par match",x=>x.ast],
+  ["stl","SPG","Interceptions par match",x=>x.stl],
+  ["blk","BPG","Contres par match",x=>x.blk],
+  ["fg","FG%","Pourcentage au tir",x=>x.fga?x.fgm/x.fga*100:0],
+  ["three","3P%","Pourcentage à trois points",x=>x.threeAttempts?x.threeMade/x.threeAttempts*100:0],
+  ["ft","FT%","Pourcentage aux lancers francs",x=>x.fta?x.ftm/x.fta*100:0]
+ ];
+ const league=allPlayers().filter(x=>x&&!x.retired&&!x.isRetired).map(player=>{
+  let raw=actual[String(player.id)]||{},gp=Number(raw.gp)||0;
+  if(String(player.id)===String(p.id)&&!gp){raw={pts:mine.pts,reb:mine.reb,ast:mine.ast,stl:mine.stl,blk:mine.blk,minutes:mine.minutes,gp:mine.gp};gp=Number(raw.gp)||0;}
+  if(gp<=0)return null;
+  const total=k=>Number(raw[k])||0;return {player,gp,pts:total("pts")/gp,reb:total("reb")/gp,ast:total("ast")/gp,stl:total("stl")/gp,blk:total("blk")/gp,mpg:total("minutes")/gp,fgm:total("fgm"),fga:total("fga"),threeMade:total("threeMade"),threeAttempts:total("threeAttempts"),ftm:total("ftm"),fta:total("fta")};
+ }).filter(Boolean);
+ const markup=categories.map(([key,title,description,selector])=>{
+  const rows=league.map(row=>({player:row.player,gp:row.gp,value:selector(row)})).filter(row=>Number.isFinite(row.value)).sort((a,b)=>b.value-a.value).slice(0,10);
+  const body=rows.map((row,i)=>'<tr class="'+(String(row.player.id)===String(p.id)?"mc-my-team-player":"")+'"><td>'+(i+1)+'</td><td><b>'+escHtml(row.player.name)+'</b></td><td>'+escHtml(careerTeamLabel(row.player.team))+'</td><td><b>'+(key.endsWith("%")?row.value.toFixed(1)+"%":row.value.toFixed(1))+'</b></td><td>'+row.gp+'</td></tr>').join("");
+  return '<section class="mc-card"><h3>'+title+' · '+description+'</h3><div class="mc-table-wrap"><table class="mc-box-table"><thead><tr><th>#</th><th>Joueur</th><th>Équipe</th><th>Moyenne</th><th>MJ</th></tr></thead><tbody>'+body+'</tbody></table></div></section>';
+ }).join("");
+ render(header("LEAGUE LEADERS","Statistiques réelles · Saison "+seasonName(seasonYear))+(league.length?markup:'<div class="mc-card"><p class="mc-muted">Aucun match n’a encore été comptabilisé dans cette saison.</p></div>')+'<div class="mc-actions"><button class="mc-btn secondary" id="mcLeadersBack">Retour à ma carrière</button></div>');
+ attachReturn();$("mcLeadersBack").onclick=renderDashboard;
 }
+
 function renderCareerTeam(){
  const p=playerForCareer();if(!p)return renderDashboard();
  const teamMeta=(typeof nbaTeams!=="undefined"?nbaTeams:[]).find(team=>String(team[0])===String(career.teamCode));
