@@ -118,14 +118,15 @@ function showCreation(){
   const name=$("mcName").value.trim(),pos=$("mcPosition").value,height=clamp($("mcHeight").value,150,240),weight=clamp($("mcWeight").value,50,180),wingspan=clamp($("mcWingspan").value,150,260);
   if(!name){$("mcCreateStatus").textContent="Entre ton nom pour continuer.";return;}
   if(wingspan<height-5){$("mcCreateStatus").textContent="L’envergure doit être proche de la taille ou plus grande.";return;}
-  draftPlayer={name,pos,height,weight,wingspan,specialty:$("mcSpecialty").value,attributes:Object.fromEntries(attrs.map(p=>[p[0],40]))};
+  draftPlayer={name,pos,height,weight,wingspan,specialty:$("mcSpecialty").value,attributes:Object.fromEntries(attrs.map(p=>[p[0],40]))};applyPhysiqueBaseline(draftPlayer);
   draftPlayer.attributes.potential=95;draftPlayer.attributes.workEthic=75;draftPlayer.attributes.consistency=65;draftPlayer.attributes.intangibles=55;
   renderBuilder();
  };
  $("mcCancel").onclick=openCareerHome;
 }
-function capFor(profile,key){if(key==="potential"||key==="intangibles"||profile.core.includes(key))return 99;if(profile.secondary.includes(key))return 94;return 86;}
-function pointsUsed(){return attrs.reduce((n,p)=>n+Math.max(0,(Number(draftPlayer.attributes[p[0]])||40)-40),0);}
+function capFor(profile,key){let cap=key==="potential"||key==="intangibles"||profile.core.includes(key)?99:profile.secondary.includes(key)?94:86;const height=Number(draftPlayer.height)||188,weight=Number(draftPlayer.weight)||82,wingspan=Number(draftPlayer.wingspan)||height,reach=wingspan-height,mass=weight-82;const defenseKeys=["perimeterDefense","interiorDefense","steal","block","defensiveIQ","defensiveRebound","offensiveRebound"],agilityKeys=["speed","acceleration","agility","ballHandle"],strengthKeys=["strength","finishing","dunk","closeShot"];if(defenseKeys.includes(key))cap+=clamp(Math.round(reach/10),-4,6)+clamp(Math.round((height-188)/12),-3,5);if(agilityKeys.includes(key))cap+=clamp(Math.round((188-height)/12),-5,4)-clamp(Math.round(mass/12),-2,4);if(strengthKeys.includes(key))cap+=clamp(Math.round(mass/10),-3,5);return clamp(cap,25,99);}
+function pointsUsed(){return attrs.reduce((n,p)=>{const key=p[0],base=40+(Number(draftPlayer.physicalBonus&&draftPlayer.physicalBonus[key])||0);return n+Math.max(0,(Number(draftPlayer.attributes[key])||40)-base);},0);}
+function applyPhysiqueBaseline(player){const height=Number(player.height)||188,weight=Number(player.weight)||82,wingspan=Number(player.wingspan)||height,reach=wingspan-height,mass=weight-82,bonus={};const add=(key,value)=>{bonus[key]=clamp(Math.round(value),-5,8);player.attributes[key]=clamp((Number(player.attributes[key])||40)+bonus[key],25,99);};add("block",(height-188)/8+reach/10);add("interiorDefense",(height-188)/12+reach/14);add("defensiveRebound",(height-188)/10+reach/14);add("offensiveRebound",(height-188)/14+reach/18);add("steal",reach/16);add("perimeterDefense",reach/18);add("strength",mass/9);add("finishing",mass/16+(height-188)/18);add("closeShot",mass/14+(height-188)/16);add("speed",(188-height)/14-mass/18);add("acceleration",(188-height)/16-mass/20);add("agility",(188-height)/18-mass/18);add("vertical",(188-height)/18);player.physicalBonus=bonus;return player;}
 function buildOverall(profile){const values=profile.core.map(k=>Number(draftPlayer.attributes[k])||40),base=values.reduce((a,b)=>a+b,0)/Math.max(1,values.length),height=Number(draftPlayer.height)||188,weight=Number(draftPlayer.weight)||82,wingspan=Number(draftPlayer.wingspan)||height,reach=clamp((wingspan-height)*.55,-12,16),size=clamp((height-188)*.22,-10,10),mass=clamp((weight-82)*.10,-8,8),pos=draftPlayer.pos,physicalFit=(pos==="C"||pos==="PF"?size+reach*.55+mass*.35:pos==="PG"||pos==="SG"?-size*.35+reach*.4-mass*.3:size*.25+reach*.5+mass*.1);return Math.round(clamp(base*.82+(Number(draftPlayer.attributes.intangibles)||40)*.06+physicalFit*.75,40,99));}
 function updateBuild(){
  const p=profileFor(draftPlayer.pos,draftPlayer.specialty),used=pointsUsed();
@@ -141,7 +142,7 @@ function renderBuilder(){
  render(header("RÉPARTIS TES POINTS","Étape 2 · "+profile.name)+'<div class="mc-card"><div class="mc-grid" id="mcBuildScore"></div><div class="mc-meter"><span id="mcBuildMeter"></span></div><p class="mc-status" id="mcBuildStatus"></p><p class="mc-muted">Chaque point dépensé augmente un attribut. Les attributs principaux de ta spécialité peuvent atteindre 99.</p></div><div class="mc-scroll">'+sections+'</div><div class="mc-actions"><button class="mc-btn primary" id="mcConfirmBuild">Confirmer le joueur et préparer la Draft →</button><button class="mc-btn secondary" id="mcBackCreation">Retour</button></div>');
  attachReturn();root.querySelectorAll("[data-mc-attribute]").forEach(input=>input.oninput=()=>{
   const k=input.dataset.mcAttribute,v=Number(input.value),old=Number(draftPlayer.attributes[k])||40;
-  if(pointsUsed()-Math.max(0,old-40)+Math.max(0,v-40)>buildBudget){input.value=old;return;}
+  const base=40+(Number(draftPlayer.physicalBonus&&draftPlayer.physicalBonus[k])||0);if(pointsUsed()-Math.max(0,old-base)+Math.max(0,v-base)>buildBudget){input.value=old;return;}
   draftPlayer.attributes[k]=v;input.previousElementSibling.textContent=v;updateBuild();
  });
  $("mcConfirmBuild").onclick=confirmBuild;$("mcBackCreation").onclick=showCreation;updateBuild();
