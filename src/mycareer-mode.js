@@ -323,15 +323,31 @@ function captureCareerBoxScore(game){
  return {home:makeSide("home",game.home,game.homeScore),away:makeSide("away",game.away,game.awayScore)};
 }
 function renderLastBoxScore(){
- const game=career&&career.lastGame;if(!game||!game.boxScore)return renderDashboard();
+ const batch=career&&Array.isArray(career.autoBatchBoxScores)?career.autoBatchBoxScores:[];
+ const source=batch.length?batch:[career&&career.lastGame].filter(Boolean);
+ if(!source.length)return renderDashboard();
+ const index=clamp(career.autoBatchBoxIndex==null?source.length-1:Number(career.autoBatchBoxIndex),0,source.length-1);
+ career.autoBatchBoxIndex=index;
+ const game=source[index];if(!game||!game.boxScore)return renderDashboard();
  const home=game.boxScore.home,away=game.boxScore.away;
- render(header("BOX SCORE","Match "+career.gamesPlayed+" · "+game.result)+
+ let batchNav="";
+ if(source.length>1){
+  batchNav='<div class="mc-box-nav"><button class="mc-btn secondary" id="mcBoxPrevious" '+(index<=0?"disabled":"")+'>← Match précédent</button><span>Match '+(index+1)+' / '+source.length+'</span><button class="mc-btn secondary" id="mcBoxNext" '+(index>=source.length-1?"disabled":"")+'>Match suivant →</button></div>';
+ }
+ render(header("BOX SCORE","Match "+(game.gameNumber||career.gamesPlayed)+" · "+game.result)+
   '<p class="mc-story-prompt">+'+(Number(game.xpEarned)||0)+' EXP après ce match · '+(progressionState(playerForCareer()).points||0)+' point(s) d’attribut disponibles.</p>'+
   '<div class="mc-card mc-box-summary"><div><span>'+escHtml(home.code)+'</span><strong>'+home.score+'</strong></div><b>FINAL</b><div><span>'+escHtml(away.code)+'</span><strong>'+away.score+'</strong></div></div>'+
-  renderCareerBoxScoreSide(home)+renderCareerBoxScoreSide(away)+
-  '<div class="mc-actions"><button class="mc-btn primary" id="mcBoxContinue">'+(career.pendingStory?"Continuer vers ton histoire →":career.gamesPlayed>=82?"Terminer la saison →":"Retour à ma carrière")+'</button><button class="mc-btn secondary" id="mcBoxAttributes">Voir mes attributs</button></div>');
+  batchNav+renderCareerBoxScoreSide(home)+renderCareerBoxScoreSide(away)+
+  '<div class="mc-actions"><button class="mc-btn primary" id="mcBoxContinue">'+(career.pendingStory?"Continuer vers ton histoire →":career.gamesPlayed>=82?"Terminer la saison →":career.autoSeasonSimulation?"Reprendre la simulation →":"Retour à ma carrière")+'</button><button class="mc-btn secondary" id="mcBoxAttributes">Voir mes attributs</button></div>');
  attachReturn();
- $("mcBoxContinue").onclick=()=>{if(career.pendingStory)renderStory();else if(career.gamesPlayed>=82)finishSeason();else renderDashboard();};
+ if($("mcBoxPrevious"))$("mcBoxPrevious").onclick=()=>{career.autoBatchBoxIndex=Math.max(0,career.autoBatchBoxIndex-1);renderLastBoxScore();};
+ if($("mcBoxNext"))$("mcBoxNext").onclick=()=>{career.autoBatchBoxIndex=Math.min(source.length-1,career.autoBatchBoxIndex+1);renderLastBoxScore();};
+ $("mcBoxContinue").onclick=()=>{
+  if(career.pendingStory){renderStory();return;}
+  if(career.gamesPlayed>=82){finishSeason();return;}
+  if(career.autoSeasonSimulation){career.autoBatchBoxScores=[];career.autoBatchBoxIndex=0;saveCareer();simulateCareerSeason({resume:true});return;}
+  renderDashboard();
+ };
  $("mcBoxAttributes").onclick=showCareerAttributes;
 }
 function renderCareerTeam(){
