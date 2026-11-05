@@ -49,10 +49,13 @@ assert.match(career, /mc-attribute-locked/, "Unreachable attribute levels should
 assert.match(career, /Acheter les améliorations/, "Attribute points should be purchased explicitly.");
 assert.match(career, /mc-xp-track/, "The attribute screen should contain the XP progress bar.");
 
-const storyMatch = career.match(/const stories=(\[[\s\S]*?\]);\s*const STORY_RISK_REWARD/);
+const storyMatch = career.match(/const stories=(\[[\s\S]*?\]);\s*stories\.push\(([\s\S]*?)\);\s*const STORY_RISK_REWARD/);
 assert.ok(storyMatch, "The MyCareer story library should be a JSON-compatible array.");
 const storyLibrary = JSON.parse(storyMatch[1]);
-assert.ok(storyLibrary.length >= 25, "There should be at least 25 different story events.");
+const storyExtensionCount = (storyMatch[2].match(/\{title:/g) || []).length;
+assert.ok(storyLibrary.length + storyExtensionCount >= 32, "There should be at least 32 different story events after the new story pack.");
+assert.equal(storyExtensionCount, 6, "The new story pack should add six events.");
+assert.equal((storyMatch[2].match(/choices:\[/g) || []).length, 6, "Each added event should include its own choices.");
 assert.ok(storyLibrary.every(story => story.choices.length >= 3), "Each story should offer at least three choices.");
 assert.ok(storyLibrary.every(story => new Set(story.choices.map(choice => choice.label)).size === story.choices.length), "Story choices should be distinct.");
 
@@ -84,6 +87,14 @@ domReady();
 assert.equal(typeof window.NBASimMyCareerXPRequired, "function");
 assert.equal(typeof window.NBASimMyCareerXPFromStats, "function");
 assert.equal(window.NBASimMyCareerXPRequired(90), 531, "At 90 OVR, the next attribute point should require about five solid games.");
+assert.equal(window.NBASimMyCareerStoryCount, 32, "MyCareer should expose all 32 story events.");
+assert.equal(typeof window.NBASimMyCareerStoryOutcome, "function", "Story outcomes should be independently testable.");
+const highRiskStory = window.NBASimMyCareerStoryOutcome(26, 0, {e:{}});
+assert.equal(highRiskStory.attributes.clutch, 4, "A high-reward story choice must apply all four attribute points.");
+assert.equal(highRiskStory.social.emotions, 4, "A high-reward story choice must apply all four social points.");
+assert.equal(highRiskStory.capIncrease.clutch, 2, "A high-reward story choice must raise the attribute ceiling by two.");
+assert.equal(highRiskStory.injuryRisk, 18, "High-intensity choices must carry a visible injury risk.");
+assert.equal(typeof window.NBASimMyCareerBuildSaveSnapshot, "function", "MyCareer should expose its complete save snapshot builder.");
 const averageLine = {pts:20,reb:5,ast:5,stl:1,blk:0.5,minutes:32,tov:2};
 const averageXp = window.NBASimMyCareerXPFromStats(averageLine, true);
 assert.ok(averageXp >= 95 && averageXp <= 125, "A representative strong game should award roughly 100–120 XP.");
@@ -143,7 +154,21 @@ assert.match(career, /setTimeout\(step,20\)/, "Sequential simulation should yiel
 assert.match(career, /mcSimulationMatchup/, "The sequential simulation should show the current matchup.");
 assert.match(career, /mcStopSimulation/, "The user should be able to stop a running simulation.");
 
-console.log("OK — MyCareer : XP, attributs, histoires, box scores et isolation MyGM.");
+
+assert.match(career, /function buildCareerSaveData\(/, "Save files should capture the full MyCareer state.");
+assert.match(career, /function renderCareerSaveManager\(/, "MyCareer should display a save manager.");
+assert.match(career, /careerSaveSlots=Array\(10\)\.fill\(null\)/, "The save manager should contain ten slots.");
+assert.match(career, /mycareer-slot-/ , "Each slot should have its own JSON file.");
+assert.match(career, /window\.showDirectoryPicker/, "Players should choose a Windows destination folder.");
+assert.match(career, /CAREER_SAVE_DB/, "The selected directory handle should be persisted in IndexedDB.");
+assert.match(career, /function careerSavePlayerCard\(/, "Save previews should show complete roster player details.");
+assert.match(career, /mcCreateCareerSave/, "The save manager should offer creation when no slot is selected.");
+assert.match(career, /data-load-slot/, "Existing career saves should be loadable.");
+assert.match(career, /data-save-slot/, "Existing career saves should be replaceable.");
+assert.match(career, /storyGainText\(v\)/, "Story previews should show exact gains of four or more.");
+assert.match(career, /socialGains/, "Story options should preview emotion, chemistry and popularity gains.");
+assert.match(career, /effectiveInjuryRisk/, "High-fatigue story choices should increase injury probability.");
+console.log("OK — MyCareer : XP, attributs, histoires, blessures, sauvegardes, box scores et isolation MyGM.");
 
 assert.match(career, /function applyPhysiqueBaseline\(/, "Body measurements should directly adjust starting attributes.");
 assert.match(career, /function renderCareerLeagueLeaders\(/, "MyCareer should include League Leaders.");
