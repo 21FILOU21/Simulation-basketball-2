@@ -215,7 +215,7 @@ assert.match(career, /\$\("mcContinue"\)\.onclick=\(\)=>openCareerSaveManager\(\
 assert.match(career, /mcLoadQuickCareer/, "The save chooser should allow loading the browser quick-save.");
 assert.match(career, /mcCareerAttributePanels" hidden/, "Player attributes should be hidden until explicitly revealed.");
 assert.match(career, /mcRevealAttributes/, "Player attributes should have a reveal toggle.");
-assert.match(career, /playedMinutes\*\(\.82-endurance\*\.004\)/, "Post-game fatigue should depend on minutes and endurance.");
+assert.match(career, /playedMinutes\*\(\.72-endurance\*\.0055\)/, "Post-game fatigue should depend on minutes and endurance.");
 assert.match(career, /fatiguePenalty\*\.10/, "Fatigue should have a substantial in-game performance effect.");
 assert.match(career, /refreshCareerRivalForSeason/, "The rival should be recalculated and introduced every season.");
 assert.match(career, /career\.rivalSeasonNotice/, "Seasonal rival changes should be recorded for the introduction screen.");
