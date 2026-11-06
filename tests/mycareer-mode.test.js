@@ -151,7 +151,8 @@ assert.match(career, /function careerLeagueGamesThrough\(/, "Calendar simulation
 assert.match(career, /function nextCareerLeagueGame\(/, "MyCareer should select only the next uncompleted league game.");
 assert.match(career, /function simulateCareerScheduledGame\(/, "Each calendar game should be simulated independently.");
 assert.match(career, /setTimeout\(step,20\)/, "Sequential simulation should yield between individual league games.");
-assert.match(career, /mcSimulationMatchup/, "The sequential simulation should show the current matchup.");
+assert.match(career, /function renderCareerSimulationProgress\(targetGameId\)\{renderDashboard\(\);\}/, "Season simulation should remain on the calendar instead of opening a progress screen.");
+assert.doesNotMatch(career, /id="mcSimulationScore"|id="mcSimulationCounter"|id="mcSimulationProgressBar"|id="mcSimulationResultTile"/, "The league-wide loading meter and other-team scores must be absent.");
 assert.match(career, /mcStopSimulation/, "The user should be able to stop a running simulation.");
 
 
@@ -209,3 +210,21 @@ assert.doesNotMatch(careerSimulationBlock, /if\(career\.pendingStory\)\{saveCare
 assert.match(career, /window\.NBASimActualPlayerStats/, "League Leaders should use raw season box-score totals.");
 assert.match(career, /threeAttempts\?x\.threeMade\/x\.threeAttempts\*100/, "League Leaders should calculate current-season 3P percentage.");
 assert.match(career, /Statistiques réelles · Saison/, "League Leaders should identify the active season.");
+
+assert.match(career, /\$\("mcContinue"\)\.onclick=\(\)=>openCareerSaveManager\(\)/, "Continue MyCareer should open a save chooser directly.");
+assert.match(career, /mcLoadQuickCareer/, "The save chooser should allow loading the browser quick-save.");
+assert.match(career, /mcCareerAttributePanels" hidden/, "Player attributes should be hidden until explicitly revealed.");
+assert.match(career, /mcRevealAttributes/, "Player attributes should have a reveal toggle.");
+assert.match(career, /playedMinutes\*\(\.72-endurance\*\.0055\)/, "Post-game fatigue should depend on minutes and endurance.");
+assert.match(career, /fatiguePenalty\*\.10/, "Fatigue should have a substantial in-game performance effect.");
+assert.match(career, /refreshCareerRivalForSeason/, "The rival should be recalculated and introduced every season.");
+assert.match(career, /career\.rivalSeasonNotice/, "Seasonal rival changes should be recorded for the introduction screen.");
+assert.match(career, /const buildConference=conference/, "The playoff bracket should select eight teams per conference.");
+assert.match(career, /careerOverall\(myPlayer\)>=90/, "Elite MyCareer players should not be repeatedly left out of postseason.");
+const opinionBlock = career.slice(career.indexOf("function buildCareerPublicOpinionComments("), career.indexOf("function finishSeason(", career.indexOf("function buildCareerPublicOpinionComments(")));
+assert.equal((opinionBlock.match(/\["(?:GLAZER|HATER|ANALYSTE|FANBASE|MÉDIAS|FAN)",/g) || []).length, 25, "Public opinion should offer 25 distinct comments based on player and season context.");
+
+assert.match(career, /if\(!career\.autoSeasonSimulation\)\{career\.autoSimulationTargetGameId=null;saveCareer\(\);renderDashboard\(\);return;\}/, "Stopping the simulation should prevent the next queued game from starting.");
+assert.match(career, /-careerOverall\(draftPlayer\)/, "The initial rival should be selected relative to the drafted player's overall.");
+
+assert.match(career, /id="mcContinue">Continuer ma carrière/, "Continue should remain available to select an external save even when local quick-save is empty.");
