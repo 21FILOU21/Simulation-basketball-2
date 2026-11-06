@@ -251,7 +251,7 @@ function showPicker(){
 }
 function openCareerHome(){
  activeMode="career";hideGM();const saved=loadStored();
- render(header("MYCAREER","Ta carrière NBA, de la Draft à la retraite.")+'<div class="mc-card"><h2>Une carrière à ton image</h2><p class="mc-muted">Crée un joueur de 19 ans, choisis sa spécialité, impressionne les recruteurs et gagne ta place dans la ligue. Toutes les autres franchises restent contrôlées par l’IA.</p><div class="mc-actions">'+(saved&&saved.career?'<button class="mc-btn primary" id="mcContinue">Continuer ma carrière</button>':'')+'<button class="mc-btn primary" id="mcNewCareer">Nouvelle carrière</button><button class="mc-btn secondary" id="mcModeSelect">Changer de mode</button></div><p class="mc-status">'+saveError+'</p></div>');
+ render(header("MYCAREER","Ta carrière NBA, de la Draft à la retraite.")+'<div class="mc-card"><h2>Une carrière à ton image</h2><p class="mc-muted">Crée un joueur de 19 ans, choisis sa spécialité, impressionne les recruteurs et gagne ta place dans la ligue. Toutes les autres franchises restent contrôlées par l’IA.</p><div class="mc-actions">'+'<button class="mc-btn primary" id="mcContinue">Continuer ma carrière</button>'+'<button class="mc-btn primary" id="mcNewCareer">Nouvelle carrière</button><button class="mc-btn secondary" id="mcModeSelect">Changer de mode</button></div><p class="mc-status">'+saveError+'</p></div>');
  attachReturn();if($("mcContinue"))$("mcContinue").onclick=()=>openCareerSaveManager();$("mcNewCareer").onclick=beginNewCareer;$("mcModeSelect").onclick=showPicker;
 }
 function beginNewCareer(){
