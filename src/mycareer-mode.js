@@ -468,8 +468,8 @@ const STORY_RISK_REWARD={
  "6:0":{changes:{finishing:3,layup:2,stamina:-1},fatigue:10,capIncrease:{finishing:1}},
  "6:1":{changes:{threePoint:3,midRange:2,stamina:-1},fatigue:11,capIncrease:{threePoint:1}},
  "6:2":{changes:{basketballIQ:2,passing:2},fatigue:3},
- "7:0":{changes:{stamina:2,durability:1},fatigue:-18},
- "7:1":{changes:{workEthic:2,consistency:2,stamina:-2},fatigue:18,capIncrease:{workEthic:1}},
+ "7:0":{changes:{stamina:2,durability:1},fatigue:-18,capIncrease:{durability:1}},
+ "7:1":{changes:{workEthic:2,consistency:2,stamina:-2},fatigue:18,capIncrease:{workEthic:1,consistency:1}},
  "10:0":{changes:{speed:3,acceleration:2,stamina:-1},fatigue:13,capIncrease:{speed:1}},
  "10:1":{changes:{strength:3,finishing:1,speed:-1},fatigue:12,capIncrease:{strength:2}},
  "10:2":{changes:{stamina:3,durability:1},fatigue:4},
@@ -747,6 +747,7 @@ function renderDashboard(){
  const xp=progressionState(p),storyDue=career.pendingStory===true,seasonComplete=career.gamesPlayed>=82||!next,fatigue=clamp(Number(career.fatigue)||0,0,100);
  const injuryText=injury?(injury.label||injury.severity)+" · "+(Number(injury.restGamesRemaining)||0)+" matchs avant retour":"En santé";
  render(header("SAISON "+career.seasonNumber,p.name+" · "+p.team+" · "+p.age+" ans")+
+ (career.autoSeasonSimulation?'<div class="mc-card"><b>Simulation de la saison en cours · les résultats de tes matchs s’inscrivent sur les tuiles du calendrier.</b><div class="mc-actions"><button class="mc-btn secondary" id="mcStopSimulation">Arrêter la simulation</button></div></div>':"")+
  '<div class="mc-grid three"><div class="mc-metric"><strong>'+careerOverall(p)+'</strong><span>GÉN</span></div><div class="mc-metric"><strong>'+career.wins+'-'+career.losses+'</strong><span>Bilan équipe</span></div><div class="mc-metric"><strong>'+career.gamesPlayed+'/82</strong><span>Matchs joués</span></div></div>'+
  '<div class="mc-grid three"><div class="mc-metric"><strong>'+career.emotions+'</strong><span>Émotions</span></div><div class="mc-metric"><strong>'+career.chemistry+'</strong><span>Entente d’équipe</span></div><div class="mc-metric"><strong>'+career.popularity+'</strong><span>Popularité</span></div></div><div class="mc-card mc-fatigue-card"><div class="mc-kicker">CONDITION PHYSIQUE</div><div class="mc-fatigue-heading"><b>Fatigue</b><strong>'+fatigue+'/100</strong></div><div class="mc-fatigue-track"><span style="width:'+fatigue+'%"></span></div><p class="mc-muted">La fatigue réduit progressivement ta vitesse, ton agilité, ton endurance et ta régularité. Les choix de récupération peuvent la réduire.</p></div>'+
  '<div class="mc-card">'+(tradeNotice?'<div class="mc-result"><div class="mc-kicker">TRADE · NOUVELLE FRANCHISE</div><h2>'+escHtml(tradeNotice.to||career.teamName)+'</h2><p class="mc-muted">Tu as été échangé par '+escHtml(tradeNotice.from||"ton ancienne équipe")+' vers '+escHtml(tradeNotice.toCode||career.teamCode)+'. L’affichage est actualisé sur ta nouvelle équipe.</p><button class="mc-btn secondary" id="mcDismissTrade">Compris</button></div>':"")+'<div class="mc-grid"><div><div class="mc-kicker">STATISTIQUES DE LA SAISON</div><h2>'+statLine()+'</h2><p class="mc-muted">Blessure : '+injuryText+'</p><p class="mc-muted">Prochain match : '+(next?escHtml(next.home.name)+" vs "+escHtml(next.away.name):"Saison régulière terminée")+'</p></div><div><div class="mc-kicker">TON RIVAL</div><h2>'+(rival?escHtml(rival.name):escHtml(career.rivalName||"Rival à déterminer"))+'</h2><p class="mc-muted">'+(rival?escHtml(rival.team)+" · GÉN "+(typeof overallRating==="function"?overallRating(rival):"—"):"Un nouveau rival sera identifié.")+'</p></div></div><div class="mc-divider"></div><div class="mc-kicker">DERNIER MATCH</div>'+
@@ -754,7 +755,7 @@ function renderDashboard(){
  '<div class="mc-actions"><button class="mc-btn primary" id="mcNextMatch" '+(!next||storyDue?"disabled":"")+'>Simuler le prochain match →</button><button class="mc-btn primary" id="mcSimSeason" '+(seasonComplete||storyDue?"disabled":"")+'>Simuler la saison →</button><button class="mc-btn secondary" id="mcAttributes">Voir mes attributs'+(xp.points>0?" · "+xp.points+" point(s)":"")+'</button><button class="mc-btn secondary" id="mcTeam">Voir mon équipe</button><button class="mc-btn secondary" id="mcLeagueLeaders">League Leaders</button>'+(game&&game.boxScore?'<button class="mc-btn secondary" id="mcViewBox">Voir le box score</button>':'')+'<button class="mc-btn secondary" id="mcSave">Sauvegarder</button></div>'+
  (storyDue?'<p class="mc-story-prompt">Une histoire t’attend à la fin de '+escHtml(career.pendingStoryMonth||"ce mois")+'.</p><div class="mc-actions"><button class="mc-btn primary" id="mcOpenStory">Faire mon choix d’histoire →</button></div>':'')+
  '<p class="mc-status">'+escHtml(saveError||"La simulation MyCareer est isolée de MyGM.")+'</p></div>'+renderCareerCalendarMarkup());
- attachReturn();
+ attachReturn();if($("mcStopSimulation"))$("mcStopSimulation").onclick=()=>{career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();renderDashboard();};
  if($("mcDismissTrade"))$("mcDismissTrade").onclick=()=>{career.tradeNotice=null;saveCareer();renderDashboard();};
  $("mcNextMatch").onclick=()=>simulateNextMatch();
  $("mcSimSeason").onclick=simulateCareerSeason;
@@ -910,7 +911,7 @@ function finishCareerPlayerGame(target){
  if(!allPlayers().some(player=>String(player.id)===String(p.id))&&typeof retired!=="undefined"&&retired.some(player=>String(player.id)===String(p.id))){
   career.retired=true;career.retirementReason="Blessure très grave mettant fin à la carrière.";saveCareer();return {ok:false,retired:true,playerGame:true};
  }
- career.fatigue=clamp((Number(career.fatigue)||0)+Math.max(0,(Number(line.minutes)||0)-28)*.35-1.5,0,100);
+ const playedMinutes=clamp(Number(line.minutes)||0,0,48),endurance=clamp(Number(p.attributes&&p.attributes.stamina)||50,25,99);career.fatigue=clamp((Number(career.fatigue)||0)+playedMinutes*(.82-endurance*.004)-Math.max(0,28-playedMinutes)*.45-1,0,100);
  const currentMonth=careerMonthForScheduledGame(target,career.teamCode);career.lastPlayedMonth=currentMonth;
  const upcomingPlayerGame=nextPlayerGame(),monthEnded=!upcomingPlayerGame||careerMonthForScheduledGame(upcomingPlayerGame,career.teamCode)!==currentMonth;
  career.pendingStory=monthEnded&&career.lastStoryMonth!==currentMonth;
@@ -923,7 +924,7 @@ function simulateCareerScheduledGame(game){
  const isPlayerGame=game.home.code===career.teamCode||game.away.code===career.teamCode;
  if(isPlayerGame){
   const fatiguePenalty=clamp(Number(career.fatigue)||0,0,100);
-  p.myCareerMoodModifiers={consistency:(Number(career.emotions||50)-50)*.025-fatiguePenalty*.025,clutch:(Number(career.emotions||50)-50)*.04-fatiguePenalty*.02,playmaking:(Number(career.chemistry||50)-50)*.035,passing:(Number(career.chemistry||50)-50)*.035,basketballIQ:(Number(career.chemistry||50)-50)*.03,intangibles:(Number(career.popularity||50)-50)*.02,speed:-fatiguePenalty*.035,acceleration:-fatiguePenalty*.035,agility:-fatiguePenalty*.03,stamina:-fatiguePenalty*.05,shotIQ:-fatiguePenalty*.02};
+  p.myCareerMoodModifiers={consistency:(Number(career.emotions||50)-50)*.025-fatiguePenalty*.10,clutch:(Number(career.emotions||50)-50)*.04-fatiguePenalty*.07,playmaking:(Number(career.chemistry||50)-50)*.035-fatiguePenalty*.055,passing:(Number(career.chemistry||50)-50)*.035-fatiguePenalty*.055,basketballIQ:(Number(career.chemistry||50)-50)*.03-fatiguePenalty*.045,intangibles:(Number(career.popularity||50)-50)*.02-fatiguePenalty*.035,speed:-fatiguePenalty*.09,acceleration:-fatiguePenalty*.09,agility:-fatiguePenalty*.085,stamina:-fatiguePenalty*.18,shotIQ:-fatiguePenalty*.075,threePoint:-fatiguePenalty*.07,midRange:-fatiguePenalty*.065,layup:-fatiguePenalty*.065,dunk:-fatiguePenalty*.07,finishing:-fatiguePenalty*.065,offensiveIQ:-fatiguePenalty*.06,perimeterDefense:-fatiguePenalty*.065,interiorDefense:-fatiguePenalty*.065,defensiveIQ:-fatiguePenalty*.06,steal:-fatiguePenalty*.055,block:-fatiguePenalty*.06,offensiveRebound:-fatiguePenalty*.05,defensiveRebound:-fatiguePenalty*.05,ballHandle:-fatiguePenalty*.07,freeThrow:-fatiguePenalty*.04};
  }
  let simulationResult=false,simulationError=null;
  window.NBASimMyCareerSimulationInProgress=true;
