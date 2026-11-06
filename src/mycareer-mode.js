@@ -956,6 +956,7 @@ function simulateCareerSeason(options){
  renderDashboard();
  const step=()=>{
   if(!career||career.retired){career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;return;}
+  if(!career.autoSeasonSimulation){career.autoSimulationTargetGameId=null;saveCareer();renderDashboard();return;}
   if(career.pendingStory){saveCareer();renderStory();return;}
   const requestedGame=targetId&&seasonCalendar&&seasonCalendar.games.find(game=>String(game.id)===targetId);
   if(requestedGame&&requestedGame.status==="completed"){
