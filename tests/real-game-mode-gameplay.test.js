@@ -37,3 +37,6 @@ assert.ok(source.includes('TIR DE "+shooter.name'), "Shot feedback should identi
 
 assert.ok(source.includes("function endPossession(next,seconds)") && source.includes("possession=next"), "Possession changes should happen automatically after a completed shot or defensive rebound.");
 assert.ok(source.includes("window.setTimeout(runAI,450)"), "The opposing possession should start automatically without a next-possession click.");
+
+assert.match(source, /lastPasser=null,lastShooter=null,gameOver=false/, "Starting a match must reset a declared lastShooter state variable.");
+assert.match(source, /function startGame\(\)[\s\S]*?lastShooter=null/, "The shooter history must reset when a new match starts.");
