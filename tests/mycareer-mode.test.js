@@ -228,3 +228,7 @@ assert.match(career, /if\(!career\.autoSeasonSimulation\)\{career\.autoSimulatio
 assert.match(career, /-careerOverall\(draftPlayer\)/, "The initial rival should be selected relative to the drafted player's overall.");
 
 assert.match(career, /id="mcContinue">Continuer ma carrière/, "Continue should remain available to select an external save even when local quick-save is empty.");
+
+assert.match(html, /categories\[key\]!=null&&categories\[key\]!==\x27\x27&&Number\.isFinite\(Number\(categories\[key\]\)\)/, "Null category ratings should render as empty inputs, not the string null.");
+assert.match(html, /attrs\[key\]!=null&&attrs\[key\]!==\x27\x27&&Number\.isFinite\(Number\(attrs\[key\]\)\)/, "Null individual ratings should render as empty inputs.");
+assert.match(html, /values\.totalAttributes!=null&&values\.totalAttributes!==\x27\x27&&Number\.isFinite\(Number\(values\.totalAttributes\)\)/, "Null total attributes should render as an empty input.");
