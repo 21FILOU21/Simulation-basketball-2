@@ -829,10 +829,10 @@ function showCareerAttributes(){
  render(header("MES ATTRIBUTS","Spécialité · "+(p.myCareerProfile.specialty||"MyCareer"))+
   '<div class="mc-card mc-xp-card"><div class="mc-xp-heading"><div><div class="mc-kicker">PROGRESSION DU JOUEUR</div><h2>'+progress.xp+' / '+progress.required+' EXP</h2></div><div class="mc-xp-points"><strong>'+progress.points+'</strong><span>POINTS DISPONIBLES</span></div></div><div class="mc-xp-track"><span style="width:'+ratio.toFixed(2)+'%"></span></div><p class="mc-muted">Encore '+remaining+' EXP pour gagner un point d’attribut · '+progress.totalXp+' EXP gagnée(s) au total.</p><p class="mc-status">'+(progress.lastAward?'Dernier match : +'+progress.lastAward+' EXP.':'Tes performances en match déterminent ton EXP.')+'</p></div>'+
   '<div class="mc-card mc-overall-card"><div class="mc-grid"><div class="mc-metric"><strong>'+careerOverall(p)+'</strong><span>GÉN actuel</span></div><div class="mc-metric"><strong>'+previewOverall+'</strong><span>GÉN après améliorations</span></div></div><p class="mc-muted">Les barres jaunes montrent ton niveau. Les zones gris foncé sont au-delà de ton plafond de spécialité. Les flèches préparent les améliorations avant achat.</p></div>'+
-  '<div class="mc-attribute-panels">'+sections+'</div>'+
+  '<button type="button" class="mc-btn secondary" id="mcRevealAttributes" aria-expanded="false">Afficher les attributs</button><div class="mc-attribute-panels" id="mcCareerAttributePanels" hidden>'+sections+'</div>'+
   '<div class="mc-attribute-purchase"><div><strong id="mcSelectedPoints">'+pending+' / '+progress.points+'</strong><span>Points sélectionnés</span></div><button class="mc-btn primary" id="mcBuyAttributes" '+(pending===0||pending>progress.points?"disabled":"")+'>Acheter les améliorations</button><button class="mc-btn secondary" id="mcClearAttributes" '+(pending===0?"disabled":"")+'>Annuler</button></div>'+
   '<div class="mc-actions"><button class="mc-btn secondary" id="mcBackDashboard">Retour à ma carrière</button></div>');
- attachReturn();
+ attachReturn();const revealButton=$("mcRevealAttributes"),attributePanels=$("mcCareerAttributePanels");if(revealButton&&attributePanels)revealButton.onclick=()=>{const show=attributePanels.hidden;attributePanels.hidden=!show;revealButton.setAttribute("aria-expanded",String(show));revealButton.textContent=show?"Masquer les attributs":"Afficher les attributs";};
  root.querySelectorAll("[data-add-upgrade]").forEach(button=>{
   const key=button.dataset.addUpgrade;
   button.addEventListener("pointerdown",event=>startAttributeHold(button,key,p,progress,event));
@@ -855,6 +855,7 @@ function showCareerAttributes(){
  $("mcClearAttributes").onclick=()=>{pendingAttributeUpgrades={};showCareerAttributes();};
  $("mcBackDashboard").onclick=()=>{pendingAttributeUpgrades={};renderDashboard();};
 }
+function refreshCareerRivalForSeason(p){const oldId=career.rivalId,oldName=career.rivalName||"",rating=careerOverall(p),candidates=allPlayers().filter(x=>x&&String(x.id)!==String(p.id)&&x.team&&String(x.team)!==String(career.teamCode)&&!x.retired&&!x.isRetired&&!x.myCareer&&x.source!=="MyCareer · Rival généré"&&nbaTeams.some(t=>t[0]===x.team)).sort((a,b)=>Math.abs((typeof overallRating==="function"?overallRating(a):70)-rating)-Math.abs((typeof overallRating==="function"?overallRating(b):70)-rating));let rival=candidates[0]||null;if(!rival){createNewRival(p);rival=findPlayer(career.rivalId);}if(rival){career.rivalId=rival.id;career.rivalName=rival.name;career.rivalSeasonNotice={season:career.seasonNumber,name:rival.name,team:rival.team,overall:typeof overallRating==="function"?overallRating(rival):rating,changed:String(oldId)!==String(rival.id),previousName:oldName};}return rival;}
 function createNewRival(p){
  const candidates=(typeof nbaTeams!=="undefined"?nbaTeams:[]).filter(t=>t[0]!==career.teamCode),team=candidates[Math.floor(rand()*candidates.length)];
  const values=Object.fromEntries(attrs.map(x=>[x[0],clamp((Number(p.attributes[x[0]])||65)+(rand()-.5)*12,45,90)]));
@@ -1025,8 +1026,9 @@ function simulateCareerSeries(teamA,teamB,roundLabel,seriesIndex){
 function simulateCareerPlayoffs(){
  if(typeof window.updateTeamSeasonAverages==="function")window.updateTeamSeasonAverages();
  const standings=Array.isArray(seasonResults)?seasonResults:[];
- const west=standings.filter(t=>t.conference==="West"&&Number(t.seed)>0).sort((a,b)=>a.seed-b.seed).slice(0,8);
- const east=standings.filter(t=>t.conference==="East"&&Number(t.seed)>0).sort((a,b)=>a.seed-b.seed).slice(0,8);
+ const buildConference=conference=>{const rows=standings.filter(t=>t.conference===conference).slice(),known=new Set(rows.map(t=>String(t.code)));if(typeof nbaTeams!=="undefined")nbaTeams.filter(t=>t[2]===conference&&!known.has(String(t[0]))).forEach(t=>rows.push({code:t[0],name:t[1],conference,seed:99,wins:0,losses:0}));rows.sort((a,b)=>{const sa=Number(a.seed)||99,sb=Number(b.seed)||99;return sa!==sb&&sa<99&&sb<99?sa-sb:(Number(b.wins)||0)-(Number(a.wins)||0);});return rows.slice(0,8).map((t,i)=>Object.assign({},t,{seed:i+1}));};
+ const west=buildConference("West");
+ const east=buildConference("East");
  career.postseasonStats={gp:0,pts:0,reb:0,ast:0,stl:0,blk:0,minutes:0};career.postseasonGames=[];career.playoffLeagueStats={};career.finalsLeagueStats={};career.postseasonAwards=[];
  if(west.length!==8||east.length!==8){career.postseason={qualified:false,champion:null,rounds:[]};return;}
  const oldRender=window.renderAll;
@@ -1116,16 +1118,36 @@ function buildCareerFinalsMvp(){
  const player=findPlayer(winner.id);return {icon:"🏆",title:"MVP des Finales",name:winner.name,team:player?player.team:winner.team,detail:(winner.pts/winner.gp).toFixed(1)+" PTS · "+(winner.reb/winner.gp).toFixed(1)+" REB · "+(winner.ast/winner.gp).toFixed(1)+" AST"};
 }
 function buildCareerPublicOpinionComments(entry,awards,postseason){
- const s=career.seasonStats||{},gp=Math.max(1,Number(entry&&entry.gp)||Number(s.gp)||1),ppg=Number(entry&&entry.pts)||0,rpg=Number(entry&&entry.reb)||0,apg=Number(entry&&entry.ast)||0,ovr=Number(entry&&entry.overall)||careerOverall(playerForCareer()),wins=Number(career.wins)||0,losses=Number(career.losses)||0,pop=clamp(Number(career.popularity)||50,0,100),awardList=Array.isArray(awards)?awards:[],post=postseason||career.postseason||{},champion=!!post.champion&&String(post.champion)===String(career.teamCode),qualified=!!post.qualified;
- const strong=ppg>=Math.max(18,ovr*.22)||awardList.length>=2||champion,weak=(ppg<Math.max(6,ovr*.09)&&gp>=40)||(losses>wins*1.35&&ppg<12),comments=[];
- comments.push({type:"GLAZER",sentiment:"positive",author:"Fan inconditionnel",text:strong?"Ce joueur est une superstar, regardez son impact et ses récompenses. Il mérite tout le respect.":"Je le défends quoi qu’il arrive : il travaille, progresse et donne tout pour son équipe.",reason:strong?"Production élevée et/ou récompenses majeures.":"Popularité et progression qui fidélisent ses fans."});
- comments.push({type:"HATER",sentiment:"negative",author:"Hater sur les réseaux",text:weak?"Il disparaît trop souvent. On attend bien plus d’un joueur NBA.":"Les gens le surestiment : il doit encore prouver qu’il peut porter une équipe.",reason:weak?"Statistiques modestes ou bilan de saison difficile.":"Critique récurrente malgré une saison solide."});
- comments.push({type:"ANALYSTE",sentiment:ppg>=15?"positive":"mixed",author:"Analyste NBA",text:"Sa ligne de "+ppg.toFixed(1)+" PTS, "+rpg.toFixed(1)+" REB et "+apg.toFixed(1)+" AST montre "+(ppg>=15?"un rôle offensif important.":"un rôle plus discret, avec une marge de progression."),reason:"Commentaire basé sur ses moyennes de saison."});
- comments.push({type:"FANBASE",sentiment:wins>=losses?"positive":"negative",author:"Supporter de "+String(career.teamName||career.teamCode||"son équipe"),text:wins>=losses?"Il aide l’équipe à gagner. On veut le voir continuer sur cette lancée !":"Le bilan collectif est décevant. Il faut transformer les performances en victoires.",reason:"Bilan de l’équipe : "+wins+" victoires et "+losses+" défaites."});
- comments.push({type:"MÉDIAS",sentiment:champion?"positive":"mixed",author:"Chronique sportive",text:champion?"Champion NBA : sa saison entre directement dans l’histoire de la franchise.":qualified?"Les playoffs ont apporté un test supplémentaire, mais le débat sur son niveau reste ouvert.":"Sans playoffs, la prochaine saison sera cruciale pour changer le récit.",reason:champion?"Titre NBA obtenu.":qualified?"Qualification en postseason.":"Équipe non qualifiée en playoffs."});
- if(awardList.length)comments.push({type:"GLAZER",sentiment:"positive",author:"Fan des trophées",text:"Un trophée de plus dans la collection. Les critiques peuvent parler, les récompenses sont là.",reason:"Récompenses : "+awardList.map(a=>a.title).filter(Boolean).slice(0,3).join(", ")+"."});
- if(pop<35)comments.push({type:"HATER",sentiment:"negative",author:"Commentaire viral",text:"L’opinion publique est au plus bas : il doit reconquérir les fans.",reason:"Popularité : "+pop+"/100."});
- return comments.slice(0,7);
+ const s=career.seasonStats||{},gp=Math.max(1,Number(entry&&entry.gp)||Number(s.gp)||1),ppg=Number(entry&&entry.pts)||0,rpg=Number(entry&&entry.reb)||0,apg=Number(entry&&entry.ast)||0,ovr=Number(entry&&entry.overall)||careerOverall(playerForCareer()),wins=Number(career.wins)||0,losses=Number(career.losses)||0,pop=clamp(Number(career.popularity)||50,0,100),awardList=Array.isArray(awards)?awards:[],post=postseason||career.postseason||{},champion=!!post.champion&&String(post.champion)===String(career.teamCode),qualified=!!post.qualified,trophy=awardList.map(a=>a.title).filter(Boolean).slice(0,3).join(", ")||"aucun trophée majeur";
+ const strong=ppg>=Math.max(18,ovr*.22)||awardList.length>=2||champion,weak=(ppg<Math.max(6,ovr*.09)&&gp>=40)||(losses>wins*1.35&&ppg<12);
+ const phrases=[
+ ["GLAZER","Fan inconditionnel",strong?"C’est une superstar, son impact et ses récompenses parlent pour lui.":"Je le défends : il travaille et progresse à chaque saison."],
+ ["HATER","Hater sur les réseaux",weak?"Il disparaît trop souvent, on attend bien mieux.":"Les fans le surestiment encore, il doit prouver sa valeur."],
+ ["ANALYSTE","Analyste NBA","Avec "+ppg.toFixed(1)+" PTS, "+rpg.toFixed(1)+" REB et "+apg.toFixed(1)+" AST, son rôle est "+(ppg>=20?"celui d’une star offensive.":"encore en développement.")],
+ ["FANBASE","Supporter de l’équipe",wins>=losses?"Il aide notre équipe à gagner, gardons-le !":"Le bilan collectif déçoit, il faut transformer les stats en victoires."],
+ ["MÉDIAS","Chronique sportive",champion?"Champion NBA : sa saison entre dans l’histoire.":qualified?"Les playoffs ont confirmé son niveau.":"Sans playoffs, il devra relancer le récit la saison prochaine."],
+ ["GLAZER","Fan des trophées",awardList.length?"Les récompenses sont là : "+trophy+".":"Il mérite une récompense, son travail est sous-estimé."],
+ ["HATER","Commentaire viral",pop<35?"Popularité au plus bas : il doit reconquérir les fans.":"Les médias lui donnent trop de crédit."],
+ ["ANALYSTE","Observateur du jeu","Son général de "+ovr+" implique des attentes élevées."],
+ ["FAN","Fan de statistiques",ppg>=25?"25 points par match ou plus, c’est une vraie machine.":"Il doit viser une production offensive plus constante."],
+ ["HATER","Critique de plateau",losses>wins?"Son équipe perd trop, les chiffres individuels ne suffisent pas.":"Je reste sceptique malgré le bilan positif."],
+ ["GLAZER","Fan du clutch",ovr>=90?"Un joueur de haut niveau qui répond présent.":"Il a le potentiel pour devenir un grand."],
+ ["ANALYSTE","Spécialiste défense","Ses "+(Number(entry&&entry.stl)||0).toFixed(1)+" interceptions et "+(Number(entry&&entry.blk)||0).toFixed(1)+" contres montrent son activité défensive."],
+ ["FAN","Supporter optimiste",pop>=70?"La ville l’adore, sa popularité est méritée.":"Il peut encore gagner le cœur des supporters."],
+ ["HATER","Rival sur Internet",ppg<12?"Il n’est pas assez productif pour son général.":"Même avec de bonnes stats, il ne porte pas assez son équipe."],
+ ["GLAZER","Glazer certifié",champion?"Le titre NBA suffit à fermer toutes les critiques.":"Sa progression et son ambition sont impressionnantes."],
+ ["ANALYSTE","Journaliste NBA","Le bilan "+wins+"-"+losses+" influence fortement le débat autour de lui."],
+ ["FAN","Fan du vestiaire",apg>=7?"Il rend ses coéquipiers meilleurs grâce à sa création.":"Il pourrait partager davantage le ballon."],
+ ["HATER","Hater anonyme",rpg<4?"Il ne domine pas assez les rebonds.":"Ses statistiques sont gonflées par son rôle."],
+ ["GLAZER","Fan des highlights",ppg>=20?"Chaque match offre du spectacle.":"Même dans un rôle plus discret, il mérite du respect."],
+ ["MÉDIAS","Débat télé",awardList.length>=2?"Sa collection de trophées fait parler toute la ligue.":"La saison ne lui a pas offert assez de distinctions."],
+ ["FAN","Fan fidèle",pop>=50?"On croit en lui pour la suite.":"Il doit renouer avec les supporters."],
+ ["ANALYSTE","Évaluateur de talents","À "+ovr+" GÉN, il "+(ovr>=90?"est un joueur franchise.":"a une marge de progression importante.")],
+ ["HATER","Critique des résultats",qualified?"Il devra mieux performer en postseason.":"L’absence de playoffs est difficile à défendre."],
+ ["GLAZER","Fan des records",ppg>=30?"Une saison de scoring exceptionnelle.":"Sa constance mérite d’être remarquée."],
+ ["FANBASE","Voix de la communauté",pop>=80?"Il est devenu l’un des favoris de la communauté.":"Les opinions restent partagées autour de lui."]
+ ];
+ return phrases.map(([type,author,text],index)=>({type,sentiment:type==="GLAZER"||type==="FAN"&&pop>=50||type==="ANALYSTE"&&strong?"positive":type==="HATER"||type==="FAN"&&pop<50?"negative":"mixed",author,text,reason:"Popularité "+pop+"/100 · "+ppg.toFixed(1)+" PTS · "+wins+"-"+losses+" · "+awardList.length+" récompense(s)"+(index===4?" · playoffs "+(qualified?"qualifié":"non qualifié"):"")}));
 }
 function finishSeason(){
  const p=playerForCareer();if(!p||career.seasonCompleted)return;career.lastSeasonAwards=buildCareerSeasonAwards();career.lastSeasonTrades=careerBiggestTradesForSeason();career.seasonCompleted=true;career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;career.autoBatchBoxScores=[];career.autoBatchBoxIndex=0;
@@ -1166,7 +1188,7 @@ function finishSeason(){
   '<h2>Parcours complet des playoffs</h2>'+phaseMarkup+
   '<p class="mc-muted">Ton âge passe à '+p.age+' ans. Tes attributs évoluent selon ton développement, ton potentiel et ton âge.</p>'+
   '<div class="mc-actions"><button class="mc-btn primary" id="mcNextSeason">Préparer la prochaine saison →</button></div></div>');
- attachReturn();root.querySelectorAll("[data-mc-playoff-series]").forEach(button=>button.onclick=()=>{const parts=button.dataset.mcPlayoffSeries.split("-"),detail=$("mcPlayoffDetail"+parts[0]),card=button; if(detail)detail.textContent=card.querySelector("b").textContent+" · "+card.querySelector("em").textContent+" · Série au meilleur de 7 (résultats de la saison terminée).";});$("mcNextSeason").onclick=renderDashboard;
+ attachReturn();root.querySelectorAll("[data-mc-playoff-series]").forEach(button=>button.onclick=()=>{const parts=button.dataset.mcPlayoffSeries.split("-"),detail=$("mcPlayoffDetail"+parts[0]),card=button; if(detail)detail.textContent=card.querySelector("b").textContent+" · "+card.querySelector("em").textContent+" · Série au meilleur de 7 (résultats de la saison terminée).";});$("mcNextSeason").onclick=()=>{const rival=refreshCareerRivalForSeason(playerForCareer()),notice=career.rivalSeasonNotice||{},label=notice.changed?"Un nouveau rival t’est attribué cette saison.":"Ton rival poursuit la rivalité cette saison.";render(header("TON RIVAL · SAISON "+career.seasonNumber,"Nouvelle saison NBA")+'<div class="mc-card"><div class="mc-kicker">RIVAL OFFICIEL</div><h2>'+escHtml(rival&&rival.name||"Rival à déterminer")+'</h2><p class="mc-muted">'+escHtml(rival&&rival.team||"NBA")+' · GÉN '+(rival&&typeof overallRating==="function"?overallRating(rival):"—")+'</p><p class="mc-muted">'+label+(notice.changed&&notice.previousName?" Rival précédent : "+escHtml(notice.previousName)+".":"")+'</p><button class="mc-btn primary" id="mcBeginNewSeason">Commencer la saison →</button></div>');attachReturn();$("mcBeginNewSeason").onclick=renderDashboard;};
 }
 function renderRetirement(){
  career=career||{};career.retired=true;saveCareer();const p=playerForCareer()||career.player||{};
