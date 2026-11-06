@@ -34,3 +34,6 @@ assert.ok(source.includes("_rgmCourtX") && source.includes("_rgmCourtY"), "Dragg
 assert.ok(source.includes("4.5+(base-50)*.16-(defense-50)*.055"), "The green timing window must scale with shooter attributes and defense.");
 assert.ok(source.includes("PASSE RÉUSSIE") && source.includes("receiver"), "A pass must bind the ball handler to the actual receiver.");
 assert.ok(source.includes('TIR DE "+shooter.name'), "Shot feedback should identify the actual shooter.");
+
+assert.ok(source.includes("function endPossession(next,seconds)") && source.includes("possession=next"), "Possession changes should happen automatically after a completed shot or defensive rebound.");
+assert.ok(source.includes("window.setTimeout(runAI,450)"), "The opposing possession should start automatically without a next-possession click.");
