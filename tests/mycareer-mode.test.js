@@ -211,7 +211,7 @@ assert.match(career, /window\.NBASimActualPlayerStats/, "League Leaders should u
 assert.match(career, /threeAttempts\?x\.threeMade\/x\.threeAttempts\*100/, "League Leaders should calculate current-season 3P percentage.");
 assert.match(career, /Statistiques réelles · Saison/, "League Leaders should identify the active season.");
 
-assert.match(career, /onclick=\(\)=>openCareerSaveManager\(\)/, "Continue MyCareer should open a save chooser directly.");
+assert.match(career, /\$\("mcContinue"\)\.onclick=\(\)=>openCareerSaveManager\(\)/, "Continue MyCareer should open a save chooser directly.");
 assert.match(career, /mcLoadQuickCareer/, "The save chooser should allow loading the browser quick-save.");
 assert.match(career, /mcCareerAttributePanels" hidden/, "Player attributes should be hidden until explicitly revealed.");
 assert.match(career, /mcRevealAttributes/, "Player attributes should have a reveal toggle.");
