@@ -880,14 +880,8 @@ function careerLeagueGamesThrough(targetGameId){
 function nextCareerLeagueGame(targetGameId){
  return careerLeagueGamesThrough(targetGameId).find(game=>game.status!=="completed")||null;
 }
-function renderCareerSimulationProgress(targetGameId){renderDashboard();}\nfunction updateCareerSimulationProgress(game,targetGameId){
- const games=careerLeagueGamesThrough(targetGameId),completed=games.filter(item=>item.status==="completed").length,total=games.length;
- const matchup=$("mcSimulationMatchup"),score=$("mcSimulationScore"),counter=$("mcSimulationCounter"),bar=$("mcSimulationProgressBar");
- if(matchup)matchup.textContent=(game.home.name||game.home.code)+" vs "+(game.away.name||game.away.code);
- if(score)score.textContent=Number(game.homeScore)+" – "+Number(game.awayScore)+" · "+(game.homeScore>game.awayScore?game.home.code:game.away.code)+" gagne";const tile=$("mcSimulationResultTile");if(tile){const won=Number(game.homeScore)>Number(game.awayScore),lost=Number(game.homeScore)<Number(game.awayScore);tile.className="mc-calendar-game "+(won?"is-win":lost?"is-loss":"is-pending");tile.innerHTML="<small>JOURNÉE "+(Number(game.round)||"—")+"</small><b>"+escHtml(game.home.code)+" "+Number(game.homeScore)+" – "+Number(game.awayScore)+" "+escHtml(game.away.code)+"</b><span>"+(won?"Victoire "+escHtml(game.home.code):lost?"Victoire "+escHtml(game.away.code):"Match nul")+"</span>";}
- if(counter)counter.textContent=completed+" / "+total+" matchs simulés";
- if(bar)bar.style.width=(total?completed/total*100:100).toFixed(1)+"%";
-}
+function renderCareerSimulationProgress(targetGameId){renderDashboard();}
+function updateCareerSimulationProgress(game,targetGameId){if(game&&(String(game.home.code)===String(career.teamCode)||String(game.away.code)===String(career.teamCode)))renderDashboard();}
 function finishCareerPlayerGame(target){
  const p=playerForCareer();if(!p)return {ok:false};
  const currentRound=Number(target.round)||0,home=target.home.code===career.teamCode,teamScore=home?target.homeScore:target.awayScore,oppScore=home?target.awayScore:target.homeScore,won=Number(teamScore)>Number(oppScore);
@@ -983,7 +977,7 @@ function simulateCareerSeason(options){
   if(result.playerGame)renderDashboard();
   if(career.pendingStory){saveCareer();renderStory();return;}
   if(targetId&&String(nextGame.id)===targetId||!targetId&&seasonCalendar.games.every(game=>game.status==="completed")){
-   career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();renderLastBoxScore();return;
+   career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();renderDashboard();return;
   }
   const progressGames=careerLeagueGamesThrough(targetId),completed=progressGames.filter(game=>game.status==="completed").length;
   if(completed%10===0||result.playerGame)saveCareer();
