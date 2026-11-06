@@ -858,7 +858,7 @@ function showCareerAttributes(){
 function refreshCareerRivalForSeason(p){const oldId=career.rivalId,oldName=career.rivalName||"",rating=careerOverall(p),candidates=allPlayers().filter(x=>x&&String(x.id)!==String(p.id)&&x.team&&String(x.team)!==String(career.teamCode)&&!x.retired&&!x.isRetired&&!x.myCareer&&x.source!=="MyCareer · Rival généré"&&nbaTeams.some(t=>t[0]===x.team)).sort((a,b)=>Math.abs((typeof overallRating==="function"?overallRating(a):70)-rating)-Math.abs((typeof overallRating==="function"?overallRating(b):70)-rating));let rival=candidates[0]||null;if(!rival){createNewRival(p);rival=findPlayer(career.rivalId);}if(rival){career.rivalId=rival.id;career.rivalName=rival.name;career.rivalSeasonNotice={season:career.seasonNumber,name:rival.name,team:rival.team,overall:typeof overallRating==="function"?overallRating(rival):rating,changed:String(oldId)!==String(rival.id),previousName:oldName};}return rival;}
 function createNewRival(p){
  const candidates=(typeof nbaTeams!=="undefined"?nbaTeams:[]).filter(t=>t[0]!==career.teamCode),team=candidates[Math.floor(rand()*candidates.length)];
- const values=Object.fromEntries(attrs.map(x=>[x[0],clamp((Number(p.attributes[x[0]])||65)+(rand()-.5)*12,45,90)]));
+ const values=Object.fromEntries(attrs.map(x=>[x[0],clamp((Number(p.attributes[x[0]])||65)+(rand()-.5)*10,45,99)]));
  const name="Rival "+["Jordan","Darius","Tyrese","Malik","Cameron","Jaylen"][Math.floor(rand()*6)]+" "+["Carter","Brooks","Williams","Hayes","Mitchell"][Math.floor(rand()*5)];
  const rival={id:typeof nextPlayerId!=="undefined"?nextPlayerId++:Date.now(),name,team:team[0],pos:p.pos,age:20,pts:0,reb:0,ast:0,stl:.8,blk:.4,ts:.56,three:.35,mpg:26,height:p.height,weight:p.weight,wingspan:p.wingspan,attributes:values,history:[],trophies:[],careerGames:[],source:"MyCareer · Rival généré"};
  players.push(rival);secureCareerRoster(rival);career.rivalId=rival.id;career.rivalName=name;career.generatedRival=true;if(typeof window.NBAMyNBARosterChanged==="function")window.NBAMyNBARosterChanged();
@@ -912,7 +912,7 @@ function finishCareerPlayerGame(target){
  if(!allPlayers().some(player=>String(player.id)===String(p.id))&&typeof retired!=="undefined"&&retired.some(player=>String(player.id)===String(p.id))){
   career.retired=true;career.retirementReason="Blessure très grave mettant fin à la carrière.";saveCareer();return {ok:false,retired:true,playerGame:true};
  }
- const playedMinutes=clamp(Number(line.minutes)||0,0,48),endurance=clamp(Number(p.attributes&&p.attributes.stamina)||50,25,99);career.fatigue=clamp((Number(career.fatigue)||0)+playedMinutes*(.82-endurance*.004)-Math.max(0,28-playedMinutes)*.45-1,0,100);
+ const playedMinutes=clamp(Number(line.minutes)||0,0,48),endurance=clamp(Number(p.attributes&&p.attributes.stamina)||50,25,99);career.fatigue=clamp((Number(career.fatigue)||0)+playedMinutes*(.82-endurance*.004)-Math.max(0,28-playedMinutes)*.45-5,0,100);
  const currentMonth=careerMonthForScheduledGame(target,career.teamCode);career.lastPlayedMonth=currentMonth;
  const upcomingPlayerGame=nextPlayerGame(),monthEnded=!upcomingPlayerGame||careerMonthForScheduledGame(upcomingPlayerGame,career.teamCode)!==currentMonth;
  career.pendingStory=monthEnded&&career.lastStoryMonth!==currentMonth;
