@@ -16,7 +16,9 @@ assert.match(career, /GLAZER/, "Public opinion must include enthusiastic fans.")
 assert.match(career, /HATER/, "Public opinion must include critical fans.");
 assert.match(career, /mcToggleStoryAttributes/, "Story attribute panel must have a visibility toggle.");
 assert.match(career, /aria-expanded="false"/, "Story attribute toggle must be accessible and hidden by default.");
-assert.match(career, /mcSimulationResultTile/, "Season simulation must show a result tile in real time.");
+assert.match(career, /function renderCareerSimulationProgress\(targetGameId\)\{renderDashboard\(\);\}/, "Season simulation should stay on the MyCareer dashboard and calendar.");
+assert.match(career, /function renderCareerCalendarMarkup\(/, "The player's calendar tiles should display the results as games complete.");
+assert.match(career, /is-win|is-loss/, "MyCareer calendar tiles should distinguish victories and defeats.");
 assert.match(career, /mc-playoff-bracket/, "MyCareer playoffs should be rendered as a bracket.");
 assert.match(career, /data-mc-playoff-series/, "Playoff bracket series must be interactive.");
 
