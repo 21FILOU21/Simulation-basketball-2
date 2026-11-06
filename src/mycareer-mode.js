@@ -159,11 +159,11 @@ function renderCareerSaveManager(message){
  const folder=careerSaveDirectoryHandle?escHtml(careerSaveDirectoryHandle.name||"Dossier sélectionné"):"Aucun dossier sélectionné";
  const canWrite=careerSaveDirectoryPermission==="granted";
  const currentPlayer=playerForCareer(),defaultName="Carrière "+(currentPlayer&&currentPlayer.name?currentPlayer.name:"MyCareer");
- const firstFree=careerSaveSlots.findIndex(slot=>!slot);
+ const firstFree=careerSaveSlots.findIndex(slot=>!slot),quickSave=loadStored(),quickSaveMarkup=quickSave&&quickSave.career?'<div class="mc-card"><div class="mc-kicker">SAUVEGARDE RAPIDE LOCALE</div><h3>Carrière enregistrée dans ce navigateur</h3><button class="mc-btn primary" id="mcLoadQuickCareer">Charger cette sauvegarde</button></div>':"";
  render(header("GESTION DES SAUVEGARDES","10 emplacements · Fichiers JSON sur ton ordinateur")+
- '<div class="mc-card"><div class="mc-kicker">DOSSIER DE DESTINATION</div><h2>'+folder+'</h2><p class="mc-muted">Les sauvegardes sont enregistrées dans ce dossier sous forme de fichiers JSON. Le dossier choisi est mémorisé sur cet ordinateur.</p><div class="mc-actions"><button class="mc-btn primary" id="mcChooseSaveDirectory">Choisir un dossier dans Windows</button>'+(careerSaveDirectoryHandle?'<button class="mc-btn secondary" id="mcReconnectSaveDirectory">Autoriser l’accès au dossier</button>':"")+'</div><label class="mc-field" for="mcSaveLabel">Nom de la sauvegarde<input id="mcSaveLabel" maxlength="64" value="'+escHtml(defaultName)+'" placeholder="Ex. Ma carrière NBA"></label><div class="mc-actions"><button class="mc-btn primary" id="mcCreateCareerSave" '+(firstFree<0?"disabled":"")+'>Créer une nouvelle sauvegarde</button><button class="mc-btn secondary" id="mcSaveBack">Retour à ma carrière</button></div><p class="mc-status">'+escHtml(message||(canWrite?"Dossier prêt. Choisis un emplacement libre ou charge une sauvegarde existante.":careerSaveDirectoryHandle?"Réautorise l’accès au dossier pour afficher les 10 emplacements.":"Choisis un dossier pour créer tes fichiers de sauvegarde."))+'</p></div><div class="mc-save-grid">'+slots+'</div>');
+ '<div class="mc-card"><div class="mc-kicker">DOSSIER DE DESTINATION</div><h2>'+folder+'</h2><p class="mc-muted">Les sauvegardes sont enregistrées dans ce dossier sous forme de fichiers JSON. Le dossier choisi est mémorisé sur cet ordinateur.</p><div class="mc-actions"><button class="mc-btn primary" id="mcChooseSaveDirectory">Choisir un dossier dans Windows</button>'+(careerSaveDirectoryHandle?'<button class="mc-btn secondary" id="mcReconnectSaveDirectory">Autoriser l’accès au dossier</button>':"")+'</div><label class="mc-field" for="mcSaveLabel">Nom de la sauvegarde<input id="mcSaveLabel" maxlength="64" value="'+escHtml(defaultName)+'" placeholder="Ex. Ma carrière NBA"></label><div class="mc-actions"><button class="mc-btn primary" id="mcCreateCareerSave" '+(firstFree<0?"disabled":"")+'>Créer une nouvelle sauvegarde</button><button class="mc-btn secondary" id="mcSaveBack">Retour à ma carrière</button></div><p class="mc-status">'+escHtml(message||(canWrite?"Dossier prêt. Choisis un emplacement libre ou charge une sauvegarde existante.":careerSaveDirectoryHandle?"Réautorise l’accès au dossier pour afficher les 10 emplacements.":"Choisis un dossier pour créer tes fichiers de sauvegarde."))+'</p></div>'+quickSaveMarkup+'<div class="mc-save-grid">'+slots+'</div>');
  attachReturn();
- $("mcSaveBack").onclick=renderDashboard;
+ if($("mcLoadQuickCareer"))$("mcLoadQuickCareer").onclick=()=>{if(restoreStored(quickSave)){saveCareer();renderDashboard();}else renderCareerSaveManager("La sauvegarde rapide est invalide.");};$("mcSaveBack").onclick=renderDashboard;
  $("mcChooseSaveDirectory").onclick=chooseCareerSaveDirectory;
  if($("mcReconnectSaveDirectory"))$("mcReconnectSaveDirectory").onclick=authorizeCareerSaveDirectory;
  $("mcCreateCareerSave").onclick=()=>createCareerSaveInFirstAvailableSlot();
@@ -252,7 +252,7 @@ function showPicker(){
 function openCareerHome(){
  activeMode="career";hideGM();const saved=loadStored();
  render(header("MYCAREER","Ta carrière NBA, de la Draft à la retraite.")+'<div class="mc-card"><h2>Une carrière à ton image</h2><p class="mc-muted">Crée un joueur de 19 ans, choisis sa spécialité, impressionne les recruteurs et gagne ta place dans la ligue. Toutes les autres franchises restent contrôlées par l’IA.</p><div class="mc-actions">'+(saved&&saved.career?'<button class="mc-btn primary" id="mcContinue">Continuer ma carrière</button>':'')+'<button class="mc-btn primary" id="mcNewCareer">Nouvelle carrière</button><button class="mc-btn secondary" id="mcModeSelect">Changer de mode</button></div><p class="mc-status">'+saveError+'</p></div>');
- attachReturn();if($("mcContinue"))$("mcContinue").onclick=()=>{if(restoreStored(loadStored())){if(career.playerId)renderDashboard();else showDraftStory();}else{saveError="La sauvegarde MyCareer est invalide.";openCareerHome();}};$("mcNewCareer").onclick=beginNewCareer;$("mcModeSelect").onclick=showPicker;
+ attachReturn();if($("mcContinue"))$("mcContinue").onclick=()=>openCareerSaveManager();$("mcNewCareer").onclick=beginNewCareer;$("mcModeSelect").onclick=showPicker;
 }
 function beginNewCareer(){
  if(loadStored()&&!confirm("Remplacer la sauvegarde MyCareer actuelle par une nouvelle carrière ?"))return;
@@ -878,16 +878,7 @@ function careerLeagueGamesThrough(targetGameId){
 function nextCareerLeagueGame(targetGameId){
  return careerLeagueGamesThrough(targetGameId).find(game=>game.status!=="completed")||null;
 }
-function renderCareerSimulationProgress(targetGameId){
- const games=careerLeagueGamesThrough(targetGameId),target=targetGameId&&games.find(game=>String(game.id)===String(targetGameId));
- render(header("SIMULATION EN COURS",target?"Simulation de la ligue jusqu’au match sélectionné.":"Simulation progressive de la saison régulière.")+
-  '<div class="mc-card mc-sim-progress-card"><div class="mc-kicker">MATCHS DE LA LIGUE · UN À LA FOIS</div><h2 id="mcSimulationMatchup">Préparation de la simulation…</h2><p class="mc-muted" id="mcSimulationScore">Chaque rencontre est simulée séparément dans l’ordre du calendrier.</p><div class="mc-meter"><span id="mcSimulationProgressBar" style="width:0%"></span></div><p class="mc-status" id="mcSimulationCounter">0 / '+games.length+' matchs</p><div id="mcSimulationResultTile" class="mc-calendar-game is-pending" style="margin:12px 0;padding:14px;border-radius:10px;text-align:center"><b>Les résultats de la journée apparaîtront ici</b><span>En attente du premier match</span></div><div class="mc-actions"><button class="mc-btn secondary" id="mcStopSimulation">Arrêter la simulation</button></div></div>');
- attachReturn();
- $("mcStopSimulation").onclick=()=>{
-  career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();renderDashboard();
- };
-}
-function updateCareerSimulationProgress(game,targetGameId){
+function renderCareerSimulationProgress(targetGameId){renderDashboard();}\nfunction updateCareerSimulationProgress(game,targetGameId){
  const games=careerLeagueGamesThrough(targetGameId),completed=games.filter(item=>item.status==="completed").length,total=games.length;
  const matchup=$("mcSimulationMatchup"),score=$("mcSimulationScore"),counter=$("mcSimulationCounter"),bar=$("mcSimulationProgressBar");
  if(matchup)matchup.textContent=(game.home.name||game.home.code)+" vs "+(game.away.name||game.away.code);
@@ -966,19 +957,19 @@ function simulateCareerSeason(options){
  const targetId=career.autoSimulationTargetGameId==null?"":String(career.autoSimulationTargetGameId);
  const targetGame=targetId&&seasonCalendar&&seasonCalendar.games.find(game=>String(game.id)===targetId);
  if(targetId&&!targetGame){career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();renderDashboard();return;}
- renderCareerSimulationProgress(targetId);
+ renderDashboard();
  const step=()=>{
   if(!career||career.retired){career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;return;}
   if(career.pendingStory){saveCareer();renderStory();return;}
   const requestedGame=targetId&&seasonCalendar&&seasonCalendar.games.find(game=>String(game.id)===targetId);
   if(requestedGame&&requestedGame.status==="completed"){
-   career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();renderLastBoxScore();return;
+   career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();renderDashboard();return;
   }
   syncCareerTeamFromPlayer(playerForCareer());
   const nextGame=nextCareerLeagueGame(targetId);
   if(!nextGame){
    career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();
-   if(career.gamesPlayed>=82)renderLastBoxScore();else renderDashboard();
+   renderDashboard();
    return;
   }
   const result=simulateCareerScheduledGame(nextGame);
@@ -987,7 +978,7 @@ function simulateCareerSeason(options){
    if(result&&result.retired)renderRetirement();else if(career.lastGame)renderLastBoxScore();else renderDashboard();
    return;
   }
-  updateCareerSimulationProgress(nextGame,targetId);
+  if(result.playerGame)renderDashboard();
   if(career.pendingStory){saveCareer();renderStory();return;}
   if(targetId&&String(nextGame.id)===targetId||!targetId&&seasonCalendar.games.every(game=>game.status==="completed")){
    career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();renderLastBoxScore();return;
