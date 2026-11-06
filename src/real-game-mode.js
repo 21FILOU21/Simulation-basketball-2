@@ -2,7 +2,7 @@
 (function(){
 "use strict";
 const $=id=>document.getElementById(id),esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])),clone=x=>JSON.parse(JSON.stringify(x||[])),clamp=(n,a,b)=>Math.max(a,Math.min(b,Number(n)||0));
-let root,players=[],teamA=[],teamB=[],scoreA=0,scoreB=0,period=1,clock=720,shotClock=24,possession="A",selected=null,shotAnim=null,stats={},sourceLabel="",lastMessage="Choisis une source pour préparer ton match.",ballHandler=null,driveBonus=0,lastPasser=null,gameOver=false;
+let root,players=[],teamA=[],teamB=[],scoreA=0,scoreB=0,period=1,clock=720,shotClock=24,possession="A",selected=null,shotAnim=null,stats={},sourceLabel="",lastMessage="Choisis une source pour préparer ton match.",ballHandler=null,driveBonus=0,lastPasser=null,lastShooter=null,gameOver=false;
 const css=`
 #nbaRealGameRoot{position:fixed;inset:0;z-index:400000;overflow:auto;background:#07111d;color:#f3f7ff;padding:clamp(10px,2.4vw,28px);font-family:inherit;box-sizing:border-box}
 #nbaRealGameRoot[hidden]{display:none!important}#nbaRealGameRoot *{box-sizing:border-box}
