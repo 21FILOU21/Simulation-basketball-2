@@ -223,3 +223,6 @@ assert.match(career, /const buildConference=conference/, "The playoff bracket sh
 assert.match(career, /careerOverall\(myPlayer\)>=90/, "Elite MyCareer players should not be repeatedly left out of postseason.");
 const opinionBlock = career.slice(career.indexOf("function buildCareerPublicOpinionComments("), career.indexOf("function finishSeason(", career.indexOf("function buildCareerPublicOpinionComments("));
 assert.equal((opinionBlock.match(/\["(?:GLAZER|HATER|ANALYSTE|FANBASE|MÉDIAS|FAN)",/g) || []).length, 25, "Public opinion should offer 25 distinct comments based on player and season context.");
+
+assert.match(career, /if\(!career\.autoSeasonSimulation\)\{career\.autoSimulationTargetGameId=null;saveCareer\(\);renderDashboard\(\);return;\}/, "Stopping the simulation should prevent the next queued game from starting.");
+assert.match(career, /-careerOverall\(draftPlayer\)/, "The initial rival should be selected relative to the drafted player's overall.");
