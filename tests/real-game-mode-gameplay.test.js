@@ -33,4 +33,4 @@ assert.ok(source.includes("function attachCourtDrag()"), "Players should be drag
 assert.ok(source.includes("_rgmCourtX") && source.includes("_rgmCourtY"), "Dragged court coordinates must persist through rerenders.");
 assert.ok(source.includes("4.5+(base-50)*.16-(defense-50)*.055"), "The green timing window must scale with shooter attributes and defense.");
 assert.ok(source.includes("PASSE RÉUSSIE") && source.includes("receiver"), "A pass must bind the ball handler to the actual receiver.");
-assert.ok(source.includes("TIR DE "+shooter.name), "Shot feedback should identify the actual shooter.");
+assert.ok(source.includes('TIR DE "+shooter.name'), "Shot feedback should identify the actual shooter.");
