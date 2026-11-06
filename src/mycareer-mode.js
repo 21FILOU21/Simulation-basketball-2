@@ -971,7 +971,7 @@ function simulateCareerSeason(options){
   const result=simulateCareerScheduledGame(nextGame);
   if(!result||!result.ok){
    career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();
-   if(result&&result.retired)renderRetirement();else if(career.lastGame)renderLastBoxScore();else renderDashboard();
+   if(result&&result.retired)renderRetirement();else renderDashboard();
    return;
   }
   if(result.playerGame)renderDashboard();
