@@ -226,3 +226,5 @@ assert.equal((opinionBlock.match(/\["(?:GLAZER|HATER|ANALYSTE|FANBASE|MÉDIAS|FA
 
 assert.match(career, /if\(!career\.autoSeasonSimulation\)\{career\.autoSimulationTargetGameId=null;saveCareer\(\);renderDashboard\(\);return;\}/, "Stopping the simulation should prevent the next queued game from starting.");
 assert.match(career, /-careerOverall\(draftPlayer\)/, "The initial rival should be selected relative to the drafted player's overall.");
+
+assert.match(career, /id="mcContinue">Continuer ma carrière/, "Continue should remain available to select an external save even when local quick-save is empty.");
