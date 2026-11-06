@@ -221,7 +221,7 @@ assert.match(career, /refreshCareerRivalForSeason/, "The rival should be recalcu
 assert.match(career, /career\.rivalSeasonNotice/, "Seasonal rival changes should be recorded for the introduction screen.");
 assert.match(career, /const buildConference=conference/, "The playoff bracket should select eight teams per conference.");
 assert.match(career, /careerOverall\(myPlayer\)>=90/, "Elite MyCareer players should not be repeatedly left out of postseason.");
-const opinionBlock = career.slice(career.indexOf("function buildCareerPublicOpinionComments("), career.indexOf("function finishSeason(", career.indexOf("function buildCareerPublicOpinionComments("));
+const opinionBlock = career.slice(career.indexOf("function buildCareerPublicOpinionComments("), career.indexOf("function finishSeason(", career.indexOf("function buildCareerPublicOpinionComments(")));
 assert.equal((opinionBlock.match(/\["(?:GLAZER|HATER|ANALYSTE|FANBASE|MÉDIAS|FAN)",/g) || []).length, 25, "Public opinion should offer 25 distinct comments based on player and season context.");
 
 assert.match(career, /if\(!career\.autoSeasonSimulation\)\{career\.autoSimulationTargetGameId=null;saveCareer\(\);renderDashboard\(\);return;\}/, "Stopping the simulation should prevent the next queued game from starting.");
