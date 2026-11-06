@@ -151,7 +151,8 @@ assert.match(career, /function careerLeagueGamesThrough\(/, "Calendar simulation
 assert.match(career, /function nextCareerLeagueGame\(/, "MyCareer should select only the next uncompleted league game.");
 assert.match(career, /function simulateCareerScheduledGame\(/, "Each calendar game should be simulated independently.");
 assert.match(career, /setTimeout\(step,20\)/, "Sequential simulation should yield between individual league games.");
-assert.match(career, /function renderCareerSimulationProgress\(targetGameId\)\{renderDashboard\(\);\}/, "Season simulation should remain on the calendar instead of opening a progress screen.");\nassert.doesNotMatch(career, /id="mcSimulationScore"|id="mcSimulationCounter"|id="mcSimulationProgressBar"|id="mcSimulationResultTile"/, "The league-wide loading meter and other-team scores must be absent.");
+assert.match(career, /function renderCareerSimulationProgress\(targetGameId\)\{renderDashboard\(\);\}/, "Season simulation should remain on the calendar instead of opening a progress screen.");
+assert.doesNotMatch(career, /id="mcSimulationScore"|id="mcSimulationCounter"|id="mcSimulationProgressBar"|id="mcSimulationResultTile"/, "The league-wide loading meter and other-team scores must be absent.");
 assert.match(career, /mcStopSimulation/, "The user should be able to stop a running simulation.");
 
 
