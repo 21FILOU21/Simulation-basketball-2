@@ -1190,7 +1190,7 @@ function finishSeason(){
  if(!allPlayers().some(x=>String(x.id)===String(p.id))){career.retired=true;career.retirementReason="Carrière terminée à la suite d’une blessure.";saveCareer();renderRetirement();return;}
  if(typeof phase!=="undefined")phase="regular";
  const s=career.seasonStats||{},gp=Math.max(1,Number(s.gp)||Number(career.gamesPlayed)||0),ppg=(Number(s.pts)||0)/gp,mpg=(Number(s.minutes)||0)/gp,ovr=careerOverall(p),expectedPpg=clamp(2+(ovr-40)*.24,2,18),poorScoring=ppg<Math.max(3.5,expectedPpg*.42),attempts=Number(s.fga)||0,fgPct=attempts?(Number(s.fgm)||0)/attempts:1,poorEfficiency=attempts>=100&&fgPct<.36,poorRole=mpg>=18,stagnant=careerOverall(p)-Number(career.seasonStartOverall||careerOverall(p))<=0;
- if(poorRole&&((poorScoring&&ovr<90)||(ppg<2.5&&poorEfficiency&&mpg>=14)||(stagnant&&poorScoring&&mpg>=22))){career.retired=true;career.firedFromNBA=true;career.retirementReason="Tu as été viré de la NBA après une saison insuffisante : "+ppg.toFixed(1)+" PPG, "+ovr+" GÉN et "+mpg.toFixed(1)+" minutes par match. Tu dois recommencer une carrière.";saveCareer();renderRetirement();return;}
+ if(poorRole&&poorScoring&&(ovr<90||stagnant||poorEfficiency||ppg<=5.5)){career.retired=true;career.firedFromNBA=true;career.retirementReason="Tu as été viré de la NBA après une saison insuffisante : "+ppg.toFixed(1)+" PPG, "+ovr+" GÉN et "+mpg.toFixed(1)+" minutes par match. Tu dois recommencer une carrière.";saveCareer();renderRetirement();return;}
  const label=seasonName(seasonYear);
  const completedPostseasonStats=Object.assign({gp:0,pts:0,reb:0,ast:0,stl:0,blk:0,minutes:0},career.postseasonStats||{});
  career.lastPostseasonStats=completedPostseasonStats;career.lastPostseason=career.postseason||null;
