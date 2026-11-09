@@ -226,7 +226,7 @@ assert.equal((careerSimulationBlock.match(/if\(career\.pendingStory\)\{saveCaree
 assert.doesNotMatch(careerSimulationBlock, /if\(career\.pendingStory\)\{saveCareer\(\);renderLastBoxScore\(\);return;\}/, "A monthly-story pause must not show a box score.");
 
 assert.match(career, /window\.NBASimActualPlayerStats/, "League Leaders should use raw season box-score totals.");
-assert.match(career, /threeAttempts\?x\.threeMade\/x\.threeAttempts\*100/, "League Leaders should calculate current-season 3P percentage.");
+assert.match(career, /total\("threeAttempts"\)\?total\("threeMade"\)\/total\("threeAttempts"\)\*100/, "MyCareer League Leaders should calculate current-season 3P percentage from the shared stat totals.");
 assert.match(career, /Statistiques réelles · Saison/, "League Leaders should identify the active season.");
 
 assert.match(career, /\$\("mcContinue"\)\.onclick=\(\)=>openCareerSaveManager\(\)/, "Continue MyCareer should open a save chooser directly.");
