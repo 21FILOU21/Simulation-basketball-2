@@ -464,6 +464,11 @@ stories.push(
  ]}
 );
 
+stories.push({title:"Le pari physique qui peut tout changer",body:"Un entraîneur privé te propose une séance extrême, sans repos, pour repousser tes limites. Le staff médical t'avertit : une blessure catastrophique pourrait mettre un terme à ta carrière.",choices:[
+ {label:"Faire la séance extrême sans aucune pause",detail:"Gain physique potentiel, risque très élevé de blessure catastrophique et de fin de carrière.",e:{workEthic:2,clutch:1}},
+ {label:"Accepter seulement avec surveillance médicale",detail:"Tu réduis l'intensité et privilégies la sécurité.",e:{durability:2,basketballIQ:1}},
+ {label:"Refuser et récupérer",detail:"Tu protèges ta santé et ta longévité.",e:{durability:2,stamina:1}}
+]});
 const STORY_RISK_REWARD={
  "6:0":{changes:{finishing:3,layup:2,stamina:-1},fatigue:10,capIncrease:{finishing:1}},
  "6:1":{changes:{threePoint:3,midRange:2,stamina:-1},fatigue:11,capIncrease:{threePoint:1}},
@@ -486,19 +491,22 @@ const STORY_RISK_REWARD={
  "28:0":{changes:{midRange:4,consistency:2},socialChanges:{popularity:6},fatigue:5,capIncrease:{midRange:2}},
  "29:1":{changes:{workEthic:4,consistency:4},socialChanges:{chemistry:4},fatigue:24,capIncrease:{workEthic:2},injuryRisk:20},
  "30:0":{changes:{threePoint:4,stamina:3},socialChanges:{popularity:4,emotions:4},fatigue:24,capIncrease:{threePoint:3},injuryRisk:22},
- "31:0":{changes:{clutch:4,shotIQ:3},socialChanges:{emotions:4,chemistry:2},fatigue:21,capIncrease:{clutch:2},injuryRisk:14}
+ "31:0":{changes:{clutch:4,shotIQ:3},socialChanges:{emotions:4,chemistry:2},fatigue:21,capIncrease:{clutch:2},injuryRisk:14},
+ "32:0":{changes:{speed:4,acceleration:3,stamina:-8},socialChanges:{emotions:3},fatigue:48,capIncrease:{speed:2,acceleration:2},injuryRisk:95,careerEnding:true},
+ "32:1":{changes:{durability:2,stamina:1},fatigue:12,capIncrease:{durability:1},injuryRisk:12},
+ "32:2":{changes:{durability:2,stamina:2},fatigue:-20,capIncrease:{durability:1}}
 };
 function storyChoiceOutcome(sceneIndex,choiceIndex,choice){
  const social={},attributes={};Object.entries(choice&&choice.e||{}).forEach(([key,value])=>{if(["emotions","chemistry","popularity"].includes(key))social[key]=Number(value)||0;else attributes[key]=Number(value)||0;});
  const rule=STORY_RISK_REWARD[sceneIndex+":"+choiceIndex]||{};
  Object.entries(rule.changes||{}).forEach(([key,value])=>attributes[key]=(Number(attributes[key])||0)+(Number(value)||0));
  Object.entries(rule.socialChanges||{}).forEach(([key,value])=>social[key]=(Number(social[key])||0)+(Number(value)||0));
- return {social,attributes,fatigue:Number(rule.fatigue)||0,capIncrease:rule.capIncrease||{},injuryRisk:Number(rule.injuryRisk)||0};
+ return {social,attributes,fatigue:Number(rule.fatigue)||0,capIncrease:rule.capIncrease||{},injuryRisk:Number(rule.injuryRisk)||0,careerEnding:rule.careerEnding===true};
 }
 function storyAttributeLabel(key){const found=attrs.find(item=>item[0]===key);return found?found[1]:key;}
 function storyAttributeCategory(key){const section=CAREER_ATTRIBUTE_SECTIONS.find(item=>item.keys.includes(key));return section?section.title:"ATTRIBUTS";}
 function storyGainText(value){return value>=4?"+"+value:"+".repeat(Math.max(0,Math.round(value)));}
-function storyOutcomeMarkup(outcome,currentFatigue){
+function storyOutcomeMarkup(outcome,currentFatigue,durability){
  const gains=Object.entries(outcome.attributes).filter(([,v])=>v>0).map(([key,v])=>'<span class="mc-story-gain"><b>'+storyGainText(v)+'</b> '+escHtml(storyAttributeLabel(key))+' <small>· '+escHtml(storyAttributeCategory(key))+'</small></span>');
  const losses=Object.entries(outcome.attributes).filter(([,v])=>v<0).map(([key,v])=>'<span class="mc-story-loss">−'+Math.abs(v)+' '+escHtml(storyAttributeLabel(key))+'</span>');
  const socialLabels={emotions:"Émotions",chemistry:"Entente d’équipe",popularity:"Popularité"};
@@ -506,7 +514,7 @@ function storyOutcomeMarkup(outcome,currentFatigue){
  const socialLosses=Object.entries(outcome.social).filter(([,v])=>v<0).map(([key,v])=>'<span class="mc-story-loss">−'+Math.abs(v)+' '+escHtml(socialLabels[key]||key)+'</span>');
  const caps=Object.entries(outcome.capIncrease).map(([key,v])=>'<span class="mc-story-cap">Plafond +'+v+' · '+escHtml(storyAttributeLabel(key))+'</span>');
  const fatigue=outcome.fatigue>0?'<span class="mc-story-fatigue">Fatigue +'+outcome.fatigue+'</span>':outcome.fatigue<0?'<span class="mc-story-recovery">Récupération '+Math.abs(outcome.fatigue)+'</span>':"";
- const injuryRisk=outcome.injuryRisk>0?'<span class="mc-story-risk">Risque de blessure : environ '+Math.round(outcome.injuryRisk+Math.max(0,(Number(currentFatigue)||0)+outcome.fatigue-55)*.6)+'%</span>':"";
+ const injuryRisk=outcome.injuryRisk>0?'<span class="mc-story-risk">Risque de blessure : environ '+Math.round(clamp(outcome.injuryRisk+Math.max(0,(Number(currentFatigue)||0)+outcome.fatigue-55)*.6-(Number(durability)||50)*.35,0,outcome.careerEnding?95:85))+'%</span>'+(outcome.careerEnding?'<span class="mc-story-risk">⚠ Si la blessure survient : fin de carrière</span>':""):"";
  return '<div class="mc-story-outcome">'+(gains.join("")||'<span class="mc-muted">Aucun gain d’attribut direct</span>')+losses.join("")+socialGains.join("")+socialLosses.join("")+caps.join("")+fatigue+injuryRisk+'</div>';
 }
 function renderCareerStoryOverview(player){
@@ -537,7 +545,7 @@ function renderCareerStoryOverview(player){
 function renderStory(){
  const index=Math.max(0,Number(career.storyIndex)||0)%stories.length,scene=stories[index],month=career.pendingStoryMonth||career.lastPlayedMonth||"Fin de mois";activeStory=scene;
  const player=playerForCareer();
- const options=scene.choices.map((choice,i)=>{const outcome=storyChoiceOutcome(index,i,choice);return '<button class="mc-choice" data-story-choice="'+i+'"><b>'+escHtml(choice.label)+'</b><span class="mc-muted">'+escHtml(choice.detail)+'</span>'+storyOutcomeMarkup(outcome,career.fatigue)+'</button>';}).join("");
+ const options=scene.choices.map((choice,i)=>{const outcome=storyChoiceOutcome(index,i,choice);return '<button class="mc-choice" data-story-choice="'+i+'"><b>'+escHtml(choice.label)+'</b><span class="mc-muted">'+escHtml(choice.detail)+'</span>'+storyOutcomeMarkup(outcome,career.fatigue,Number(player&&player.attributes&&player.attributes.durability)||50)+'</button>';}).join("");
  render(header("UNE DÉCISION À PRENDRE",escHtml(month)+" · Saison "+career.seasonNumber)+'<div class="mc-card"><div class="mc-kicker">MYCAREER STORYLINE · '+(index+1)+' / '+stories.length+'</div><h2>'+escHtml(scene.title)+'</h2><p class="mc-muted">'+escHtml(scene.body)+'</p><p class="mc-muted">Certains choix offrent des gains de 4 points ou plus et peuvent relever un plafond de +2 ou +3. Les séances les plus intenses augmentent fortement la fatigue et le risque de blessure.</p>'+renderCareerStoryOverview(player)+'<h3 class="mc-story-choices-heading">CHOISIS TON ACTION</h3>'+options+'</div>');
  attachReturn();const attrToggle=$("mcToggleStoryAttributes"),attrPanel=$("mcStoryAttributes");if(attrToggle&&attrPanel)attrToggle.onclick=()=>{const show=attrPanel.hidden;attrPanel.hidden=!show;attrToggle.setAttribute("aria-expanded",String(show));attrToggle.textContent=show?"Masquer les attributs":"Voir attributs";};root.querySelectorAll("[data-story-choice]").forEach(button=>button.onclick=()=>{
   const choiceIndex=Number(button.dataset.storyChoice),choice=scene.choices[choiceIndex],outcome=storyChoiceOutcome(index,choiceIndex,choice),player=playerForCareer();
@@ -545,16 +553,17 @@ function renderStory(){
   career.attributeCaps=career.attributeCaps||{};Object.entries(outcome.capIncrease).forEach(([key,value])=>career.attributeCaps[key]=clamp((Number(career.attributeCaps[key])||0)+Number(value||0),0,20));
   if(player&&player.attributes)Object.entries(outcome.attributes).forEach(([key,value])=>player.attributes[key]=clamp((Number(player.attributes[key])||40)+value,20,attributeUpgradeCap(player,key)));
   career.fatigue=clamp((Number(career.fatigue)||0)+outcome.fatigue,0,100);
-  const effectiveInjuryRisk=clamp(outcome.injuryRisk+Math.max(0,career.fatigue-55)*.6,0,85);
+  const durability=Number(player&&player.attributes&&player.attributes.durability)||50;const effectiveInjuryRisk=clamp(outcome.injuryRisk+Math.max(0,career.fatigue-55)*.6-durability*.35,0,outcome.careerEnding?95:85);
   let storyInjury=null;
-  if(player&&!player.injury&&effectiveInjuryRisk>0&&rand()*100<effectiveInjuryRisk){
+  if(player&&(!player.injury||outcome.careerEnding)&&effectiveInjuryRisk>0&&rand()*100<effectiveInjuryRisk){
    if(typeof window.NBASimBuildInjury==="function")storyInjury=window.NBASimBuildInjury(player,effectiveInjuryRisk>=55?"moderate":"minor","leg",null,null);
-   if(!storyInjury)storyInjury={id:"story-injury-"+Date.now(),severity:"minor",label:"Blessure légère",bodyPart:"leg",bodyPartLabel:"Jambe",stage:"out",restGamesTotal:2,restGamesRemaining:2,recoveryGamesTotal:2,recoveryGamesRemaining:2,attributePenalties:{},createdSeason:seasonName(seasonYear),createdGameId:null,manual:true};
+   if(!storyInjury)storyInjury={id:"story-injury-"+Date.now(),severity:outcome.careerEnding?"career-ending":"minor",label:outcome.careerEnding?"Blessure catastrophique · carrière terminée":"Blessure légère",bodyPart:"leg",bodyPartLabel:"Jambe",stage:"out",restGamesTotal:outcome.careerEnding?999:2,restGamesRemaining:outcome.careerEnding?999:2,recoveryGamesTotal:outcome.careerEnding?999:2,recoveryGamesRemaining:outcome.careerEnding?999:2,attributePenalties:{},createdSeason:seasonName(seasonYear),createdGameId:null,manual:true};
+   if(outcome.careerEnding){storyInjury.severity="career-ending";storyInjury.label="Blessure catastrophique · carrière terminée";storyInjury.restGamesTotal=999;storyInjury.restGamesRemaining=999;}
    player.injury=storyInjury;
   }
   career.storyHistory=Array.isArray(career.storyHistory)?career.storyHistory:[];
   career.storyHistory.push({season:seasonName(seasonYear),month,event:scene.title,choice:choice.label,storyIndex:index,attributeChanges:outcome.attributes,socialChanges:outcome.social,capIncrease:outcome.capIncrease,fatigue:outcome.fatigue,injuryRisk:effectiveInjuryRisk,injuryApplied:!!storyInjury});
-  career.storyIndex=(index+1)%stories.length;career.pendingStory=false;career.pendingStoryMonth=null;const resumeSimulation=career.autoSeasonSimulation===true;saveCareer();if(resumeSimulation){simulateCareerSeason({resume:true});return;}renderDashboard();
+  if(outcome.careerEnding&&storyInjury){career.retired=true;career.careerEndingInjury=true;career.retirementReason="Blessure catastrophique causée par une décision d’histoire à risque extrême. Ta carrière NBA est terminée.";career.retiredAt=seasonName(seasonYear);career.pendingStory=false;career.pendingStoryMonth=null;saveCareer();renderRetirement();return;}career.storyIndex=(index+1)%stories.length;career.pendingStory=false;career.pendingStoryMonth=null;const resumeSimulation=career.autoSeasonSimulation===true;saveCareer();if(resumeSimulation){simulateCareerSeason({resume:true});return;}renderDashboard();
  });
 }
 
@@ -966,6 +975,7 @@ function simulateCareerSeason(options){
   const nextGame=nextCareerLeagueGame(targetId);
   if(!nextGame){
    career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer();
+   if(!targetId&&career.gamesPlayed>0&&seasonCalendar&&seasonCalendar.games.every(game=>game.status==="completed")){finishSeason();return;}
    renderDashboard();
    return;
   }
@@ -1187,7 +1197,7 @@ function finishSeason(){
 }
 function renderRetirement(){
  career=career||{};career.retired=true;saveCareer();const p=playerForCareer()||career.player||{};
- render(header(career.firedFromNBA?"TU AS ÉTÉ VIRÉ DE LA NBA":"FIN DE CARRIÈRE",career.firedFromNBA?"Tes performances n’ont pas été suffisantes pour conserver ta place.":"Ton histoire NBA restera dans les archives.")+'<div class="mc-retirement"><div style="font-size:70px">'+(career.firedFromNBA?"🏀":"🏆")+'</div><div class="mc-kicker">'+(career.firedFromNBA?"MYCAREER · FIN DE CONTRAT":"MYCAREER · HALL OF FAME")+'</div><h2 class="mc-title" style="font-size:clamp(28px,4vw,46px)">'+escHtml(p.name||"Ta carrière")+'</h2><p class="mc-muted">'+(career.retirementReason||"Fin de carrière")+'</p><p class="mc-muted">Saisons terminées : '+(career.seasonHistory||[]).length+' · Dernière équipe : '+(career.teamCode||"—")+'</p><div class="mc-actions" style="justify-content:center"><button class="mc-btn primary" id="mcCareerHome">'+(career.firedFromNBA?"Recommencer une carrière":"Retour à MyCareer")+'</button><button class="mc-btn secondary" id="mcTitle">Écran de départ</button></div></div>');
+ render(header(career.firedFromNBA?"TU AS ÉTÉ VIRÉ DE LA NBA":career.careerEndingInjury?"FIN DE CARRIÈRE · BLESSURE CATASTROPHIQUE":"FIN DE CARRIÈRE",career.firedFromNBA?"Tes performances n’ont pas été suffisantes pour conserver ta place.":career.careerEndingInjury?"Une blessure catastrophique met fin à ton parcours NBA.":"Ton histoire NBA restera dans les archives.")+'<div class="mc-retirement"><div style="font-size:70px">'+(career.firedFromNBA?"🏀":career.careerEndingInjury?"🩼":"🏆")+'</div><div class="mc-kicker">'+(career.firedFromNBA?"MYCAREER · FIN DE CONTRAT":career.careerEndingInjury?"MYCAREER · BLESSURE FATALE":"MYCAREER · HALL OF FAME")+'</div><h2 class="mc-title" style="font-size:clamp(28px,4vw,46px)">'+escHtml(p.name||"Ta carrière")+'</h2><p class="mc-muted">'+(career.retirementReason||"Fin de carrière")+'</p><p class="mc-muted">Saisons terminées : '+(career.seasonHistory||[]).length+' · Dernière équipe : '+(career.teamCode||"—")+'</p><div class="mc-actions" style="justify-content:center"><button class="mc-btn primary" id="mcCareerHome">'+(career.firedFromNBA?"Recommencer une carrière":"Retour à MyCareer")+'</button><button class="mc-btn secondary" id="mcTitle">Écran de départ</button></div></div>');
  attachReturn();$("mcCareerHome").onclick=career.firedFromNBA?showPicker:openCareerHome;$("mcTitle").onclick=showPicker;
 }
 function returnToStart(){if(activeMode==="gm"&&typeof window.NBASimCaptureMyGMState==="function"){try{mygmSnapshot=window.NBASimCaptureMyGMState();saveGMStored(mygmSnapshot);}catch(error){saveError="Sauvegarde de la session MyGM impossible : "+error.message;}}if(activeMode==="career"&&career)saveCareer();activeMode="launcher";root.hidden=true;showPicker();}

@@ -39,4 +39,8 @@ assert.ok(source.includes("function endPossession(next,seconds)") && source.incl
 assert.ok(source.includes("window.setTimeout(runAI,450)"), "The opposing possession should start automatically without a next-possession click.");
 
 assert.match(source, /lastPasser=null,lastShooter=null,gameOver=false/, "Starting a match must reset a declared lastShooter state variable.");
+assert.match(source, /controlledPlayer=null/, "The real-game mode must track the selected blue player independently from the ball handler.");
+assert.match(source, /\["w","a","s","d"\]/, "WASD keys must directly move the controlled player.");
+assert.match(source, /controlledPlayer\._rgmCourtX=nextX;controlledPlayer\._rgmCourtY=nextY/, "Keyboard movement must persist the controlled player's court coordinates.");
+assert.match(source, /WASD déplace ton joueur bleu sélectionné/, "The controls must be explained in the game UI.");
 assert.match(source, /function startGame\(\)[\s\S]*?lastShooter=null/, "The shooter history must reset when a new match starts.");
