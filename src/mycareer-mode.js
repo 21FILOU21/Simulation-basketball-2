@@ -719,20 +719,20 @@ function renderCareerLeagueLeaders(){
 function renderCareerTeam(){
  const p=playerForCareer();if(!p)return renderDashboard();
  const teamMeta=(typeof nbaTeams!=="undefined"?nbaTeams:[]).find(team=>String(team[0])===String(career.teamCode));
- const teamName=teamMeta?teamMeta[1]:career.teamName||career.teamCode;
+ const teamName=teamMeta?teamMeta[1]:career.teamName||career.teamCode,actual=window.NBASimActualPlayerStats||{};
  const roster=allPlayers().filter(player=>String(player.team)===String(career.teamCode)&&player.retired!==true&&player.isRetired!==true).sort((a,b)=>{
   if(String(a.id)===String(p.id))return -1;if(String(b.id)===String(p.id))return 1;
   return (typeof overallRating==="function"?overallRating(b):Number(b.pts)||0)-(typeof overallRating==="function"?overallRating(a):Number(a.pts)||0);
  }).slice(0,15);
  const body=roster.map(player=>{
-  const isCareerPlayer=String(player.id)===String(p.id),injury=player.injury;
-  const ovr=isCareerPlayer?careerOverall(player):(typeof overallRating==="function"?overallRating(player):"—");
-  const portrait=typeof window.NBASimPlayerPortraitMarkup==="function"?window.NBASimPlayerPortraitMarkup(player,34):"";
-  return '<tr class="'+(isCareerPlayer?"mc-my-team-player":"")+'"><td><b>'+portrait+escHtml(player.name)+'</b>'+(isCareerPlayer?'<small>TON JOUEUR</small>':"")+'</td><td>'+escHtml(player.pos||"—")+'</td><td><b>'+ovr+'</b></td><td>'+Math.round(Number(player.age)||0)+'</td><td>'+Math.round(Number(player.height)||0)+' cm</td><td>'+Math.round(Number(player.mpg)||0)+'</td><td>'+(Number(player.pts)||0).toFixed(1)+'</td><td>'+(Number(player.reb)||0).toFixed(1)+'</td><td>'+(Number(player.ast)||0).toFixed(1)+'</td><td>'+(injury?'<span class="mc-team-injury">Blessé</span>':'<span class="mc-team-healthy">Disponible</span>')+'</td></tr>';
+  const isCareerPlayer=String(player.id)===String(p.id),injury=player.injury,raw=actual[String(player.id)]||{},line=isCareerPlayer?career.seasonStats||raw:raw,gp=Math.max(1,Number(line.gp)||1),fgm=Number(line.fgm)||0,fga=Number(line.fga)||0,threeMade=Number(line.threeMade)||0,threeAttempts=Number(line.threeAttempts)||0,ftm=Number(line.ftm)||0,fta=Number(line.fta)||0;
+  const ovr=isCareerPlayer?careerOverall(player):(typeof overallRating==="function"?overallRating(player):"—"),portrait=typeof window.NBASimPlayerPortraitMarkup==="function"?window.NBASimPlayerPortraitMarkup(player,34):"";
+  const average=key=>((Number(line[key])||Number(player[key])||0)/gp).toFixed(1);
+  return '<tr class="'+(isCareerPlayer?"mc-my-team-player":"")+'"><td><b>'+portrait+escHtml(player.name)+'</b>'+(isCareerPlayer?'<small>TON JOUEUR</small>':"")+'</td><td>'+escHtml(player.pos||"—")+'</td><td><b>'+ovr+'</b></td><td>'+Math.round(Number(player.age)||0)+'</td><td>'+Math.round(Number(player.height)||0)+' cm</td><td>'+Math.round(Number(line.minutes)||Number(player.mpg)||0)+'</td><td>'+average("pts")+'</td><td>'+average("reb")+'</td><td>'+average("ast")+'</td><td>'+average("stl")+'</td><td>'+average("blk")+'</td><td>'+(fga?(fgm/fga*100).toFixed(1)+"%":"—")+'</td><td>'+(threeAttempts?(threeMade/threeAttempts*100).toFixed(1)+"%":"—")+'</td><td>'+(fta?(ftm/fta*100).toFixed(1)+"%":"—")+'</td><td>'+(injury?'<span class="mc-team-injury">Blessé</span>':'<span class="mc-team-healthy">Disponible</span>')+'</td></tr>';
  }).join("");
- render(header("MON ÉQUIPE",teamName+" · "+roster.length+" joueurs")+
+ render(header("VIEW ROSTER · MON ÉQUIPE",teamName+" · "+roster.length+" joueurs")+
   '<div class="mc-grid three"><div class="mc-metric"><strong>'+career.wins+'-'+career.losses+'</strong><span>Bilan de l’équipe</span></div><div class="mc-metric"><strong>'+career.gamesPlayed+'/82</strong><span>Matchs joués</span></div><div class="mc-metric"><strong>'+roster.length+'/15</strong><span>Effectif</span></div></div>'+
-  '<div class="mc-card"><div class="mc-kicker">EFFECTIF NBA · LECTURE SEULE</div><p class="mc-muted">Voici les joueurs actuellement enregistrés dans ta franchise. Les minutes, la rotation, les tendances et les contrats ne peuvent pas être modifiés depuis MyCareer.</p><div class="mc-table-wrap"><table class="mc-box-table mc-roster-table"><thead><tr><th>Joueur</th><th>POS</th><th>GÉN</th><th>ÂGE</th><th>TAILLE</th><th>MIN</th><th>PTS</th><th>REB</th><th>AST</th><th>ÉTAT</th></tr></thead><tbody>'+body+'</tbody></table></div><div class="mc-actions"><button class="mc-btn secondary" id="mcTeamBack">Retour à ma carrière</button></div></div>');
+  '<div class="mc-card"><div class="mc-kicker">EFFECTIF NBA · LECTURE SEULE</div><p class="mc-muted">Vue d’effectif inspirée du View Roster MyGM. Les minutes sont consultables, mais aucune rotation, minute, tendance ou transaction ne peut être modifiée en MyCareer.</p><div class="mc-table-wrap"><table class="mc-box-table mc-roster-table"><thead><tr><th>Joueur</th><th>POS</th><th>GÉN</th><th>ÂGE</th><th>TAILLE</th><th>MIN · lecture seule</th><th>PPG</th><th>RPG</th><th>APG</th><th>SPG</th><th>BPG</th><th>FG%</th><th>3P%</th><th>FT%</th><th>ÉTAT</th></tr></thead><tbody>'+body+'</tbody></table></div><div class="mc-actions"><button class="mc-btn secondary" id="mcTeamBack">Retour à ma carrière</button></div></div>');
  attachReturn();$("mcTeamBack").onclick=renderDashboard;
 }
 function renderCareerCalendarMarkup(){
