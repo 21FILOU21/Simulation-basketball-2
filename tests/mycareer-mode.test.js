@@ -97,7 +97,7 @@ assert.equal(highRiskStory.injuryRisk, 18, "High-intensity choices must carry a 
 const catastrophicChoice = window.NBASimMyCareerStoryOutcome(32, 0, {e:{}});
 assert.equal(catastrophicChoice.careerEnding, true, "The extreme story choice must explicitly carry a career-ending injury possibility.");
 assert.equal(catastrophicChoice.injuryRisk, 95, "The extreme story choice must have a very high injury risk before durability mitigation.");
-assert.match(career, /-durability\\*\\.35/, "Durability must reduce story injury risk.");
+assert.ok(career.includes("-durability*.35"), "Durability must reduce story injury risk.");
 assert.match(career, /career-retirement|career-ending/, "MyCareer must support a career-ending injury state.");
 assert.equal(typeof window.NBASimMyCareerBuildSaveSnapshot, "function", "MyCareer should expose its complete save snapshot builder.");
 const averageLine = {pts:20,reb:5,ast:5,stl:1,blk:0.5,minutes:32,tov:2};
