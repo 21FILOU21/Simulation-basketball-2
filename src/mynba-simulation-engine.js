@@ -203,8 +203,8 @@
       const player = line.p, minutes = clamp(num(line.minutes, 0), 0, 48);
       const stamina = clamp(num(player && player.attributes && player.attributes.stamina, 70), 25, 99);
       const current = clamp(num(player && player.nbaFatigue, 0), 0, 100);
-      const workload = minutes * (.23 - (stamina - 50) * .0014);
-      const recovery = minutes > 0 ? 0 : 4.5 + (stamina - 50) * .025;
+      const workload = minutes * (.11 - (stamina - 50) * .0008);
+      const recovery = minutes > 0 ? 2.3 + (stamina - 50) * .025 : 2.3 + (stamina - 50) * .025;
       player.nbaFatigue = Math.round(clamp(current + workload - recovery, 0, 100) * 10) / 10;
     });
   }

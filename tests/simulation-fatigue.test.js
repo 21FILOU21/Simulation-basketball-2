@@ -44,6 +44,7 @@ assert.equal(run(makeGame("fatigue-1")), true, "A valid game should simulate.");
 const highWorkload = roster.find(player => player.id === "AAA-0");
 const lowWorkload = roster.find(player => player.id === "AAA-9");
 assert.ok(highWorkload.nbaFatigue > lowWorkload.nbaFatigue, "Players with more minutes should accumulate more fatigue.");
+assert.ok(highWorkload.nbaFatigue < 2, "Recovery should prevent ordinary starters from reaching maximum fatigue after only a few simulated rounds.");
 const before = highWorkload.nbaFatigue;
 assert.equal(run(makeGame("fatigue-2")), true, "A second valid game should simulate.");
 assert.ok(highWorkload.nbaFatigue > before, "Fatigue should carry forward across games.");
