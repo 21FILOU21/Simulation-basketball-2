@@ -159,6 +159,8 @@ assert.match(career, /setTimeout\(step,20\)/, "Sequential simulation should yiel
 assert.match(career, /function renderCareerSimulationProgress\(targetGameId\)\{renderDashboard\(\);\}/, "Season simulation should remain on the calendar instead of opening a progress screen.");
 assert.doesNotMatch(career, /id="mcSimulationScore"|id="mcSimulationCounter"|id="mcSimulationProgressBar"|id="mcSimulationResultTile"/, "The league-wide loading meter and other-team scores must be absent.");
 assert.match(career, /mcStopSimulation/, "The user should be able to stop a running simulation.");
+assert.match(career, /event.key!=="Backspace"\|\|activeMode!=="career"\|\|!career\|\|career.autoSeasonSimulation!==true/, "Backspace should interrupt the MyCareer season simulation.");
+assert.match(career, /career.autoSeasonSimulation=false;career.autoSimulationTargetGameId=null;saveCareer\(\);renderDashboard\(\)/, "Backspace should clear the simulation queue and persist the stopped state.");
 
 
 assert.match(career, /function buildCareerSaveData\(/, "Save files should capture the full MyCareer state.");
@@ -178,6 +180,17 @@ console.log("OK — MyCareer : XP, attributs, histoires, blessures, sauvegardes,
 
 assert.match(career, /function applyPhysiqueBaseline\(/, "Body measurements should directly adjust starting attributes.");
 assert.match(career, /function renderCareerLeagueLeaders\(/, "MyCareer should include League Leaders.");
+assert.match(career, /Team Leaders · Équipes/, "MyCareer League Leaders should include MyGM team rankings.");
+assert.match(career, /Player Leaders · Joueurs/, "MyCareer League Leaders should include MyGM player rankings.");
+assert.match(career, /function renderCareerViewTeam\(/, "MyCareer should reuse the read-only View Team concept from MyGM.");
+assert.match(career, /VIEW ROSTER · MON ÉQUIPE/, "MyCareer should provide a MyGM-inspired roster screen.");
+assert.match(career, /MIN · lecture seule/, "MyCareer roster minutes must remain visible but locked.");
+assert.match(career, /function renderCareerPlayoffs\(/, "The complete NBA playoffs should be accessible from MyCareer.");
+assert.match(career, /mcPlayoffs/, "The MyCareer dashboard should link to the full playoff bracket.");
+assert.match(career, /career\.offseasonTradeOffer=rand\(\)<\.45&&offerTeam/, "A MyCareer player should have a chance to receive an offseason trade offer.");
+assert.match(career, /id="mcAcceptTrade"/, "The player should be able to accept an offseason trade.");
+assert.match(career, /id="mcDeclineTrade"/, "The player should be able to decline an offseason trade.");
+assert.match(career, /secureCareerRoster\(player\);syncCareerTeamFromPlayer\(player\)/, "Accepted trades must move the player and update the MyCareer team state.");
 assert.match(career, /function renderCareerCalendarMarkup\(/, "MyCareer should show the 82-game schedule as a calendar grid.");
 assert.match(career, /mc-calendar-grid/, "The schedule should render monthly game tiles.");
 assert.match(career, /career\.firedFromNBA/, "Dynamic NBA job security should provide a dismissal ending.");
@@ -213,8 +226,8 @@ assert.equal((careerSimulationBlock.match(/if\(career\.pendingStory\)\{saveCaree
 assert.doesNotMatch(careerSimulationBlock, /if\(career\.pendingStory\)\{saveCareer\(\);renderLastBoxScore\(\);return;\}/, "A monthly-story pause must not show a box score.");
 
 assert.match(career, /window\.NBASimActualPlayerStats/, "League Leaders should use raw season box-score totals.");
-assert.match(career, /threeAttempts\?x\.threeMade\/x\.threeAttempts\*100/, "League Leaders should calculate current-season 3P percentage.");
-assert.match(career, /Statistiques réelles · Saison/, "League Leaders should identify the active season.");
+assert.match(career, /total\("threeAttempts"\)\?total\("threeMade"\)\/total\("threeAttempts"\)\*100/, "MyCareer League Leaders should calculate current-season 3P percentage from the shared stat totals.");
+assert.match(career, /Classements de la ligue · Saison/, "MyCareer League Leaders should identify the active season.");
 
 assert.match(career, /\$\("mcContinue"\)\.onclick=\(\)=>openCareerSaveManager\(\)/, "Continue MyCareer should open a save chooser directly.");
 assert.match(career, /mcLoadQuickCareer/, "The save chooser should allow loading the browser quick-save.");
