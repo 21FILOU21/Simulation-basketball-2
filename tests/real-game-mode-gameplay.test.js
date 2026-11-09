@@ -32,7 +32,10 @@ assert.ok(source.includes("new Set(all)"), "Duplicate player selections must be 
 assert.ok(source.includes("function attachCourtDrag()"), "Players should be draggable during the match.");
 assert.ok(source.includes("_rgmCourtX") && source.includes("_rgmCourtY"), "Dragged court coordinates must persist through rerenders.");
 assert.ok(source.includes("4.5+(base-50)*.16-(defense-50)*.055"), "The green timing window must scale with shooter attributes and defense.");
-assert.ok(source.includes('proximityBonus=type==="dunk"?4.2:type==="layup"?3.2:type==="mid"?1.2:0'), "Shots closer to the basket should have a wider green timing window.");
+assert.ok(source.includes("function distanceToBasket("), "Shot distance should use actual court coordinates.");
+assert.ok(source.includes("distanceBonus=clamp((42-shotDistance)*.10,-4.5,4.5)"), "The green window should widen as the shooter moves closer to the basket.");
+assert.ok(source.includes("distanceAdjustment=Number.isFinite(Number(shotDistance))"), "Actual shot distance should influence shot success.");
+assert.ok(source.includes("controlledPlayer=receiver"), "Passing should transfer keyboard control to the receiver.");
 assert.ok(source.includes("PASSE RÉUSSIE") && source.includes("receiver"), "A pass must bind the ball handler to the actual receiver.");
 assert.ok(source.includes('TIR DE "+shooter.name'), "Shot feedback should identify the actual shooter.");
 

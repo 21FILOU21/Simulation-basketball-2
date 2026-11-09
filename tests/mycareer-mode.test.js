@@ -238,7 +238,11 @@ assert.match(career, /fatiguePenalty\*\.10/, "Fatigue should have a substantial 
 assert.match(career, /refreshCareerRivalForSeason/, "The rival should be recalculated and introduced every season.");
 assert.match(career, /career\.rivalSeasonNotice/, "Seasonal rival changes should be recorded for the introduction screen.");
 assert.match(career, /const buildConference=conference/, "The playoff bracket should select eight teams per conference.");
-assert.match(career, /careerOverall\(myPlayer\)>=90/, "Elite MyCareer players should not be repeatedly left out of postseason.");
+assert.match(career, /careerLeagueScheduleComplete\(\)/, "Playoffs require the full league regular season.");
+assert.doesNotMatch(career, /careerOverall\(myPlayer\)>=90/, "Playoff qualification must follow standings, not player overall.");
+assert.match(career, /games:result\.games\|\|\[\]/, "Each playoff series should retain game-by-game scores.");
+assert.match(career, /career\.leaderTeamSort/, "MyCareer team leaders should offer sorting.");
+assert.match(career, /playerMetric=\{pts:"pts",reb:"reb",ast:"ast",stl:"stl",blk:"blk",ovr:"ovr",mpg:"mpg",fg:"fg",three:"three",ft:"ft"\}/, "MyCareer player leaders should include shooting and minutes sorting.");
 const opinionBlock = career.slice(career.indexOf("function buildCareerPublicOpinionComments("), career.indexOf("function finishSeason(", career.indexOf("function buildCareerPublicOpinionComments(")));
 assert.equal((opinionBlock.match(/\["(?:GLAZER|HATER|ANALYSTE|FANBASE|MÉDIAS|FAN)",/g) || []).length, 25, "Public opinion should offer 25 distinct comments based on player and season context.");
 

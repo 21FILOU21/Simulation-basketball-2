@@ -4,6 +4,7 @@
   const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
   const rand = () => typeof window.rnd === "function" ? window.rnd() : Math.random();
   const num = (v, fallback = 50) => Number.isFinite(Number(v)) ? Number(v) : fallback;
+  const fatigueSensitiveAttributes = new Set(["speed", "acceleration", "agility", "stamina", "vertical", "strength"]);
   const attr = (p, keys, fallback = 50) => {
     const a = p && p.attributes || {};
     const injury = p && p.injury;
@@ -13,7 +14,10 @@
     for (const key of keys) if (a[key] !== undefined && a[key] !== null && Number.isFinite(Number(a[key]))) {
       const penalty = injury && injury.attributePenalties ? Number(injury.attributePenalties[key]) || 0 : 0;
       const moodBonus = p && p.myCareerMoodModifiers ? Number(p.myCareerMoodModifiers[key]) || 0 : 0;
-      return clamp(Number(a[key]) - penalty * recoveryFactor + moodBonus, 0, 100);
+      const fatigue = clamp(num(p && p.nbaFatigue, 0), 0, 100);
+      const sensitive = fatigueSensitiveAttributes.has(key);
+      const fatiguePenalty = window.NBASimMyCareerSimulationInProgress && p && p.myCareerMoodModifiers ? 0 : fatigue * (sensitive ? .075 : .045);
+      return clamp(Number(a[key]) - penalty * recoveryFactor + moodBonus - fatiguePenalty, 0, 100);
     }
     return fallback;
   };
@@ -195,6 +199,16 @@
       }
     }
   }
+  function updateGameFatigue(side) {
+    side.lines.forEach(line => {
+      const player = line.p, minutes = clamp(num(line.minutes, 0), 0, 48);
+      const stamina = clamp(num(player && player.attributes && player.attributes.stamina, 70), 25, 99);
+      const current = clamp(num(player && player.nbaFatigue, 0), 0, 100);
+      const workload = minutes * (.11 - (stamina - 50) * .0008);
+      const recovery = minutes > 0 ? 2.3 + (stamina - 50) * .025 : 4.5 + (stamina - 50) * .035;
+      player.nbaFatigue = Math.round(clamp(current + workload - recovery, 0, 100) * 10) / 10;
+    });
+  }
   function simulateScheduledGamePossessions(game) {
     if (typeof seasonCalendar === "undefined" || !seasonCalendar || !game || game.status === "completed") return false;
     const teams = new Map(seasonCalendar.teams.map(t => [String(t.scheduleCode || t.code), t]));
@@ -234,6 +248,7 @@
       threeMade:l.threeMade, threeAttempts:l.threeAttempts, ftm:l.ftm, fta:l.fta, minutes:l.minutes, gp:l.gp, pf:l.pf
     }]));
     game.playerBoxScores = { home: pack(home), away: pack(away) };
+    updateGameFatigue(home); updateGameFatigue(away);
     return true;
   }
   if (typeof window.overallRating === "function" && !window.overallRating.__potentialCapped) {
