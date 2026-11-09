@@ -688,32 +688,34 @@ function renderLastBoxScore(){
 }
 function renderCareerLeagueLeaders(){
  const p=playerForCareer();if(!p)return renderDashboard();
- const actual=window.NBASimActualPlayerStats||{},mine=career.seasonStats||{};
- const categories=[
-  ["pts","PPG","Points par match",x=>x.pts],
-  ["reb","RPG","Rebonds par match",x=>x.reb],
-  ["ast","APG","Passes décisives par match",x=>x.ast],
-  ["stl","SPG","Interceptions par match",x=>x.stl],
-  ["blk","BPG","Contres par match",x=>x.blk],
-  ["fg","FG%","Pourcentage au tir",x=>x.fga?x.fgm/x.fga*100:0],
-  ["three","3P%","Pourcentage à trois points",x=>x.threeAttempts?x.threeMade/x.threeAttempts*100:0],
-  ["ft","FT%","Pourcentage aux lancers francs",x=>x.fta?x.ftm/x.fta*100:0]
- ];
- const league=allPlayers().filter(x=>x&&!x.retired&&!x.isRetired).map(player=>{
+ const actual=window.NBASimActualPlayerStats||{},mine=career.seasonStats||{},results=Array.isArray(seasonResults)?seasonResults:[];
+ const teams=(typeof nbaTeams!=="undefined"?nbaTeams:[]).map(t=>({code:String(t[0]),name:String(t[1]),conference:String(t[2]||"—"),custom:false})).concat((typeof customTeams!=="undefined"?customTeams:[]).map(t=>({code:String(t.code),name:String(t.name),conference:String(t.conference||"—"),custom:true})));
+ const teamRows=teams.map(team=>{
+  const result=results.find(row=>String(row.code)===team.code||String(row.scheduleCode)===team.code)||{},wins=Number(result.wins)||0,losses=Number(result.losses)||0,roster=allPlayers().filter(player=>String(player.team)===team.code&&!player.retired&&!player.isRetired),strength=roster.length?Math.round(roster.reduce((sum,player)=>sum+(typeof overallRating==="function"?Number(overallRating(player))||60:60),0)/roster.length):0;
+  return Object.assign({},team,{wins,losses,pct:Number(result.winPct)||((wins+losses)?wins/(wins+losses):0),ppg:Number(result.ppg)||0,apg:Number(result.apg)||0,rpg:Number(result.rpg)||0,spg:Number(result.spg)||0,bpg:Number(result.bpg)||0,strength});
+ }).sort((a,b)=>b.wins-a.wins||a.losses-b.losses||b.strength-a.strength);
+ const league=allPlayers().filter(player=>player&&!player.retired&&!player.isRetired).map(player=>{
   let raw=actual[String(player.id)]||{},gp=Number(raw.gp)||0;
-  if(String(player.id)===String(p.id)&&!gp){raw={pts:mine.pts,reb:mine.reb,ast:mine.ast,stl:mine.stl,blk:mine.blk,minutes:mine.minutes,gp:mine.gp};gp=Number(raw.gp)||0;}
+  if(String(player.id)===String(p.id)&&!gp){raw={pts:mine.pts,reb:mine.reb,ast:mine.ast,stl:mine.stl,blk:mine.blk,minutes:mine.minutes,gp:mine.gp,fgm:mine.fgm,fga:mine.fga,threeMade:mine.threeMade,threeAttempts:mine.threeAttempts,ftm:mine.ftm,fta:mine.fta};gp=Number(raw.gp)||0;}
   if(gp<=0)return null;
-  const total=k=>Number(raw[k])||0;return {player,gp,pts:total("pts")/gp,reb:total("reb")/gp,ast:total("ast")/gp,stl:total("stl")/gp,blk:total("blk")/gp,mpg:total("minutes")/gp,fgm:total("fgm"),fga:total("fga"),threeMade:total("threeMade"),threeAttempts:total("threeAttempts"),ftm:total("ftm"),fta:total("fta")};
+  const total=key=>Number(raw[key])||0;
+  return {player,gp,pts:total("pts")/gp,reb:total("reb")/gp,ast:total("ast")/gp,stl:total("stl")/gp,blk:total("blk")/gp,mpg:total("minutes")/gp,fg:total("fga")?total("fgm")/total("fga")*100:0,three:total("threeAttempts")?total("threeMade")/total("threeAttempts")*100:0,ft:total("fta")?total("ftm")/total("fta")*100:0};
  }).filter(Boolean);
- const markup=categories.map(([key,title,description,selector])=>{
-  const rows=league.map(row=>({player:row.player,gp:row.gp,value:selector(row)})).filter(row=>Number.isFinite(row.value)).sort((a,b)=>b.value-a.value).slice(0,10);
-  const body=rows.map((row,i)=>'<tr class="'+(String(row.player.id)===String(p.id)?"mc-my-team-player":"")+'"><td>'+(i+1)+'</td><td><b>'+escHtml(row.player.name)+'</b></td><td>'+escHtml(careerTeamLabel(row.player.team))+'</td><td><b>'+(["fg","three","ft"].includes(key)?row.value.toFixed(1)+"%":row.value.toFixed(1))+'</b></td><td>'+row.gp+'</td></tr>').join("");
-  return '<section class="mc-card"><h3>'+title+' · '+description+'</h3><div class="mc-table-wrap"><table class="mc-box-table"><thead><tr><th>#</th><th>Joueur</th><th>Équipe</th><th>Moyenne</th><th>MJ</th></tr></thead><tbody>'+body+'</tbody></table></div></section>';
- }).join("");
- render(header("LEAGUE LEADERS","Statistiques réelles · Saison "+seasonName(seasonYear))+(league.length?markup:'<div class="mc-card"><p class="mc-muted">Aucun match n’a encore été comptabilisé dans cette saison.</p></div>')+'<div class="mc-actions"><button class="mc-btn secondary" id="mcLeadersBack">Retour à ma carrière</button></div>');
- attachReturn();$("mcLeadersBack").onclick=renderDashboard;
+ const tab=career.leaderTab==="players"?"players":"teams",sortKey=career.leaderPlayerSort||"pts";
+ const playerMetric={pts:"pts",reb:"reb",ast:"ast",stl:"stl",blk:"blk",ovr:"ovr"}[sortKey]||"pts";
+ const playerRows=league.slice().sort((a,b)=>playerMetric==="ovr"?(careerOverall(b.player)-careerOverall(a.player)):((Number(b[playerMetric])||0)-(Number(a[playerMetric])||0))||careerOverall(b.player)-careerOverall(a.player)).slice(0,15);
+ const teamMarkup='<div class="mc-table-wrap"><table class="mc-box-table"><thead><tr><th>#</th><th>Équipe</th><th>Conf.</th><th>V</th><th>D</th><th>%V</th><th>PPM</th><th>APM</th><th>RPM</th><th>POW</th></tr></thead><tbody>'+teamRows.map((row,index)=>'<tr class="'+(String(row.code)===String(career.teamCode)?"mc-my-team-player":"")+'"><td>'+ (index+1) +'</td><td><b>'+escHtml(row.name)+'</b><small>'+escHtml(row.code)+(row.custom?" · CUSTOM":"")+'</small></td><td>'+escHtml(row.conference)+'</td><td>'+row.wins+'</td><td>'+row.losses+'</td><td>'+(row.pct*100).toFixed(1)+'%</td><td>'+row.ppg.toFixed(1)+'</td><td>'+row.apg.toFixed(1)+'</td><td>'+row.rpg.toFixed(1)+'</td><td>'+row.strength+'</td></tr>').join("")+'</tbody></table></div>';
+ const playerMarkup='<div class="mc-leader-toolbar"><label class="mc-field">Classer par <select id="mcCareerLeaderSort"><option value="pts">Points par match</option><option value="reb">Rebonds par match</option><option value="ast">Passes par match</option><option value="stl">Interceptions par match</option><option value="blk">Contres par match</option><option value="ovr">Puissance (GÉN)</option></select></label></div><div class="mc-table-wrap"><table class="mc-box-table"><thead><tr><th>#</th><th>Joueur</th><th>Équipe</th><th>GÉN</th><th>PPG</th><th>RPG</th><th>APG</th><th>STL</th><th>BLK</th><th>MJ</th></tr></thead><tbody>'+playerRows.map((row,index)=>'<tr class="'+(String(row.player.id)===String(p.id)?"mc-my-team-player":"")+'"><td>'+(index+1)+'</td><td><b>'+escHtml(row.player.name)+'</b><small>'+escHtml(row.player.pos||"—")+'</small></td><td>'+escHtml(careerTeamLabel(row.player.team))+'</td><td>'+careerOverall(row.player)+'</td><td>'+row.pts.toFixed(1)+'</td><td>'+row.reb.toFixed(1)+'</td><td>'+row.ast.toFixed(1)+'</td><td>'+row.stl.toFixed(1)+'</td><td>'+row.blk.toFixed(1)+'</td><td>'+row.gp+'</td></tr>').join("")+'</tbody></table></div>';
+ render(header("LEAGUE LEADERS · MYGM","Classements de la ligue · Saison "+seasonName(seasonYear))+
+  '<div class="mc-card"><div class="mc-actions"><button class="mc-btn '+(tab==="teams"?"primary":"secondary")+'" id="mcLeaderTeams">Team Leaders · Équipes</button><button class="mc-btn '+(tab==="players"?"primary":"secondary")+'" id="mcLeaderPlayers">Player Leaders · Joueurs</button></div>'+
+  (tab==="teams"?'<h3>Classement des équipes</h3>'+teamMarkup:'<h3>Classement des joueurs</h3>'+playerMarkup)+
+  '<div class="mc-actions"><button class="mc-btn secondary" id="mcLeadersBack">Retour à ma carrière</button></div></div>');
+ attachReturn();
+ $("mcLeaderTeams").onclick=()=>{career.leaderTab="teams";saveCareer();renderCareerLeagueLeaders();};
+ $("mcLeaderPlayers").onclick=()=>{career.leaderTab="players";saveCareer();renderCareerLeagueLeaders();};
+ if($("mcCareerLeaderSort")){$("mcCareerLeaderSort").value=sortKey;$("mcCareerLeaderSort").onchange=()=>{career.leaderPlayerSort=$("mcCareerLeaderSort").value;saveCareer();renderCareerLeagueLeaders();};}
+ $("mcLeadersBack").onclick=renderDashboard;
 }
-
 function renderCareerTeam(){
  const p=playerForCareer();if(!p)return renderDashboard();
  const teamMeta=(typeof nbaTeams!=="undefined"?nbaTeams:[]).find(team=>String(team[0])===String(career.teamCode));
