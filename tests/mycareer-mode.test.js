@@ -53,9 +53,9 @@ const storyMatch = career.match(/const stories=(\[[\s\S]*?\]);\s*stories\.push\(
 assert.ok(storyMatch, "The MyCareer story library should be a JSON-compatible array.");
 const storyLibrary = JSON.parse(storyMatch[1]);
 const storyExtensionCount = (storyMatch[2].match(/\{title:/g) || []).length;
-assert.ok(storyLibrary.length + storyExtensionCount >= 32, "There should be at least 32 different story events after the new story pack.");
-assert.equal(storyExtensionCount, 6, "The new story pack should add six events.");
-assert.equal((storyMatch[2].match(/choices:\[/g) || []).length, 6, "Each added event should include its own choices.");
+assert.ok(storyLibrary.length + storyExtensionCount >= 33, "There should be at least 33 different story events after the new story pack.");
+assert.equal(storyExtensionCount, 7, "The new story pack should add seven events, including the extreme injury event.");
+assert.equal((storyMatch[2].match(/choices:\[/g) || []).length, 7, "Each added event should include its own choices.");
 assert.ok(storyLibrary.every(story => story.choices.length >= 3), "Each story should offer at least three choices.");
 assert.ok(storyLibrary.every(story => new Set(story.choices.map(choice => choice.label)).size === story.choices.length), "Story choices should be distinct.");
 
@@ -87,13 +87,13 @@ domReady();
 assert.equal(typeof window.NBASimMyCareerXPRequired, "function");
 assert.equal(typeof window.NBASimMyCareerXPFromStats, "function");
 assert.equal(window.NBASimMyCareerXPRequired(90), 531, "At 90 OVR, the next attribute point should require about five solid games.");
-assert.equal(window.NBASimMyCareerStoryCount, 32, "MyCareer should expose all 32 story events.");
+assert.equal(window.NBASimMyCareerStoryCount, 33, "MyCareer should expose all 33 story events.");
 assert.equal(typeof window.NBASimMyCareerStoryOutcome, "function", "Story outcomes should be independently testable.");
 const highRiskStory = window.NBASimMyCareerStoryOutcome(26, 0, {e:{}});
 assert.equal(highRiskStory.attributes.clutch, 4, "A high-reward story choice must apply all four attribute points.");
 assert.equal(highRiskStory.social.emotions, 4, "A high-reward story choice must apply all four social points.");
 assert.equal(highRiskStory.capIncrease.clutch, 2, "A high-reward story choice must raise the attribute ceiling by two.");
-assert.equal(highRiskStory.injuryRisk, 18, "High-intensity choices must carry a visible injury risk.");
+assert.equal(highRiskStory.injuryRisk, 18, "High-intensity choices must carry a visible injury risk.");\nconst catastrophicChoice = window.NBASimMyCareerStoryOutcome(32, 0, {e:{}});\nassert.equal(catastrophicChoice.careerEnding, true, "The extreme story choice must explicitly carry a career-ending injury possibility.");\nassert.equal(catastrophicChoice.injuryRisk, 95, "The extreme story choice must have a very high injury risk before durability mitigation.");\nassert.match(career, /-durability\\*\\.35/, "Durability must reduce story injury risk.");\nassert.match(career, /career-retirement|career-ending/, "MyCareer must support a career-ending injury state.");
 assert.equal(typeof window.NBASimMyCareerBuildSaveSnapshot, "function", "MyCareer should expose its complete save snapshot builder.");
 const averageLine = {pts:20,reb:5,ast:5,stl:1,blk:0.5,minutes:32,tov:2};
 const averageXp = window.NBASimMyCareerXPFromStats(averageLine, true);
